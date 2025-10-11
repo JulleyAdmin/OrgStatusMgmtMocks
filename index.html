@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Mockups - AI-Powered Organizational Hierarchy Platform</title>
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: var(--space-8) var(--space-4);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: var(--space-12);
+            padding: var(--space-12) var(--space-6);
+        }
+
+        .hero h1 {
+            font-size: var(--text-5xl);
+            font-weight: var(--font-bold);
+            margin-bottom: var(--space-4);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero p {
+            font-size: var(--text-xl);
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto var(--space-6);
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            display: block;
+            margin-bottom: var(--space-1);
+        }
+
+        .stat-label {
+            font-size: var(--text-sm);
+            opacity: 0.9;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: var(--space-8);
+            margin-bottom: var(--space-6);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-4);
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        .section-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+        }
+
+        .section-badge {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+        }
+
+        .screen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: var(--space-5);
+        }
+
+        .screen-card {
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-5);
+            transition: all 200ms ease;
+            cursor: pointer;
+            background: var(--bg-primary);
+        }
+
+        .screen-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-300);
+        }
+
+        .screen-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: var(--space-3);
+        }
+
+        .screen-icon {
+            font-size: var(--text-3xl);
+            margin-right: var(--space-3);
+        }
+
+        .screen-info {
+            flex: 1;
+        }
+
+        .screen-title {
+            font-size: var(--text-lg);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .screen-subtitle {
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        .screen-description {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+            line-height: 1.5;
+        }
+
+        .screen-meta {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            font-size: var(--text-xs);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-weight: var(--font-medium);
+        }
+
+        .priority-0 {
+            background: var(--error-100);
+            color: var(--error-700);
+        }
+
+        .priority-1 {
+            background: var(--warning-100);
+            color: var(--warning-700);
+        }
+
+        .priority-2 {
+            background: var(--info-100);
+            color: var(--info-700);
+        }
+
+        .priority-3 {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .tech-tag {
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: var(--space-12);
+            padding: var(--space-8) var(--space-4);
+        }
+
+        .footer p {
+            opacity: 0.9;
+            margin-bottom: var(--space-2);
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .screen-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: var(--text-3xl);
+            }
+
+            .hero p {
+                font-size: var(--text-base);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>🎨 HTML Mockups Library</h1>
+            <p>Interactive, production-ready HTML mockups for the AI-Powered Organizational Hierarchy Platform. Built with vanilla HTML, CSS, and JavaScript using a comprehensive design system.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">20</span>
+                    <span class="stat-label">Total Screens</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Complete</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">29</span>
+                    <span class="stat-label">Epics Covered</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">52+</span>
+                    <span class="stat-label">Features</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Screens (P0) -->
+        <div class="content-card">
+            <div class="section-header">
+                <h2 class="section-title">🎯 Core Screens (Priority 0)</h2>
+                <span class="section-badge">4 Screens</span>
+            </div>
+            <div class="screen-grid">
+                <a href="screens/01-dashboard.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📊</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Dashboard Hub</div>
+                            <div class="screen-subtitle">01-dashboard.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        KPIs, charts, task lists, and activity feed. Features Chart.js visualizations with real-time metrics and priority task management.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-0">P0 - Critical</span>
+                        <span class="meta-tag tech-tag">Chart.js</span>
+                    </div>
+                </a>
+
+                <a href="screens/02-org-chart.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">🌳</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Org Chart Canvas</div>
+                            <div class="screen-subtitle">02-org-chart.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Interactive D3.js tree visualization with 50 positions across 5 departments. Includes zoom, pan, search, and position detail panel.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-0">P0 - Critical</span>
+                        <span class="meta-tag tech-tag">D3.js v7</span>
+                    </div>
+                </a>
+
+                <a href="screens/03-workflow-designer.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">⚙️</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Workflow Designer</div>
+                            <div class="screen-subtitle">03-workflow-designer.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Visual drag-drop workflow builder with 25+ node types. Features canvas controls, properties panel, and workflow testing capabilities.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-0">P0 - Critical</span>
+                        <span class="meta-tag tech-tag">React Flow</span>
+                    </div>
+                </a>
+
+                <a href="screens/04-task-center.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📋</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Task Command Center</div>
+                            <div class="screen-subtitle">04-task-center.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Advanced task management with faceted filters, smart search, bulk actions, and task detail modal. 18 mock tasks with full metadata.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-0">P0 - Critical</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Essential Features (P1) -->
+        <div class="content-card">
+            <div class="section-header">
+                <h2 class="section-title">⚡ Essential Features (Priority 1)</h2>
+                <span class="section-badge">5 Screens</span>
+            </div>
+            <div class="screen-grid">
+                <a href="screens/05-calendar.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📅</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Calendar & Scheduling</div>
+                            <div class="screen-subtitle">05-calendar.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        FullCalendar.js integration with 100+ events. Multi-view support, drag-drop rescheduling, event detail panel, and calendar sources.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-1">P1 - Essential</span>
+                        <span class="meta-tag tech-tag">FullCalendar 6.1</span>
+                    </div>
+                </a>
+
+                <a href="screens/06-projects.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📂</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Project Portfolio</div>
+                            <div class="screen-subtitle">06-projects.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Multi-view project management: Gantt, Kanban, Table, Timeline. 15 projects with dependencies, budget tracking, and team allocation.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-1">P1 - Essential</span>
+                        <span class="meta-tag tech-tag">dhtmlxGantt</span>
+                    </div>
+                </a>
+
+                <a href="screens/08-templates.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📑</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Template Gallery</div>
+                            <div class="screen-subtitle">08-templates.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Template marketplace with 12 pre-built templates. Category filters, search, star/favorite, and preview modal with workflow visualization.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-1">P1 - Essential</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+
+                <a href="screens/13-notifications.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">🔔</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Notifications Center</div>
+                            <div class="screen-subtitle">13-notifications.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Unified notification inbox with 100+ notifications across 10 types. Filter tabs, date grouping, preferences modal, and multi-channel settings.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-1">P1 - Essential</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+
+                <a href="screens/14-search.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">🔍</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Global Search & Command Palette</div>
+                            <div class="screen-subtitle">14-search.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Universal search with Cmd+K activation. 1000+ searchable items, command mode, keyboard shortcuts hub, and fuzzy matching.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-1">P1 - Essential</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Advanced Features (P2) -->
+        <div class="content-card">
+            <div class="section-header">
+                <h2 class="section-title">🚀 Advanced Features (Priority 2)</h2>
+                <span class="section-badge">6 Screens</span>
+            </div>
+            <div class="screen-grid">
+                <a href="screens/07-compliance.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">✅</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Compliance Control Room</div>
+                            <div class="screen-subtitle">07-compliance.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Compliance dashboard with risk matrix, audit schedule, policy tracking, and framework compliance (SOC 2, ISO 27001, GDPR, HIPAA).
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-2">P2 - Advanced</span>
+                        <span class="meta-tag tech-tag">Chart.js</span>
+                    </div>
+                </a>
+
+                <a href="screens/09-integrations.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">🔌</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Integrations Marketplace</div>
+                            <div class="screen-subtitle">09-integrations.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        50+ third-party integrations marketplace. OAuth connections, webhook manager, API keys manager, and integration activity logs.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-2">P2 - Advanced</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+
+                <a href="screens/10-time-tracking.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">⏱️</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Time Tracking & Timesheets</div>
+                            <div class="screen-subtitle">10-time-tracking.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Global timer widget, daily/weekly/calendar views, timesheet approval workflow, and time reports with billable hours tracking.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-2">P2 - Advanced</span>
+                        <span class="meta-tag tech-tag">Chart.js</span>
+                    </div>
+                </a>
+
+                <a href="screens/11-audit-log.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📜</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Audit Log Viewer</div>
+                            <div class="screen-subtitle">11-audit-log.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Immutable audit trail with 500+ entries. Advanced filtering, cryptographic verification, compliance exports, and tamper-proof logging.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-2">P2 - Advanced</span>
+                        <span class="meta-tag tech-tag">Flatpickr</span>
+                    </div>
+                </a>
+
+                <a href="screens/12-documents.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📄</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Document Management</div>
+                            <div class="screen-subtitle">12-documents.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Document library with folder tree, grid/list/table views, document preview modal, version history, and approval workflows.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-2">P2 - Advanced</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+
+                <a href="screens/15-reports.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📈</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Custom Reports & Export Hub</div>
+                            <div class="screen-subtitle">15-reports.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Drag-drop report builder with 12 sample reports. Multiple export formats (PDF, Excel, CSV), scheduled delivery, and report sharing.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-2">P2 - Advanced</span>
+                        <span class="meta-tag tech-tag">Chart.js</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Support & Configuration (P3) -->
+        <div class="content-card">
+            <div class="section-header">
+                <h2 class="section-title">⚙️ Support & Configuration (Priority 3)</h2>
+                <span class="section-badge">2 Screens</span>
+            </div>
+            <div class="screen-grid">
+                <a href="screens/16-help-center.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">❓</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Help Center & Support</div>
+                            <div class="screen-subtitle">16-help-center.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Knowledge base with 50+ articles, 10 video tutorials, FAQ section, support ticket system, live chat widget, and system status page.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-3">P3 - Support</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+
+                <a href="screens/20-settings.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">⚙️</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Personal Settings Hub</div>
+                            <div class="screen-subtitle">20-settings.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        User preferences with 9 settings sections: Profile, Account, Appearance, Notifications, Privacy, Language, Security, Integrations, API Keys.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-3">P3 - Support</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Authentication Screens -->
+        <div class="content-card">
+            <div class="section-header">
+                <h2 class="section-title">🔐 Authentication Screens</h2>
+                <span class="section-badge">3 Screens</span>
+            </div>
+            <div class="screen-grid">
+                <a href="screens/17-login.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">🔑</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Login Screen</div>
+                            <div class="screen-subtitle">17-login.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Professional login with split layout, email/password authentication, SSO options (Google, Microsoft, Okta, SAML), and form validation.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-0">Authentication</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+
+                <a href="screens/18-sso.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">🌐</div>
+                        <div class="screen-info">
+                            <div class="screen-title">SSO Selection</div>
+                            <div class="screen-subtitle">18-sso.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Enterprise SSO flow with domain detection, provider cards (Google, Microsoft, Okta, OneLogin, SAML), and OAuth integration.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-0">Authentication</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+
+                <a href="screens/19-password-reset.html" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">🔓</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Password Reset</div>
+                            <div class="screen-subtitle">19-password-reset.html</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Three-state password reset flow: Request reset, Check email, Set new password. Includes password strength indicator and requirements checklist.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag priority-0">Authentication</span>
+                        <span class="meta-tag tech-tag">Vanilla JS</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Documentation -->
+        <div class="content-card">
+            <div class="section-header">
+                <h2 class="section-title">📚 Documentation & Specifications</h2>
+                <span class="section-badge">4 Documents</span>
+            </div>
+            <div class="screen-grid">
+                <a href="../mockups/HTML_MOCKUP_SPECIFICATION.md" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📖</div>
+                        <div class="screen-info">
+                            <div class="screen-title">HTML Mockup Specification</div>
+                            <div class="screen-subtitle">~10,000 words</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Complete specifications for all 20 screens including design system, technical stack, screen layouts, interaction patterns, and build sequence.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag tech-tag">Markdown</span>
+                    </div>
+                </a>
+
+                <a href="../mockups/ADDITIONAL_CAPABILITIES_SPEC.md" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📋</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Additional Capabilities Spec</div>
+                            <div class="screen-subtitle">~15,000 words</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Detailed specifications for 9 enterprise capabilities: Documents, Notifications, Search, Reports, Integrations, Time Tracking, Audit, Help, Settings.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag tech-tag">Markdown</span>
+                    </div>
+                </a>
+
+                <a href="../mockups/CAPABILITIES_ENHANCEMENT_SUMMARY.md" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📊</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Enhancement Summary</div>
+                            <div class="screen-subtitle">Impact Assessment</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Executive summary of platform enhancements: 11→20 screens, 33→52 functional requirements, 20→29 epics, 4-phase roadmap.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag tech-tag">Markdown</span>
+                    </div>
+                </a>
+
+                <a href="../mockups/prd-revised.md" class="screen-card">
+                    <div class="screen-header">
+                        <div class="screen-icon">📝</div>
+                        <div class="screen-info">
+                            <div class="screen-title">Product Requirements Document</div>
+                            <div class="screen-subtitle">Version 1.3</div>
+                        </div>
+                    </div>
+                    <div class="screen-description">
+                        Comprehensive PRD with 52+ functional requirements, 29 epics, 150+ user stories, and 21-month roadmap across 4 phases.
+                    </div>
+                    <div class="screen-meta">
+                        <span class="meta-tag tech-tag">Markdown</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>AI-Powered Organizational Hierarchy Platform</strong></p>
+            <p>HTML Mockups Library | Version 1.0 | January 2025</p>
+            <p>Built with vanilla HTML, CSS, and JavaScript | Design System: Inter font, 8-point grid, semantic colors</p>
+            <p>Libraries: D3.js v7, FullCalendar.js 6.1.10, Chart.js 4.4.1, dhtmlxGantt, SortableJS, Flatpickr</p>
+        </div>
+    </div>
+</body>
+</html>

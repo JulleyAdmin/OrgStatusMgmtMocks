@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Designer - AI Org Platform</title>
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="../assets/css/design-system.css">
+
+  <!-- React Flow CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reactflow@11.10.0/dist/style.css">
+
+  <style>
+    /* Layout Structure */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .workflow-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: var(--bg-secondary);
+    }
+
+    /* Top Header Bar */
+    .workflow-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-6);
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      gap: var(--space-4);
+      min-height: 72px;
+    }
+
+    .workflow-title-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex: 1;
+    }
+
+    .workflow-name-input {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-semibold);
+      border: 2px solid transparent;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      background-color: transparent;
+      transition: all var(--transition-base);
+      min-width: 300px;
+    }
+
+    .workflow-name-input:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    .workflow-name-input:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      background-color: var(--bg-primary);
+    }
+
+    .workflow-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-500);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-600);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--neutral-200);
+    }
+
+    .btn-outline {
+      border-color: var(--border-color);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--bg-secondary);
+    }
+
+    .btn-icon {
+      padding: var(--space-2);
+      width: 36px;
+      height: 36px;
+      justify-content: center;
+    }
+
+    /* Main Content Area */
+    .workflow-main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar - Node Palette */
+    .node-palette {
+      width: 280px;
+      background-color: var(--bg-primary);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .palette-section {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .palette-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4);
+      background-color: var(--bg-secondary);
+      cursor: pointer;
+      user-select: none;
+      font-weight: var(--font-semibold);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+    }
+
+    .palette-header:hover {
+      background-color: var(--neutral-100);
+    }
+
+    .palette-content {
+      padding: var(--space-3);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+
+    .palette-content.collapsed {
+      display: none;
+    }
+
+    .node-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: grab;
+      transition: all var(--transition-base);
+      user-select: none;
+    }
+
+    .node-card:hover {
+      border-color: var(--primary-500);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .node-card:active {
+      cursor: grabbing;
+    }
+
+    .node-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .node-info {
+      flex: 1;
+    }
+
+    .node-name {
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .node-desc {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+
+    /* Canvas Area */
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      background-color: var(--bg-secondary);
+      background-image:
+        radial-gradient(circle, var(--neutral-300) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    #workflow-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Canvas Controls */
+    .canvas-controls {
+      position: absolute;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      z-index: 10;
+    }
+
+    .control-group {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .control-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+
+    .control-btn:hover {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .zoom-display {
+      padding: var(--space-1);
+      text-align: center;
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      font-weight: var(--font-medium);
+    }
+
+    /* Minimap */
+    .minimap-container {
+      position: absolute;
+      bottom: var(--space-4);
+      left: var(--space-4);
+      width: 200px;
+      height: 140px;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+    }
+
+    .minimap-header {
+      padding: var(--space-2);
+      background-color: var(--bg-secondary);
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .minimap-canvas {
+      width: 100%;
+      height: calc(100% - 28px);
+      background-color: var(--bg-secondary);
+      position: relative;
+    }
+
+    /* Properties Panel (Bottom) */
+    .properties-panel {
+      position: absolute;
+      bottom: 0;
+      left: 280px;
+      right: 0;
+      height: 0;
+      background-color: var(--bg-primary);
+      border-top: 1px solid var(--border-color);
+      transition: height var(--transition-base);
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .properties-panel.open {
+      height: 350px;
+    }
+
+    .properties-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--bg-secondary);
+    }
+
+    .properties-title {
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .properties-tabs {
+      display: flex;
+      gap: var(--space-2);
+      padding: 0 var(--space-4);
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .properties-tab {
+      padding: var(--space-3) var(--space-4);
+      background-color: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+
+    .properties-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .properties-tab.active {
+      color: var(--primary-600);
+      border-bottom-color: var(--primary-600);
+    }
+
+    .properties-content {
+      padding: var(--space-6);
+      overflow-y: auto;
+      height: calc(100% - 120px);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: all var(--transition-fast);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: var(--space-2);
+      justify-content: flex-end;
+      margin-top: var(--space-6);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Workflow Nodes on Canvas */
+    .custom-node {
+      background-color: var(--bg-primary);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      min-width: 220px;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+    }
+
+    .custom-node:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .custom-node.selected {
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .custom-node.error {
+      border-color: var(--error-500);
+    }
+
+    .node-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .node-type-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .node-title {
+      flex: 1;
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .node-menu {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .node-menu:hover {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .node-body {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* Modals */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--bg-primary);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-2xl);
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: var(--space-6);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-2);
+      padding: var(--space-6);
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Utility Classes */
+    .icon {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    .icon-sm {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Color Classes for Node Types */
+    .color-trigger { background-color: #EFF6FF; }
+    .color-action { background-color: #ECFDF5; }
+    .color-logic { background-color: #FEF3C7; }
+    .color-approval { background-color: #FCE7F3; }
+    .color-notification { background-color: #EDE9FE; }
+    .color-end { background-color: #F3F4F6; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .node-palette {
+        width: 240px;
+      }
+
+      .properties-panel.open {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .workflow-header {
+        flex-wrap: wrap;
+        min-height: auto;
+      }
+
+      .node-palette {
+        position: absolute;
+        left: -280px;
+        z-index: 100;
+        transition: left var(--transition-base);
+      }
+
+      .node-palette.open {
+        left: 0;
+      }
+
+      .properties-panel {
+        left: 0;
+      }
+
+      .minimap-container {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="workflow-container">
+    <!-- Header -->
+    <header class="workflow-header">
+      <div class="workflow-title-section">
+        <input
+          type="text"
+          class="workflow-name-input"
+          value="Employee Onboarding Workflow"
+          placeholder="Untitled Workflow"
+        >
+        <span class="status-badge status-draft">Draft</span>
+      </div>
+
+      <div class="workflow-actions">
+        <button class="btn btn-outline" id="saveBtn">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+          </svg>
+          Save Draft
+        </button>
+
+        <button class="btn btn-secondary" id="testBtn">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Test
+        </button>
+
+        <button class="btn btn-primary" id="publishBtn">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Publish
+        </button>
+
+        <button class="btn btn-icon btn-outline" id="moreBtn">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="workflow-main">
+      <!-- Left Sidebar - Node Palette -->
+      <aside class="node-palette" id="nodePalette">
+        <!-- Triggers Section -->
+        <div class="palette-section">
+          <div class="palette-header" onclick="toggleSection(this)">
+            <span>🎯 Triggers</span>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="palette-content">
+            <div class="node-card" draggable="true" data-node-type="trigger">
+              <div class="node-icon color-trigger">⚡</div>
+              <div class="node-info">
+                <div class="node-name">Manual Trigger</div>
+                <div class="node-desc">Start manually</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="trigger">
+              <div class="node-icon color-trigger">⏰</div>
+              <div class="node-info">
+                <div class="node-name">Schedule</div>
+                <div class="node-desc">Run on schedule</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="trigger">
+              <div class="node-icon color-trigger">🔗</div>
+              <div class="node-info">
+                <div class="node-name">Webhook</div>
+                <div class="node-desc">External trigger</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="trigger">
+              <div class="node-icon color-trigger">📝</div>
+              <div class="node-info">
+                <div class="node-name">Form Submit</div>
+                <div class="node-desc">On form submission</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="palette-section">
+          <div class="palette-header" onclick="toggleSection(this)">
+            <span>⚡ Actions</span>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="palette-content">
+            <div class="node-card" draggable="true" data-node-type="action">
+              <div class="node-icon color-action">✅</div>
+              <div class="node-info">
+                <div class="node-name">Create Task</div>
+                <div class="node-desc">Create new task</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="action">
+              <div class="node-icon color-action">🔄</div>
+              <div class="node-info">
+                <div class="node-name">Update Task</div>
+                <div class="node-desc">Modify task</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="action">
+              <div class="node-icon color-action">👤</div>
+              <div class="node-info">
+                <div class="node-name">Assign To</div>
+                <div class="node-desc">Assign task</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="action">
+              <div class="node-icon color-action">📄</div>
+              <div class="node-info">
+                <div class="node-name">Create Document</div>
+                <div class="node-desc">Generate document</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="action">
+              <div class="node-icon color-action">🔌</div>
+              <div class="node-info">
+                <div class="node-name">API Call</div>
+                <div class="node-desc">External API</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logic Section -->
+        <div class="palette-section">
+          <div class="palette-header" onclick="toggleSection(this)">
+            <span>🔀 Logic</span>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="palette-content">
+            <div class="node-card" draggable="true" data-node-type="logic">
+              <div class="node-icon color-logic">🔀</div>
+              <div class="node-info">
+                <div class="node-name">Condition</div>
+                <div class="node-desc">If/Then/Else</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="logic">
+              <div class="node-icon color-logic">⚡</div>
+              <div class="node-info">
+                <div class="node-name">Switch</div>
+                <div class="node-desc">Multiple paths</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="logic">
+              <div class="node-icon color-logic">🔁</div>
+              <div class="node-info">
+                <div class="node-name">Loop</div>
+                <div class="node-desc">Iterate items</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="logic">
+              <div class="node-icon color-logic">⏸️</div>
+              <div class="node-info">
+                <div class="node-name">Wait</div>
+                <div class="node-desc">Delay execution</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="logic">
+              <div class="node-icon color-logic">🔀</div>
+              <div class="node-info">
+                <div class="node-name">Parallel</div>
+                <div class="node-desc">Run in parallel</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="logic">
+              <div class="node-icon color-logic">🔗</div>
+              <div class="node-info">
+                <div class="node-name">Merge</div>
+                <div class="node-desc">Combine paths</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approvals Section -->
+        <div class="palette-section">
+          <div class="palette-header" onclick="toggleSection(this)">
+            <span>✅ Approvals</span>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="palette-content">
+            <div class="node-card" draggable="true" data-node-type="approval">
+              <div class="node-icon color-approval">👤</div>
+              <div class="node-info">
+                <div class="node-name">Single Approver</div>
+                <div class="node-desc">One approver</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="approval">
+              <div class="node-icon color-approval">👥</div>
+              <div class="node-info">
+                <div class="node-name">Multi Approver</div>
+                <div class="node-desc">Any/All approve</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="approval">
+              <div class="node-icon color-approval">🔢</div>
+              <div class="node-info">
+                <div class="node-name">Sequential</div>
+                <div class="node-desc">Approve in order</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div class="palette-section">
+          <div class="palette-header" onclick="toggleSection(this)">
+            <span>🔔 Notifications</span>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="palette-content">
+            <div class="node-card" draggable="true" data-node-type="notification">
+              <div class="node-icon color-notification">📧</div>
+              <div class="node-info">
+                <div class="node-name">Email</div>
+                <div class="node-desc">Send email</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="notification">
+              <div class="node-icon color-notification">🔔</div>
+              <div class="node-info">
+                <div class="node-name">In-App</div>
+                <div class="node-desc">Push notification</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="notification">
+              <div class="node-icon color-notification">💬</div>
+              <div class="node-info">
+                <div class="node-name">Slack</div>
+                <div class="node-desc">Slack message</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- End Section -->
+        <div class="palette-section">
+          <div class="palette-header" onclick="toggleSection(this)">
+            <span>🎬 End</span>
+            <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="palette-content">
+            <div class="node-card" draggable="true" data-node-type="end">
+              <div class="node-icon color-end">✅</div>
+              <div class="node-info">
+                <div class="node-name">Success</div>
+                <div class="node-desc">Complete success</div>
+              </div>
+            </div>
+            <div class="node-card" draggable="true" data-node-type="end">
+              <div class="node-icon color-end">❌</div>
+              <div class="node-info">
+                <div class="node-name">Error</div>
+                <div class="node-desc">End with error</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Canvas Area -->
+      <div class="canvas-container">
+        <div id="workflow-canvas"></div>
+
+        <!-- Canvas Controls -->
+        <div class="canvas-controls">
+          <div class="control-group">
+            <button class="control-btn" id="zoomInBtn" title="Zoom In">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+            <div class="zoom-display" id="zoomDisplay">100%</div>
+            <button class="control-btn" id="zoomOutBtn" title="Zoom Out">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4" />
+              </svg>
+            </button>
+            <button class="control-btn" id="fitViewBtn" title="Fit View">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="control-group">
+            <button class="control-btn" id="autoLayoutBtn" title="Auto Layout">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Minimap -->
+        <div class="minimap-container">
+          <div class="minimap-header">Overview</div>
+          <div class="minimap-canvas">
+            <svg width="100%" height="100%">
+              <rect x="20" y="10" width="160" height="110" fill="var(--primary-100)" opacity="0.3" />
+              <circle cx="40" cy="20" r="3" fill="var(--primary-500)" />
+              <circle cx="100" cy="20" r="3" fill="var(--success-500)" />
+              <circle cx="160" cy="20" r="3" fill="var(--warning-500)" />
+              <circle cx="40" cy="50" r="3" fill="var(--primary-500)" />
+              <circle cx="100" cy="50" r="3" fill="var(--success-500)" />
+              <circle cx="100" cy="90" r="3" fill="var(--neutral-500)" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Properties Panel -->
+    <div class="properties-panel" id="propertiesPanel">
+      <div class="properties-header">
+        <div class="properties-title" id="propertiesTitle">Node Properties</div>
+        <button class="modal-close" onclick="closeProperties()">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="properties-tabs">
+        <button class="properties-tab active" data-tab="configuration">Configuration</button>
+        <button class="properties-tab" data-tab="conditions">Conditions</button>
+        <button class="properties-tab" data-tab="advanced">Advanced</button>
+      </div>
+
+      <div class="properties-content" id="propertiesContent">
+        <div class="form-group">
+          <label class="form-label">Task Title</label>
+          <input type="text" class="form-input" placeholder="Enter task title" value="Setup employee account">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" placeholder="Enter description">Create accounts in all company systems (email, Slack, HR portal)</textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-select">
+            <option value="high" selected>High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Assign To</label>
+          <select class="form-select">
+            <option value="">Select position or person</option>
+            <option value="it-admin" selected>IT Administrator</option>
+            <option value="hr-manager">HR Manager</option>
+            <option value="team-lead">Team Lead</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input type="text" class="form-input" placeholder="e.g., +3 days" value="+1 day">
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-secondary" onclick="closeProperties()">Cancel</button>
+          <button class="btn btn-primary">Apply Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test Workflow Modal -->
+  <div class="modal" id="testModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Test Workflow</h2>
+        <button class="modal-close" onclick="closeModal('testModal')">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Test Scenario</label>
+          <select class="form-select">
+            <option>New Employee - Standard Onboarding</option>
+            <option>New Employee - Remote Worker</option>
+            <option>New Employee - Executive Level</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Employee Name</label>
+          <input type="text" class="form-input" placeholder="John Doe" value="Sarah Johnson">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-select">
+            <option>Engineering</option>
+            <option selected>Marketing</option>
+            <option>Sales</option>
+            <option>Operations</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Execution Speed</label>
+          <select class="form-select">
+            <option selected>Fast (Simulated)</option>
+            <option>Real-time</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('testModal')">Cancel</button>
+        <button class="btn btn-primary">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Start Test
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Publish Confirmation Modal -->
+  <div class="modal" id="publishModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Publish Workflow</h2>
+        <button class="modal-close" onclick="closeModal('publishModal')">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">
+          You are about to publish "Employee Onboarding Workflow". This will make it active and available for use.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Version Notes</label>
+          <textarea class="form-textarea" placeholder="Describe what changed in this version">Initial version with basic onboarding steps</textarea>
+        </div>
+
+        <div style="background-color: var(--info-50); padding: var(--space-4); border-radius: var(--radius-md); border-left: 4px solid var(--info-500);">
+          <p style="color: var(--text-primary); font-size: var(--text-sm); margin: 0;">
+            <strong>Note:</strong> Publishing will activate this workflow. Any existing drafts will be replaced.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('publishModal')">Cancel</button>
+        <button class="btn btn-primary">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Publish Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // Sample workflow data
+    const sampleWorkflows = {
+      'employee-onboarding': {
+        name: 'Employee Onboarding Workflow',
+        nodes: [
+          { id: '1', type: 'start', label: 'START', x: 100, y: 50 },
+          { id: '2', type: 'action', label: 'Setup IT Accounts', description: 'Create email, Slack, and system access', x: 100, y: 150 },
+          { id: '3', type: 'action', label: 'Assign Equipment', description: 'Laptop, phone, access cards', x: 100, y: 250 },
+          { id: '4', type: 'condition', label: 'Remote Worker?', description: 'Check if employee is remote', x: 100, y: 350 },
+          { id: '5', type: 'action', label: 'Ship Equipment', description: 'Send to home address', x: 250, y: 450 },
+          { id: '6', type: 'action', label: 'Schedule Pickup', description: 'Office pickup scheduled', x: -50, y: 450 },
+          { id: '7', type: 'notification', label: 'Notify Manager', description: 'Send setup complete email', x: 100, y: 550 },
+          { id: '8', type: 'approval', label: 'Manager Approval', description: 'Approve onboarding complete', x: 100, y: 650 },
+          { id: '9', type: 'end', label: 'SUCCESS', x: 100, y: 750 }
+        ],
+        connections: [
+          { from: '1', to: '2' },
+          { from: '2', to: '3' },
+          { from: '3', to: '4' },
+          { from: '4', to: '5', label: 'Yes' },
+          { from: '4', to: '6', label: 'No' },
+          { from: '5', to: '7' },
+          { from: '6', to: '7' },
+          { from: '7', to: '8' },
+          { from: '8', to: '9' }
+        ]
+      }
+    };
+
+    // Initialize canvas with sample workflow
+    let currentWorkflow = sampleWorkflows['employee-onboarding'];
+    let zoom = 1;
+    let selectedNode = null;
+
+    function renderWorkflow() {
+      const canvas = document.getElementById('workflow-canvas');
+      canvas.innerHTML = '';
+
+      // Create SVG for connections
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.style.position = 'absolute';
+      svg.style.top = '0';
+      svg.style.left = '0';
+      svg.style.width = '100%';
+      svg.style.height = '100%';
+      svg.style.pointerEvents = 'none';
+      canvas.appendChild(svg);
+
+      // Render connections
+      currentWorkflow.connections.forEach(conn => {
+        const fromNode = currentWorkflow.nodes.find(n => n.id === conn.from);
+        const toNode = currentWorkflow.nodes.find(n => n.id === conn.to);
+
+        if (fromNode && toNode) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          const fromX = fromNode.x + 110;
+          const fromY = fromNode.y + 80;
+          const toX = toNode.x + 110;
+          const toY = toNode.y;
+
+          const d = `M ${fromX} ${fromY} L ${toX} ${toY}`;
+          line.setAttribute('d', d);
+          line.setAttribute('stroke', '#9CA3AF');
+          line.setAttribute('stroke-width', '2');
+          line.setAttribute('fill', 'none');
+          line.setAttribute('marker-end', 'url(#arrowhead)');
+          svg.appendChild(line);
+
+          // Add label if exists
+          if (conn.label) {
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', (fromX + toX) / 2);
+            text.setAttribute('y', (fromY + toY) / 2 - 5);
+            text.setAttribute('fill', '#6B7280');
+            text.setAttribute('font-size', '12');
+            text.setAttribute('text-anchor', 'middle');
+            text.textContent = conn.label;
+            svg.appendChild(text);
+          }
+        }
+      });
+
+      // Add arrow marker definition
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+      marker.setAttribute('id', 'arrowhead');
+      marker.setAttribute('markerWidth', '10');
+      marker.setAttribute('markerHeight', '10');
+      marker.setAttribute('refX', '8');
+      marker.setAttribute('refY', '3');
+      marker.setAttribute('orient', 'auto');
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', '0 0, 10 3, 0 6');
+      polygon.setAttribute('fill', '#9CA3AF');
+      marker.appendChild(polygon);
+      defs.appendChild(marker);
+      svg.insertBefore(defs, svg.firstChild);
+
+      // Render nodes
+      currentWorkflow.nodes.forEach(node => {
+        const nodeEl = document.createElement('div');
+        nodeEl.className = 'custom-node';
+        nodeEl.style.position = 'absolute';
+        nodeEl.style.left = node.x + 'px';
+        nodeEl.style.top = node.y + 'px';
+        nodeEl.dataset.nodeId = node.id;
+
+        const iconMap = {
+          'start': '▶️',
+          'end': '🏁',
+          'action': '✅',
+          'condition': '🔀',
+          'approval': '✋',
+          'notification': '🔔'
+        };
+
+        const colorMap = {
+          'start': 'color-trigger',
+          'end': 'color-end',
+          'action': 'color-action',
+          'condition': 'color-logic',
+          'approval': 'color-approval',
+          'notification': 'color-notification'
+        };
+
+        nodeEl.innerHTML = `
+          <div class="node-header">
+            <div class="node-type-icon ${colorMap[node.type] || 'color-action'}">${iconMap[node.type] || '⚡'}</div>
+            <div class="node-title">${node.label}</div>
+            <div class="node-menu">⋮</div>
+          </div>
+          <div class="node-body">${node.description || ''}</div>
+        `;
+
+        nodeEl.onclick = (e) => {
+          e.stopPropagation();
+          selectNode(node.id);
+        };
+
+        canvas.appendChild(nodeEl);
+      });
+    }
+
+    function selectNode(nodeId) {
+      // Remove previous selection
+      document.querySelectorAll('.custom-node').forEach(n => n.classList.remove('selected'));
+
+      // Add selection to clicked node
+      const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+      if (nodeEl) {
+        nodeEl.classList.add('selected');
+        selectedNode = nodeId;
+        openProperties();
+      }
+    }
+
+    function openProperties() {
+      const panel = document.getElementById('propertiesPanel');
+      panel.classList.add('open');
+    }
+
+    function closeProperties() {
+      const panel = document.getElementById('propertiesPanel');
+      panel.classList.remove('open');
+      document.querySelectorAll('.custom-node').forEach(n => n.classList.remove('selected'));
+      selectedNode = null;
+    }
+
+    // Palette section toggle
+    function toggleSection(header) {
+      const content = header.nextElementSibling;
+      content.classList.toggle('collapsed');
+      const icon = header.querySelector('svg');
+      icon.style.transform = content.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0)';
+    }
+
+    // Zoom controls
+    document.getElementById('zoomInBtn').onclick = () => {
+      zoom = Math.min(zoom + 0.1, 2);
+      updateZoom();
+    };
+
+    document.getElementById('zoomOutBtn').onclick = () => {
+      zoom = Math.max(zoom - 0.1, 0.25);
+      updateZoom();
+    };
+
+    document.getElementById('fitViewBtn').onclick = () => {
+      zoom = 1;
+      updateZoom();
+    };
+
+    function updateZoom() {
+      const canvas = document.getElementById('workflow-canvas');
+      canvas.style.transform = `scale(${zoom})`;
+      canvas.style.transformOrigin = 'top left';
+      document.getElementById('zoomDisplay').textContent = Math.round(zoom * 100) + '%';
+    }
+
+    // Auto layout
+    document.getElementById('autoLayoutBtn').onclick = () => {
+      alert('Auto-layout would rearrange nodes intelligently');
+    };
+
+    // Modal functions
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('open');
+    }
+
+    // Button handlers
+    document.getElementById('saveBtn').onclick = () => {
+      alert('Workflow saved as draft!');
+    };
+
+    document.getElementById('testBtn').onclick = () => {
+      document.getElementById('testModal').classList.add('open');
+    };
+
+    document.getElementById('publishBtn').onclick = () => {
+      document.getElementById('publishModal').classList.add('open');
+    };
+
+    document.getElementById('moreBtn').onclick = () => {
+      alert('More actions:\n- Duplicate workflow\n- Export JSON\n- Version history\n- Delete workflow');
+    };
+
+    // Properties tabs
+    document.querySelectorAll('.properties-tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.properties-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabName = tab.dataset.tab;
+        document.getElementById('propertiesContent').innerHTML = getTabContent(tabName);
+      };
+    });
+
+    function getTabContent(tabName) {
+      if (tabName === 'configuration') {
+        return `
+          <div class="form-group">
+            <label class="form-label">Task Title</label>
+            <input type="text" class="form-input" placeholder="Enter task title" value="Setup employee account">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" placeholder="Enter description">Create accounts in all company systems (email, Slack, HR portal)</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-select">
+              <option value="high" selected>High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assign To</label>
+            <select class="form-select">
+              <option value="">Select position or person</option>
+              <option value="it-admin" selected>IT Administrator</option>
+              <option value="hr-manager">HR Manager</option>
+              <option value="team-lead">Team Lead</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Due Date</label>
+            <input type="text" class="form-input" placeholder="e.g., +3 days" value="+1 day">
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-secondary" onclick="closeProperties()">Cancel</button>
+            <button class="btn btn-primary">Apply Changes</button>
+          </div>
+        `;
+      } else if (tabName === 'conditions') {
+        return `
+          <div class="form-group">
+            <label class="form-label">Execution Condition</label>
+            <select class="form-select">
+              <option value="always">Always execute</option>
+              <option value="condition">Only if condition is met</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Condition Expression</label>
+            <input type="text" class="form-input" placeholder="e.g., @trigger.priority == 'high'">
+          </div>
+          <p style="color: var(--text-tertiary); font-size: var(--text-sm); margin-top: var(--space-2);">
+            Use @ to reference variables from previous steps
+          </p>
+          <div class="form-actions">
+            <button class="btn btn-secondary" onclick="closeProperties()">Cancel</button>
+            <button class="btn btn-primary">Apply Changes</button>
+          </div>
+        `;
+      } else if (tabName === 'advanced') {
+        return `
+          <div class="form-group">
+            <label class="form-label">Timeout (seconds)</label>
+            <input type="number" class="form-input" value="300">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Retry on Failure</label>
+            <select class="form-select">
+              <option value="0">No retry</option>
+              <option value="1" selected>Retry 1 time</option>
+              <option value="3">Retry 3 times</option>
+              <option value="5">Retry 5 times</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">On Error</label>
+            <select class="form-select">
+              <option value="stop" selected>Stop workflow</option>
+              <option value="continue">Continue to next node</option>
+              <option value="branch">Branch to error handler</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-secondary" onclick="closeProperties()">Cancel</button>
+            <button class="btn btn-primary">Apply Changes</button>
+          </div>
+        `;
+      }
+    }
+
+    // Drag and drop from palette (simplified simulation)
+    document.querySelectorAll('.node-card').forEach(card => {
+      card.ondragstart = (e) => {
+        e.dataTransfer.setData('nodeType', card.dataset.nodeType);
+      };
+    });
+
+    document.getElementById('workflow-canvas').ondragover = (e) => {
+      e.preventDefault();
+    };
+
+    document.getElementById('workflow-canvas').ondrop = (e) => {
+      e.preventDefault();
+      const nodeType = e.dataTransfer.getData('nodeType');
+      alert(`Would add new ${nodeType} node at position (${e.offsetX}, ${e.offsetY})`);
+    };
+
+    // Click canvas to deselect
+    document.getElementById('workflow-canvas').onclick = (e) => {
+      if (e.target.id === 'workflow-canvas') {
+        closeProperties();
+      }
+    };
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Cmd/Ctrl + S to save
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        document.getElementById('saveBtn').click();
+      }
+
+      // Delete key to delete node
+      if (e.key === 'Delete' && selectedNode) {
+        if (confirm('Delete selected node?')) {
+          currentWorkflow.nodes = currentWorkflow.nodes.filter(n => n.id !== selectedNode);
+          selectedNode = null;
+          closeProperties();
+          renderWorkflow();
+        }
+      }
+
+      // Escape to close panels
+      if (e.key === 'Escape') {
+        closeProperties();
+        closeModal('testModal');
+        closeModal('publishModal');
+      }
+    });
+
+    // Initialize
+    renderWorkflow();
+  </script>
+
+</body>
+</html>

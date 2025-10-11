@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSO Sign In - AI Org Platform</title>
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--space-6);
+        }
+
+        .sso-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: var(--space-10);
+        }
+
+        .sso-header {
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .sso-logo {
+            font-size: 56px;
+            margin-bottom: var(--space-4);
+        }
+
+        .sso-title {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .sso-subtitle {
+            font-size: var(--text-base);
+            color: var(--text-tertiary);
+        }
+
+        /* Email Detection Section */
+        .email-detection {
+            margin-bottom: var(--space-8);
+        }
+
+        .email-input-group {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .email-input {
+            flex: 1;
+            padding: var(--space-3) var(--space-4);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-base);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all var(--transition-base);
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-continue {
+            padding: var(--space-3) var(--space-6);
+            background-color: var(--primary-600);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--text-base);
+            font-weight: var(--font-semibold);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .btn-continue:hover {
+            background-color: var(--primary-700);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-continue:disabled {
+            background-color: var(--neutral-300);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Domain Info */
+        .domain-info {
+            display: none;
+            margin-top: var(--space-4);
+            padding: var(--space-4);
+            background-color: var(--primary-50);
+            border: 1px solid var(--primary-200);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            color: var(--primary-700);
+        }
+
+        .domain-info.show {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .domain-icon {
+            font-size: 20px;
+        }
+
+        /* SSO Providers Section */
+        .sso-providers {
+            display: none;
+        }
+
+        .sso-providers.show {
+            display: block;
+        }
+
+        .section-title {
+            font-size: var(--text-lg);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+        }
+
+        .provider-grid {
+            display: grid;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .provider-card {
+            display: flex;
+            align-items: center;
+            padding: var(--space-4);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .provider-card:hover {
+            border-color: var(--primary-300);
+            background-color: var(--primary-50);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .provider-icon {
+            width: 48px;
+            height: 48px;
+            margin-right: var(--space-4);
+            flex-shrink: 0;
+        }
+
+        .provider-content {
+            flex: 1;
+        }
+
+        .provider-name {
+            font-size: var(--text-base);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .provider-description {
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        .provider-arrow {
+            color: var(--text-tertiary);
+            font-size: 20px;
+        }
+
+        .provider-card:hover .provider-arrow {
+            color: var(--primary-600);
+        }
+
+        /* Security Badge */
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-4);
+            background-color: var(--success-50);
+            border: 1px solid var(--success-200);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            color: var(--success-700);
+            margin-bottom: var(--space-6);
+        }
+
+        .security-icon {
+            font-size: 18px;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: var(--space-6) 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .divider-text {
+            padding: 0 var(--space-4);
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        /* Alternative Login */
+        .alternative-login {
+            text-align: center;
+        }
+
+        .btn-alternative {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-6);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+        }
+
+        .btn-alternative:hover {
+            background-color: var(--bg-secondary);
+            border-color: var(--neutral-300);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: var(--space-6);
+        }
+
+        .back-link a {
+            color: var(--primary-600);
+            text-decoration: none;
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+        }
+
+        .back-link a:hover {
+            color: var(--primary-700);
+            text-decoration: underline;
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .sso-container {
+                padding: var(--space-6);
+            }
+
+            .email-input-group {
+                flex-direction: column;
+            }
+
+            .btn-continue {
+                width: 100%;
+            }
+
+            .provider-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .provider-icon {
+                margin-right: 0;
+                margin-bottom: var(--space-3);
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="sso-container">
+        <!-- Header -->
+        <div class="sso-header">
+            <div class="sso-logo">🏢</div>
+            <h1 class="sso-title">Sign in to AI Org Platform</h1>
+            <p class="sso-subtitle">Choose your authentication method</p>
+        </div>
+
+        <!-- Email Detection Form -->
+        <div id="emailDetection" class="email-detection">
+            <div class="email-input-group">
+                <input
+                    type="email"
+                    id="emailInput"
+                    class="email-input"
+                    placeholder="Enter your work email"
+                    aria-label="Work email address"
+                >
+                <button
+                    type="button"
+                    id="continueBtn"
+                    class="btn-continue"
+                    onclick="detectDomain()"
+                >
+                    Continue
+                </button>
+            </div>
+            <div id="domainInfo" class="domain-info">
+                <span class="domain-icon">✓</span>
+                <span id="domainText"></span>
+            </div>
+        </div>
+
+        <!-- SSO Providers (Hidden Initially) -->
+        <div id="ssoProviders" class="sso-providers">
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <span class="security-icon">🔒</span>
+                <span>Enterprise-grade security with SSO</span>
+            </div>
+
+            <h2 class="section-title">Select your identity provider</h2>
+
+            <!-- Provider Grid -->
+            <div class="provider-grid">
+                <!-- Google Workspace -->
+                <div class="provider-card" onclick="handleProviderClick('google')">
+                    <svg class="provider-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <div class="provider-content">
+                        <div class="provider-name">Google Workspace</div>
+                        <div class="provider-description">Sign in with your Google account</div>
+                    </div>
+                    <span class="provider-arrow">→</span>
+                </div>
+
+                <!-- Microsoft 365 -->
+                <div class="provider-card" onclick="handleProviderClick('microsoft')">
+                    <svg class="provider-icon" viewBox="0 0 24 24">
+                        <path fill="#F25022" d="M1 1h10v10H1z"/>
+                        <path fill="#00A4EF" d="M13 1h10v10H13z"/>
+                        <path fill="#7FBA00" d="M1 13h10v10H1z"/>
+                        <path fill="#FFB900" d="M13 13h10v10H13z"/>
+                    </svg>
+                    <div class="provider-content">
+                        <div class="provider-name">Microsoft 365</div>
+                        <div class="provider-description">Sign in with Azure AD / Office 365</div>
+                    </div>
+                    <span class="provider-arrow">→</span>
+                </div>
+
+                <!-- Okta -->
+                <div class="provider-card" onclick="handleProviderClick('okta')">
+                    <svg class="provider-icon" viewBox="0 0 24 24">
+                        <circle fill="#007DC1" cx="12" cy="12" r="11"/>
+                        <path fill="#FFF" d="M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 10a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+                    </svg>
+                    <div class="provider-content">
+                        <div class="provider-name">Okta</div>
+                        <div class="provider-description">Sign in through Okta identity platform</div>
+                    </div>
+                    <span class="provider-arrow">→</span>
+                </div>
+
+                <!-- OneLogin -->
+                <div class="provider-card" onclick="handleProviderClick('onelogin')">
+                    <svg class="provider-icon" viewBox="0 0 24 24">
+                        <circle fill="#F68D2E" cx="12" cy="12" r="11"/>
+                        <path fill="#FFF" d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 14a6 6 0 1 1 0-12 6 6 0 0 1 0 12z"/>
+                        <circle fill="#FFF" cx="12" cy="12" r="3"/>
+                    </svg>
+                    <div class="provider-content">
+                        <div class="provider-name">OneLogin</div>
+                        <div class="provider-description">Sign in with OneLogin SSO</div>
+                    </div>
+                    <span class="provider-arrow">→</span>
+                </div>
+
+                <!-- SAML -->
+                <div class="provider-card" onclick="handleProviderClick('saml')">
+                    <svg class="provider-icon" viewBox="0 0 24 24">
+                        <path fill="#6B7280" d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 2.18l8 4v8.82c0 4.52-3.06 8.73-8 9.82-4.94-1.09-8-5.3-8-9.82V8.18l8-4z"/>
+                        <path fill="#6B7280" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+                    </svg>
+                    <div class="provider-content">
+                        <div class="provider-name">SAML SSO</div>
+                        <div class="provider-description">Enterprise SAML 2.0 authentication</div>
+                    </div>
+                    <span class="provider-arrow">→</span>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span class="divider-text">Or</span>
+            </div>
+
+            <!-- Alternative Login -->
+            <div class="alternative-login">
+                <a href="17-login.html" class="btn-alternative">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Use email and password instead
+                </a>
+            </div>
+        </div>
+
+        <!-- Back to Login Link -->
+        <div class="back-link">
+            <a href="17-login.html">← Back to login</a>
+        </div>
+    </div>
+
+    <script>
+        const emailInput = document.getElementById('emailInput');
+        const continueBtn = document.getElementById('continueBtn');
+        const emailDetection = document.getElementById('emailDetection');
+        const ssoProviders = document.getElementById('ssoProviders');
+        const domainInfo = document.getElementById('domainInfo');
+        const domainText = document.getElementById('domainText');
+
+        // Enterprise domains that support SSO
+        const ssoEnabledDomains = ['company.com', 'enterprise.com', 'acme.com', 'techcorp.com'];
+
+        // Email input validation
+        emailInput.addEventListener('input', function() {
+            const isValid = this.value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value);
+            continueBtn.disabled = !isValid;
+        });
+
+        // Enter key support
+        emailInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !continueBtn.disabled) {
+                detectDomain();
+            }
+        });
+
+        // Detect domain and show SSO options
+        function detectDomain() {
+            const email = emailInput.value.trim();
+
+            if (!email) return;
+
+            // Extract domain
+            const domain = email.split('@')[1];
+
+            if (!domain) return;
+
+            // Show loading state
+            continueBtn.classList.add('loading');
+            continueBtn.textContent = 'Detecting...';
+
+            // Simulate API call to check SSO availability
+            setTimeout(() => {
+                const hasSSOSupport = ssoEnabledDomains.includes(domain);
+
+                if (hasSSOSupport) {
+                    // Show domain info
+                    domainText.textContent = `SSO detected for ${domain}`;
+                    domainInfo.classList.add('show');
+
+                    // Show SSO providers after a brief delay
+                    setTimeout(() => {
+                        ssoProviders.classList.add('show', 'fade-in');
+
+                        // Smooth scroll to providers
+                        ssoProviders.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 300);
+                } else {
+                    // No SSO support - redirect to regular login
+                    alert(`No SSO configured for ${domain}. Redirecting to email/password login...`);
+                    window.location.href = '17-login.html';
+                }
+
+                // Reset button
+                continueBtn.classList.remove('loading');
+                continueBtn.textContent = 'Continue';
+            }, 1000);
+        }
+
+        // Handle provider click
+        function handleProviderClick(provider) {
+            console.log('SSO Login with:', provider);
+
+            // Show loading state
+            const cards = document.querySelectorAll('.provider-card');
+            cards.forEach(card => card.classList.add('loading'));
+
+            // Simulate SSO redirect
+            setTimeout(() => {
+                alert(`Redirecting to ${provider} SSO login...\n\nIn production, this would redirect to the SSO provider's authentication page.`);
+
+                // In real app, this would redirect to SSO provider
+                // window.location.href = `/auth/sso/${provider}?email=${emailInput.value}`;
+            }, 500);
+        }
+
+        // Auto-fill for demo purposes
+        window.addEventListener('load', function() {
+            // Uncomment to auto-show SSO providers for demo
+            // emailInput.value = 'john.doe@company.com';
+            // detectDomain();
+        });
+    </script>
+</body>
+</html>

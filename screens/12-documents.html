@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documents & Knowledge Base - AI Org Platform</title>
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header {
+            padding: var(--space-6);
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .search-filter-bar {
+            padding: var(--space-4) var(--space-6);
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: var(--space-2) var(--space-4) var(--space-2) var(--space-10);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .filter-dropdown {
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            background-color: var(--bg-primary);
+            cursor: pointer;
+        }
+
+        .content-wrapper {
+            display: flex;
+            height: calc(100vh - 180px);
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: var(--space-4);
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .sidebar-section-title {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            margin-bottom: var(--space-2);
+        }
+
+        .folder-item {
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .folder-item:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .folder-item.active {
+            background-color: var(--primary-50);
+            color: var(--primary-600);
+            font-weight: var(--font-medium);
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-6);
+        }
+
+        .view-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .view-btn {
+            padding: var(--space-2);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background-color: var(--primary-500);
+            color: white;
+            border-color: var(--primary-500);
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+        }
+
+        .document-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .document-card:hover {
+            border-color: var(--primary-500);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .doc-icon-wrapper {
+            width: 100%;
+            height: 120px;
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-3);
+            font-size: 48px;
+        }
+
+        .doc-name {
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .doc-meta {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-2);
+        }
+
+        .doc-owner {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+
+        .doc-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-2);
+        }
+
+        .doc-actions {
+            display: flex;
+            gap: var(--space-2);
+            align-items: center;
+        }
+
+        .doc-action-btn {
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            color: var(--text-tertiary);
+            transition: all 0.2s;
+        }
+
+        .doc-action-btn:hover {
+            color: var(--primary-600);
+            background-color: var(--primary-50);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: var(--space-3);
+            right: var(--space-3);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 10px;
+            font-weight: var(--font-medium);
+        }
+
+        .status-draft {
+            background-color: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .status-pending {
+            background-color: var(--amber-100);
+            color: var(--amber-700);
+        }
+
+        .status-approved {
+            background-color: var(--green-100);
+            color: var(--green-700);
+        }
+
+        .status-rejected {
+            background-color: var(--red-100);
+            color: var(--red-700);
+        }
+
+        .status-archived {
+            background-color: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+        }
+
+        .doc-viewer {
+            padding: var(--space-6);
+            background-color: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        .doc-viewer-placeholder {
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+
+        .metadata-panel {
+            padding: var(--space-6);
+            border-left: 1px solid var(--border-color);
+        }
+
+        .metadata-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .metadata-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-3);
+        }
+
+        .metadata-item {
+            margin-bottom: var(--space-3);
+        }
+
+        .metadata-label {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-1);
+        }
+
+        .metadata-value {
+            font-size: var(--text-sm);
+            color: var(--text-primary);
+        }
+
+        .version-item {
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+        }
+
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-1);
+        }
+
+        .version-number {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .version-date {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .version-author {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+
+        .version-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .comment-item {
+            padding: var(--space-3);
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+        }
+
+        .comment-author {
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            color: var(--text-primary);
+        }
+
+        .comment-date {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .comment-text {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        /* Upload Modal Styles */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+            text-align: center;
+            background-color: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary-500);
+            background-color: var(--primary-50);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-3);
+        }
+
+        .upload-text {
+            font-size: var(--text-base);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .upload-hint {
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        .upload-progress {
+            margin-top: var(--space-4);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: var(--space-2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-500);
+            transition: width 0.3s;
+        }
+
+        .list-view-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .list-view-table th {
+            text-align: left;
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .list-view-table td {
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--text-sm);
+        }
+
+        .list-view-table tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: var(--primary-100);
+            color: var(--primary-700);
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            margin-right: var(--space-1);
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: var(--space-4);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: var(--space-4);
+        }
+
+        .tab-btn {
+            padding: var(--space-2) 0;
+            border: none;
+            background: none;
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-600);
+            font-weight: var(--font-medium);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-600);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Documents & Knowledge Base</h1>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openUploadModal()">
+                <span>➕</span> Upload
+            </button>
+            <button class="btn btn-outline">
+                <span>⚙️</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="search-filter-bar">
+        <div class="search-input">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search documents..." id="searchInput" oninput="filterDocuments()">
+        </div>
+        <select class="filter-dropdown" id="typeFilter" onchange="filterDocuments()">
+            <option value="all">All Types</option>
+            <option value="pdf">PDF</option>
+            <option value="docx">Word</option>
+            <option value="xlsx">Excel</option>
+            <option value="png">Images</option>
+        </select>
+        <select class="filter-dropdown">
+            <option>All Tags</option>
+            <option>Compliance</option>
+            <option>SOP</option>
+            <option>Template</option>
+        </select>
+        <select class="filter-dropdown" id="sortBy" onchange="sortDocuments()">
+            <option value="name">Sort by: Name</option>
+            <option value="date">Sort by: Date</option>
+            <option value="size">Sort by: Size</option>
+            <option value="relevance">Sort by: Relevance</option>
+        </select>
+    </div>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Folders</div>
+                <div class="folder-item active" onclick="selectFolder(this, 'all')">
+                    <span>📁</span> All Documents
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'my')">
+                    <span>📁</span> My Documents
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'shared')">
+                    <span>📁</span> Shared with Me
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'sop')">
+                    <span>📁</span> SOPs
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'compliance')">
+                    <span>📁</span> Compliance
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'templates')">
+                    <span>📁</span> Templates
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'archive')">
+                    <span>📁</span> Archive
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Smart Folders</div>
+                <div class="folder-item" onclick="selectFolder(this, 'recent')">
+                    <span>🕐</span> Recent
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'starred')">
+                    <span>⭐</span> Starred
+                </div>
+                <div class="folder-item" onclick="selectFolder(this, 'shared-by-me')">
+                    <span>👥</span> Shared by me
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="view-controls">
+                <div>
+                    <span style="color: var(--text-tertiary); font-size: var(--text-sm);">20 documents</span>
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="switchView('grid')">
+                        <span>▦</span>
+                    </button>
+                    <button class="view-btn" onclick="switchView('list')">
+                        <span>☰</span>
+                    </button>
+                    <button class="view-btn" onclick="switchView('table')">
+                        <span>▤</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid View -->
+            <div id="gridView" class="document-grid">
+                <!-- Document Card 1 -->
+                <div class="document-card" data-type="pdf" data-name="SOP Process Document" data-date="2025-01-13" data-size="2400" onclick="openDocumentModal('SOP Process Document', 'pdf')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📄</span>
+                    </div>
+                    <div class="doc-name">SOP_Process_Document.pdf</div>
+                    <div class="doc-meta">Modified: 2 days ago</div>
+                    <div class="doc-owner">By: John Smith</div>
+                    <div class="doc-details">
+                        <span>v3 | 2.4 MB | 5 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 24
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 3
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 2 -->
+                <div class="document-card" data-type="xlsx" data-name="Budget 2025" data-date="2025-01-08" data-size="856" onclick="openDocumentModal('Budget 2025', 'xlsx')">
+                    <span class="status-badge status-pending">Pending Approval</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📊</span>
+                    </div>
+                    <div class="doc-name">Budget_2025.xlsx</div>
+                    <div class="doc-meta">Modified: 1 week ago</div>
+                    <div class="doc-owner">By: Jane Doe</div>
+                    <div class="doc-details">
+                        <span>v2 | 856 KB | 12 sheets</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 45
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 7
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 3 -->
+                <div class="document-card" data-type="docx" data-name="Compliance Report Q1" data-date="2025-01-10" data-size="1200" onclick="openDocumentModal('Compliance Report Q1', 'docx')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📝</span>
+                    </div>
+                    <div class="doc-name">Compliance_Report_Q1.docx</div>
+                    <div class="doc-meta">Modified: 5 days ago</div>
+                    <div class="doc-owner">By: Mike Johnson</div>
+                    <div class="doc-details">
+                        <span>v4 | 1.2 MB | 18 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 32
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 5
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 4 -->
+                <div class="document-card" data-type="png" data-name="Organization Chart" data-date="2025-01-12" data-size="340" onclick="openDocumentModal('Organization Chart', 'png')">
+                    <span class="status-badge status-draft">Draft</span>
+                    <div class="doc-icon-wrapper">
+                        <span>🖼️</span>
+                    </div>
+                    <div class="doc-name">Org_Chart_2025.png</div>
+                    <div class="doc-meta">Modified: 3 days ago</div>
+                    <div class="doc-owner">By: Sarah Williams</div>
+                    <div class="doc-details">
+                        <span>v1 | 340 KB | 1920x1080</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 18
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 2
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 5 -->
+                <div class="document-card" data-type="pdf" data-name="Safety Guidelines" data-date="2025-01-11" data-size="3100" onclick="openDocumentModal('Safety Guidelines', 'pdf')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📄</span>
+                    </div>
+                    <div class="doc-name">Safety_Guidelines_2025.pdf</div>
+                    <div class="doc-meta">Modified: 4 days ago</div>
+                    <div class="doc-owner">By: Robert Brown</div>
+                    <div class="doc-details">
+                        <span>v5 | 3.1 MB | 24 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn starred" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 67
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 12
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 6 -->
+                <div class="document-card" data-type="xlsx" data-name="Q4 Performance Metrics" data-date="2025-01-09" data-size="645" onclick="openDocumentModal('Q4 Performance Metrics', 'xlsx')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📊</span>
+                    </div>
+                    <div class="doc-name">Q4_Performance_Metrics.xlsx</div>
+                    <div class="doc-meta">Modified: 6 days ago</div>
+                    <div class="doc-owner">By: Emily Davis</div>
+                    <div class="doc-details">
+                        <span>v3 | 645 KB | 8 sheets</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 28
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 4
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 7 -->
+                <div class="document-card" data-type="docx" data-name="Employee Handbook" data-date="2025-01-07" data-size="1850" onclick="openDocumentModal('Employee Handbook', 'docx')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📝</span>
+                    </div>
+                    <div class="doc-name">Employee_Handbook_2025.docx</div>
+                    <div class="doc-meta">Modified: 1 week ago</div>
+                    <div class="doc-owner">By: John Smith</div>
+                    <div class="doc-details">
+                        <span>v6 | 1.85 MB | 42 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn starred" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 89
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 15
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 8 -->
+                <div class="document-card" data-type="pdf" data-name="Technical Specification" data-date="2025-01-14" data-size="4200" onclick="openDocumentModal('Technical Specification', 'pdf')">
+                    <span class="status-badge status-pending">Pending Approval</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📄</span>
+                    </div>
+                    <div class="doc-name">Tech_Spec_v2.pdf</div>
+                    <div class="doc-meta">Modified: 1 day ago</div>
+                    <div class="doc-owner">By: Alex Chen</div>
+                    <div class="doc-details">
+                        <span>v2 | 4.2 MB | 36 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 15
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 6
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 9 -->
+                <div class="document-card" data-type="xlsx" data-name="Resource Allocation" data-date="2025-01-06" data-size="920" onclick="openDocumentModal('Resource Allocation', 'xlsx')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📊</span>
+                    </div>
+                    <div class="doc-name">Resource_Allocation_Q1.xlsx</div>
+                    <div class="doc-meta">Modified: 9 days ago</div>
+                    <div class="doc-owner">By: Jane Doe</div>
+                    <div class="doc-details">
+                        <span>v4 | 920 KB | 15 sheets</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 41
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 8
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 10 -->
+                <div class="document-card" data-type="png" data-name="Dashboard Mockup" data-date="2025-01-13" data-size="580" onclick="openDocumentModal('Dashboard Mockup', 'png')">
+                    <span class="status-badge status-draft">Draft</span>
+                    <div class="doc-icon-wrapper">
+                        <span>🖼️</span>
+                    </div>
+                    <div class="doc-name">Dashboard_Mockup_v3.png</div>
+                    <div class="doc-meta">Modified: 2 days ago</div>
+                    <div class="doc-owner">By: Lisa Park</div>
+                    <div class="doc-details">
+                        <span>v3 | 580 KB | 2560x1440</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 22
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 9
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 11 -->
+                <div class="document-card" data-type="docx" data-name="Project Proposal" data-date="2025-01-05" data-size="980" onclick="openDocumentModal('Project Proposal', 'docx')">
+                    <span class="status-badge status-rejected">Rejected</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📝</span>
+                    </div>
+                    <div class="doc-name">Project_Proposal_2025.docx</div>
+                    <div class="doc-meta">Modified: 10 days ago</div>
+                    <div class="doc-owner">By: Tom Anderson</div>
+                    <div class="doc-details">
+                        <span>v1 | 980 KB | 8 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 12
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 6
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 12 -->
+                <div class="document-card" data-type="pdf" data-name="API Documentation" data-date="2025-01-14" data-size="1560" onclick="openDocumentModal('API Documentation', 'pdf')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📄</span>
+                    </div>
+                    <div class="doc-name">API_Documentation_v4.pdf</div>
+                    <div class="doc-meta">Modified: 1 day ago</div>
+                    <div class="doc-owner">By: David Lee</div>
+                    <div class="doc-details">
+                        <span>v4 | 1.56 MB | 28 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn starred" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 54
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 11
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 13 -->
+                <div class="document-card" data-type="xlsx" data-name="Sales Forecast" data-date="2025-01-11" data-size="780" onclick="openDocumentModal('Sales Forecast', 'xlsx')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📊</span>
+                    </div>
+                    <div class="doc-name">Sales_Forecast_Q1.xlsx</div>
+                    <div class="doc-meta">Modified: 4 days ago</div>
+                    <div class="doc-owner">By: Maria Garcia</div>
+                    <div class="doc-details">
+                        <span>v2 | 780 KB | 10 sheets</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 36
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 5
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 14 -->
+                <div class="document-card" data-type="png" data-name="Logo Variations" data-date="2025-01-12" data-size="240" onclick="openDocumentModal('Logo Variations', 'png')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>🖼️</span>
+                    </div>
+                    <div class="doc-name">Logo_Variations_2025.png</div>
+                    <div class="doc-meta">Modified: 3 days ago</div>
+                    <div class="doc-owner">By: Chris Taylor</div>
+                    <div class="doc-details">
+                        <span>v2 | 240 KB | 1024x1024</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 19
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 3
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 15 -->
+                <div class="document-card" data-type="pdf" data-name="Training Manual" data-date="2025-01-08" data-size="5200" onclick="openDocumentModal('Training Manual', 'pdf')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📄</span>
+                    </div>
+                    <div class="doc-name">Training_Manual_2025.pdf</div>
+                    <div class="doc-meta">Modified: 7 days ago</div>
+                    <div class="doc-owner">By: Rachel Kim</div>
+                    <div class="doc-details">
+                        <span>v7 | 5.2 MB | 64 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn starred" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 102
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 18
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 16 -->
+                <div class="document-card" data-type="docx" data-name="Marketing Strategy" data-date="2025-01-10" data-size="1340" onclick="openDocumentModal('Marketing Strategy', 'docx')">
+                    <span class="status-badge status-pending">Pending Approval</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📝</span>
+                    </div>
+                    <div class="doc-name">Marketing_Strategy_Q1.docx</div>
+                    <div class="doc-meta">Modified: 5 days ago</div>
+                    <div class="doc-owner">By: Kevin White</div>
+                    <div class="doc-details">
+                        <span>v3 | 1.34 MB | 22 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 27
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 7
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 17 -->
+                <div class="document-card" data-type="pdf" data-name="Contract Template" data-date="2025-01-09" data-size="890" onclick="openDocumentModal('Contract Template', 'pdf')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📄</span>
+                    </div>
+                    <div class="doc-name">Contract_Template_v2.pdf</div>
+                    <div class="doc-meta">Modified: 6 days ago</div>
+                    <div class="doc-owner">By: Laura Martinez</div>
+                    <div class="doc-details">
+                        <span>v2 | 890 KB | 6 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 33
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 4
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 18 -->
+                <div class="document-card" data-type="xlsx" data-name="Inventory Report" data-date="2025-01-14" data-size="1120" onclick="openDocumentModal('Inventory Report', 'xlsx')">
+                    <span class="status-badge status-draft">Draft</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📊</span>
+                    </div>
+                    <div class="doc-name">Inventory_Report_Jan.xlsx</div>
+                    <div class="doc-meta">Modified: 1 day ago</div>
+                    <div class="doc-owner">By: Peter Wilson</div>
+                    <div class="doc-details">
+                        <span>v1 | 1.12 MB | 18 sheets</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 8
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 1
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 19 -->
+                <div class="document-card" data-type="docx" data-name="Meeting Minutes" data-date="2025-01-13" data-size="450" onclick="openDocumentModal('Meeting Minutes', 'docx')">
+                    <span class="status-badge status-archived">Archived</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📝</span>
+                    </div>
+                    <div class="doc-name">Meeting_Minutes_Jan12.docx</div>
+                    <div class="doc-meta">Modified: 2 days ago</div>
+                    <div class="doc-owner">By: Anna Johnson</div>
+                    <div class="doc-details">
+                        <span>v1 | 450 KB | 4 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 14
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 2
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Document Card 20 -->
+                <div class="document-card" data-type="pdf" data-name="Security Policy" data-date="2025-01-07" data-size="2680" onclick="openDocumentModal('Security Policy', 'pdf')">
+                    <span class="status-badge status-approved">Approved</span>
+                    <div class="doc-icon-wrapper">
+                        <span>📄</span>
+                    </div>
+                    <div class="doc-name">Security_Policy_2025.pdf</div>
+                    <div class="doc-meta">Modified: 8 days ago</div>
+                    <div class="doc-owner">By: James Brown</div>
+                    <div class="doc-details">
+                        <span>v5 | 2.68 MB | 32 pages</span>
+                    </div>
+                    <div class="doc-actions">
+                        <button class="doc-action-btn starred" onclick="event.stopPropagation(); toggleStar(this)">
+                            <span>⭐</span>
+                        </button>
+                        <span class="doc-action-btn">
+                            <span>👁️</span> 76
+                        </span>
+                        <span class="doc-action-btn">
+                            <span>💬</span> 13
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View (Hidden by default) -->
+            <div id="listView" class="hidden">
+                <table class="list-view-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Owner</th>
+                            <th>Modified</th>
+                            <th>Size</th>
+                            <th>Version</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr onclick="openDocumentModal('SOP Process Document', 'pdf')">
+                            <td>📄 SOP_Process_Document.pdf</td>
+                            <td>John Smith</td>
+                            <td>2 days ago</td>
+                            <td>2.4 MB</td>
+                            <td>v3</td>
+                            <td><span class="status-badge status-approved">Approved</span></td>
+                            <td><button class="btn btn-sm btn-outline">⋮</button></td>
+                        </tr>
+                        <tr onclick="openDocumentModal('Budget 2025', 'xlsx')">
+                            <td>📊 Budget_2025.xlsx</td>
+                            <td>Jane Doe</td>
+                            <td>1 week ago</td>
+                            <td>856 KB</td>
+                            <td>v2</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td><button class="btn btn-sm btn-outline">⋮</button></td>
+                        </tr>
+                        <tr onclick="openDocumentModal('Compliance Report Q1', 'docx')">
+                            <td>📝 Compliance_Report_Q1.docx</td>
+                            <td>Mike Johnson</td>
+                            <td>5 days ago</td>
+                            <td>1.2 MB</td>
+                            <td>v4</td>
+                            <td><span class="status-badge status-approved">Approved</span></td>
+                            <td><button class="btn btn-sm btn-outline">⋮</button></td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table View (Hidden by default) -->
+            <div id="tableView" class="hidden">
+                <table class="list-view-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox"></th>
+                            <th>Name ↑↓</th>
+                            <th>Type</th>
+                            <th>Owner</th>
+                            <th>Modified ↑↓</th>
+                            <th>Size ↑↓</th>
+                            <th>Tags</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>SOP_Process_Document.pdf</td>
+                            <td>📄 PDF</td>
+                            <td>John Smith</td>
+                            <td>2025-01-13</td>
+                            <td>2.4 MB</td>
+                            <td><span class="tag">SOP</span></td>
+                            <td><button class="btn btn-sm btn-outline">⋮</button></td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Detail Modal -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalDocumentTitle">Document Name</h2>
+                <button class="modal-close" onclick="closeDocumentModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="doc-viewer">
+                    <div class="doc-viewer-placeholder">
+                        <div style="font-size: 64px; margin-bottom: var(--space-4);" id="modalDocIcon">📄</div>
+                        <p style="font-size: var(--text-lg); margin-bottom: var(--space-2);">Document Preview</p>
+                        <p>Preview not available in this mockup</p>
+                        <button class="btn btn-primary" style="margin-top: var(--space-4);">Download</button>
+                    </div>
+                </div>
+                <div class="metadata-panel">
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab('details')">Details</button>
+                        <button class="tab-btn" onclick="switchTab('versions')">Versions</button>
+                        <button class="tab-btn" onclick="switchTab('comments')">Comments</button>
+                    </div>
+
+                    <!-- Details Tab -->
+                    <div id="detailsTab" class="metadata-section">
+                        <div class="metadata-title">Metadata</div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Title</div>
+                            <div class="metadata-value">SOP Process Document</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Description</div>
+                            <div class="metadata-value">Standard operating procedures for onboarding process</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Tags</div>
+                            <div class="metadata-value">
+                                <span class="tag">SOP</span>
+                                <span class="tag">Compliance</span>
+                            </div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Category</div>
+                            <div class="metadata-value">Standard Operating Procedures</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Owner</div>
+                            <div class="metadata-value">John Smith</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Created</div>
+                            <div class="metadata-value">Jan 1, 2025</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Modified</div>
+                            <div class="metadata-value">Jan 13, 2025</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">File Size</div>
+                            <div class="metadata-value">2.4 MB</div>
+                        </div>
+                        <div class="metadata-item">
+                            <div class="metadata-label">Status</div>
+                            <div class="metadata-value"><span class="status-badge status-approved">Approved</span></div>
+                        </div>
+                        <div style="margin-top: var(--space-4);">
+                            <button class="btn btn-outline" style="width: 100%; margin-bottom: var(--space-2);">
+                                📤 Share
+                            </button>
+                            <button class="btn btn-outline" style="width: 100%; margin-bottom: var(--space-2);">
+                                ✏️ Edit Properties
+                            </button>
+                            <button class="btn btn-outline" style="width: 100%; color: var(--error-600);">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Versions Tab -->
+                    <div id="versionsTab" class="metadata-section hidden">
+                        <div class="metadata-title">Version History</div>
+                        <div class="version-item">
+                            <div class="version-header">
+                                <span class="version-number">v3 (Current)</span>
+                                <span class="version-date">Jan 13, 2025</span>
+                            </div>
+                            <div class="version-author">By: John Smith</div>
+                            <div style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-2);">
+                                "Updated compliance section"
+                            </div>
+                            <div class="version-actions">
+                                <button class="btn btn-sm btn-outline">Download</button>
+                                <button class="btn btn-sm btn-outline">Preview</button>
+                            </div>
+                        </div>
+
+                        <div class="version-item">
+                            <div class="version-header">
+                                <span class="version-number">v2</span>
+                                <span class="version-date">Jan 10, 2025</span>
+                            </div>
+                            <div class="version-author">By: Jane Doe</div>
+                            <div style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-2);">
+                                "Added Q4 data"
+                            </div>
+                            <div class="version-actions">
+                                <button class="btn btn-sm btn-outline">Download</button>
+                                <button class="btn btn-sm btn-outline">Preview</button>
+                                <button class="btn btn-sm btn-outline">Restore</button>
+                            </div>
+                        </div>
+
+                        <div class="version-item">
+                            <div class="version-header">
+                                <span class="version-number">v1</span>
+                                <span class="version-date">Jan 5, 2025</span>
+                            </div>
+                            <div class="version-author">By: John Smith</div>
+                            <div style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-2);">
+                                "Initial version"
+                            </div>
+                            <div class="version-actions">
+                                <button class="btn btn-sm btn-outline">Download</button>
+                                <button class="btn btn-sm btn-outline">Preview</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Tab -->
+                    <div id="commentsTab" class="metadata-section hidden">
+                        <div class="metadata-title">Comments (3)</div>
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-author">Sarah Williams</span>
+                                <span class="comment-date">2 hours ago</span>
+                            </div>
+                            <div class="comment-text">
+                                Looks good! The compliance section is well detailed.
+                            </div>
+                        </div>
+
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-author">Mike Johnson</span>
+                                <span class="comment-date">1 day ago</span>
+                            </div>
+                            <div class="comment-text">
+                                Can we add more examples in section 3?
+                            </div>
+                        </div>
+
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-author">John Smith</span>
+                                <span class="comment-date">1 day ago</span>
+                            </div>
+                            <div class="comment-text">
+                                @Mike Sure, I'll add those examples in the next version.
+                            </div>
+                        </div>
+
+                        <div style="margin-top: var(--space-4);">
+                            <textarea class="form-control" placeholder="Add a comment..." rows="3" style="width: 100%; margin-bottom: var(--space-2);"></textarea>
+                            <button class="btn btn-primary" style="width: 100%;">Post Comment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Upload Documents</h2>
+                <button class="modal-close" onclick="closeUploadModal()">✕</button>
+            </div>
+            <div style="padding: var(--space-6);">
+                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Drag and drop files here</div>
+                    <div class="upload-hint">or click to browse (Max 100 MB per file)</div>
+                    <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileUpload(event)">
+                </div>
+
+                <div id="uploadProgress" class="upload-progress hidden">
+                    <div style="font-size: var(--text-sm); margin-bottom: var(--space-2);">
+                        Uploading: <span id="fileName">document.pdf</span> (45%)
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%"></div>
+                    </div>
+                    <button class="btn btn-outline" style="width: 100%; margin-top: var(--space-2);">Cancel</button>
+                </div>
+
+                <div style="margin-top: var(--space-4);">
+                    <div style="font-size: var(--text-sm); font-weight: var(--font-medium); margin-bottom: var(--space-2);">
+                        Supported formats:
+                    </div>
+                    <div style="font-size: var(--text-sm); color: var(--text-tertiary);">
+                        PDF, DOCX, XLSX, PPTX, TXT, MD, PNG, JPG, GIF, SVG, ZIP, RAR, JS, PY, JSON, XML
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // View Switching
+        function switchView(view) {
+            const gridView = document.getElementById('gridView');
+            const listView = document.getElementById('listView');
+            const tableView = document.getElementById('tableView');
+            const viewBtns = document.querySelectorAll('.view-btn');
+
+            viewBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.view-btn').classList.add('active');
+
+            gridView.classList.add('hidden');
+            listView.classList.add('hidden');
+            tableView.classList.add('hidden');
+
+            if (view === 'grid') {
+                gridView.classList.remove('hidden');
+            } else if (view === 'list') {
+                listView.classList.remove('hidden');
+            } else if (view === 'table') {
+                tableView.classList.remove('hidden');
+            }
+        }
+
+        // Folder Selection
+        function selectFolder(element, folder) {
+            document.querySelectorAll('.folder-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // Star Toggle
+        function toggleStar(button) {
+            button.classList.toggle('starred');
+            if (button.classList.contains('starred')) {
+                button.style.color = 'var(--amber-500)';
+            } else {
+                button.style.color = 'var(--text-tertiary)';
+            }
+        }
+
+        // Document Modal
+        function openDocumentModal(title, type) {
+            const modal = document.getElementById('documentModal');
+            const modalTitle = document.getElementById('modalDocumentTitle');
+            const modalIcon = document.getElementById('modalDocIcon');
+
+            modalTitle.textContent = title;
+
+            const icons = {
+                'pdf': '📄',
+                'docx': '📝',
+                'xlsx': '📊',
+                'png': '🖼️'
+            };
+
+            modalIcon.textContent = icons[type] || '📄';
+            modal.classList.add('active');
+        }
+
+        function closeDocumentModal() {
+            document.getElementById('documentModal').classList.remove('active');
+        }
+
+        // Upload Modal
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('active');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+        }
+
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                document.getElementById('uploadProgress').classList.remove('hidden');
+                document.getElementById('fileName').textContent = files[0].name;
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const detailsTab = document.getElementById('detailsTab');
+            const versionsTab = document.getElementById('versionsTab');
+            const commentsTab = document.getElementById('commentsTab');
+
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            detailsTab.classList.add('hidden');
+            versionsTab.classList.add('hidden');
+            commentsTab.classList.add('hidden');
+
+            if (tab === 'details') {
+                detailsTab.classList.remove('hidden');
+            } else if (tab === 'versions') {
+                versionsTab.classList.remove('hidden');
+            } else if (tab === 'comments') {
+                commentsTab.classList.remove('hidden');
+            }
+        }
+
+        // Search and Filter
+        function filterDocuments() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const cards = document.querySelectorAll('.document-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name').toLowerCase();
+                const type = card.getAttribute('data-type');
+
+                const matchesSearch = name.includes(searchTerm);
+                const matchesType = typeFilter === 'all' || type === typeFilter;
+
+                if (matchesSearch && matchesType) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Sort Documents
+        function sortDocuments() {
+            const sortBy = document.getElementById('sortBy').value;
+            const grid = document.getElementById('gridView');
+            const cards = Array.from(document.querySelectorAll('.document-card'));
+
+            cards.sort((a, b) => {
+                if (sortBy === 'name') {
+                    return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+                } else if (sortBy === 'date') {
+                    return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+                } else if (sortBy === 'size') {
+                    return parseInt(b.getAttribute('data-size')) - parseInt(a.getAttribute('data-size'));
+                }
+                return 0;
+            });
+
+            cards.forEach(card => grid.appendChild(card));
+        }
+
+        // Close modals on background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

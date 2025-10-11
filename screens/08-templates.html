@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Gallery - AI-Powered Organizational Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES (Design Tokens) ===== */
+        :root {
+            /* Primary Colors */
+            --primary-50: #EFF6FF;
+            --primary-100: #DBEAFE;
+            --primary-200: #BFDBFE;
+            --primary-300: #93C5FD;
+            --primary-400: #60A5FA;
+            --primary-500: #3B82F6;
+            --primary-600: #2563EB;
+            --primary-700: #1D4ED8;
+            --primary-800: #1E40AF;
+            --primary-900: #1E3A8A;
+
+            /* Neutral Colors */
+            --neutral-50: #F9FAFB;
+            --neutral-100: #F3F4F6;
+            --neutral-200: #E5E7EB;
+            --neutral-300: #D1D5DB;
+            --neutral-400: #9CA3AF;
+            --neutral-500: #6B7280;
+            --neutral-600: #4B5563;
+            --neutral-700: #374151;
+            --neutral-800: #1F2937;
+            --neutral-900: #111827;
+
+            /* Semantic Colors */
+            --success-50: #ECFDF5;
+            --success-500: #10B981;
+            --success-700: #047857;
+            --warning-50: #FFFBEB;
+            --warning-500: #F59E0B;
+            --warning-700: #B45309;
+            --error-50: #FEF2F2;
+            --error-500: #EF4444;
+            --error-700: #B91C1C;
+            --info-50: #EFF6FF;
+            --info-500: #3B82F6;
+            --info-700: #1D4ED8;
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --font-normal: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
+            --leading-tight: 1.25;
+            --leading-normal: 1.5;
+            --leading-relaxed: 1.625;
+
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            font-size: var(--text-base);
+            line-height: var(--leading-normal);
+            color: var(--neutral-800);
+            background-color: var(--neutral-50);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== LAYOUT ===== */
+        .page-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--neutral-200);
+            padding: var(--space-6);
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: var(--space-8);
+            overflow-x: hidden;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            margin-bottom: var(--space-8);
+        }
+
+        .header-title {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .header-subtitle {
+            font-size: var(--text-lg);
+            color: var(--neutral-600);
+        }
+
+        /* ===== SEARCH & FILTERS ===== */
+        .search-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4) var(--space-3) var(--space-12);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-lg);
+            font-size: var(--text-base);
+            transition: all var(--transition-base);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px var(--primary-100);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neutral-400);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown {
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            background: white;
+            font-size: var(--text-sm);
+            color: var(--neutral-700);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .filter-dropdown:hover {
+            border-color: var(--neutral-400);
+        }
+
+        .btn-clear-filters {
+            padding: var(--space-2) var(--space-4);
+            background: transparent;
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            color: var(--neutral-600);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-clear-filters:hover {
+            background: var(--neutral-100);
+        }
+
+        /* ===== SIDEBAR FILTERS ===== */
+        .filter-section {
+            margin-bottom: var(--space-8);
+        }
+
+        .filter-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--neutral-900);
+            margin-bottom: var(--space-4);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-3);
+            cursor: pointer;
+        }
+
+        .filter-checkbox {
+            width: 18px;
+            height: 18px;
+            margin-right: var(--space-3);
+            cursor: pointer;
+        }
+
+        .filter-label {
+            font-size: var(--text-sm);
+            color: var(--neutral-700);
+            flex: 1;
+        }
+
+        .filter-count {
+            font-size: var(--text-xs);
+            color: var(--neutral-500);
+            background: var(--neutral-100);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+
+        /* ===== TEMPLATE GRID ===== */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .template-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .template-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .template-preview-icon {
+            font-size: 3rem;
+            color: var(--primary-600);
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: var(--space-3);
+            right: var(--space-3);
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: none;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .favorite-btn:hover {
+            background: var(--error-50);
+            color: var(--error-500);
+        }
+
+        .template-content {
+            padding: var(--space-5);
+        }
+
+        .template-header {
+            margin-bottom: var(--space-3);
+        }
+
+        .template-name {
+            font-size: var(--text-lg);
+            font-weight: var(--font-semibold);
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .template-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            color: var(--neutral-500);
+        }
+
+        .template-creator {
+            color: var(--neutral-600);
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+        }
+
+        .category-workflow {
+            background: var(--primary-100);
+            color: var(--primary-700);
+        }
+
+        .category-project {
+            background: var(--success-50);
+            color: var(--success-700);
+        }
+
+        .category-compliance {
+            background: var(--warning-50);
+            color: var(--warning-700);
+        }
+
+        .category-kanban {
+            background: var(--info-50);
+            color: var(--info-700);
+        }
+
+        .template-description {
+            font-size: var(--text-sm);
+            color: var(--neutral-600);
+            line-height: var(--leading-relaxed);
+            margin-bottom: var(--space-4);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .template-stats {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+            font-size: var(--text-sm);
+            color: var(--neutral-600);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .stars {
+            color: var(--warning-500);
+        }
+
+        .template-actions {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .btn-preview {
+            flex: 1;
+            padding: var(--space-2) var(--space-4);
+            background: transparent;
+            border: 1px solid var(--primary-500);
+            border-radius: var(--radius-md);
+            color: var(--primary-600);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-preview:hover {
+            background: var(--primary-50);
+        }
+
+        .btn-use-template {
+            flex: 1;
+            padding: var(--space-2) var(--space-4);
+            background: var(--primary-600);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-use-template:hover {
+            background: var(--primary-700);
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-6);
+            margin-top: var(--space-8);
+        }
+
+        .btn-load-more {
+            padding: var(--space-3) var(--space-8);
+            background: white;
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--text-base);
+            font-weight: var(--font-medium);
+            color: var(--neutral-700);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-load-more:hover {
+            background: var(--neutral-50);
+            border-color: var(--neutral-400);
+        }
+
+        .pagination-info {
+            font-size: var(--text-sm);
+            color: var(--neutral-600);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius-xl);
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .modal-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--neutral-900);
+        }
+
+        .btn-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            font-size: var(--text-2xl);
+            color: var(--neutral-500);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .btn-close:hover {
+            background: var(--neutral-100);
+            color: var(--neutral-900);
+        }
+
+        .modal-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .modal-preview {
+            flex: 1;
+            padding: var(--space-6);
+            overflow-y: auto;
+            border-right: 1px solid var(--neutral-200);
+        }
+
+        .preview-tabs {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-6);
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        .preview-tab {
+            padding: var(--space-3) var(--space-4);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            color: var(--neutral-600);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            margin-bottom: -2px;
+        }
+
+        .preview-tab.active {
+            color: var(--primary-600);
+            border-bottom-color: var(--primary-600);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .modal-details {
+            width: 400px;
+            padding: var(--space-6);
+            overflow-y: auto;
+            background: var(--neutral-50);
+        }
+
+        .details-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .details-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--neutral-900);
+            margin-bottom: var(--space-3);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .details-text {
+            font-size: var(--text-sm);
+            color: var(--neutral-700);
+            line-height: var(--leading-relaxed);
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--neutral-700);
+        }
+
+        .feature-check {
+            color: var(--success-500);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-3);
+            padding: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+        }
+
+        .btn-secondary {
+            padding: var(--space-3) var(--space-6);
+            background: white;
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--text-base);
+            font-weight: var(--font-medium);
+            color: var(--neutral-700);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neutral-50);
+        }
+
+        .btn-primary {
+            padding: var(--space-3) var(--space-6);
+            background: var(--primary-600);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--text-base);
+            font-weight: var(--font-medium);
+            color: white;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-700);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1279px) {
+            .template-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .template-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-controls {
+                width: 100%;
+            }
+
+            .filter-dropdown {
+                flex: 1;
+            }
+
+            .modal {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .modal-body {
+                flex-direction: column;
+            }
+
+            .modal-details {
+                width: 100%;
+            }
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-16) var(--space-8);
+            display: none;
+        }
+
+        .empty-state.active {
+            display: block;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--neutral-300);
+            margin-bottom: var(--space-4);
+        }
+
+        .empty-title {
+            font-size: var(--text-xl);
+            font-weight: var(--font-semibold);
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .empty-text {
+            font-size: var(--text-base);
+            color: var(--neutral-600);
+            margin-bottom: var(--space-6);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar">
+            <div class="filter-section">
+                <h3 class="filter-title">Categories</h3>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-all" class="filter-checkbox" data-category="all" checked>
+                    <label for="cat-all" class="filter-label">All Templates</label>
+                    <span class="filter-count">100+</span>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-workflow" class="filter-checkbox" data-category="workflow">
+                    <label for="cat-workflow" class="filter-label">Workflow Templates</label>
+                    <span class="filter-count">45</span>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-project" class="filter-checkbox" data-category="project">
+                    <label for="cat-project" class="filter-label">Project Templates</label>
+                    <span class="filter-count">32</span>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-compliance" class="filter-checkbox" data-category="compliance">
+                    <label for="cat-compliance" class="filter-label">Compliance Templates</label>
+                    <span class="filter-count">15</span>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="cat-kanban" class="filter-checkbox" data-category="kanban">
+                    <label for="cat-kanban" class="filter-label">Kanban Boards</label>
+                    <span class="filter-count">8</span>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Industry</h3>
+                <div class="filter-option">
+                    <input type="checkbox" id="ind-general" class="filter-checkbox" data-industry="general" checked>
+                    <label for="ind-general" class="filter-label">General Purpose</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="ind-tech" class="filter-checkbox" data-industry="tech">
+                    <label for="ind-tech" class="filter-label">Technology & IT</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="ind-finance" class="filter-checkbox" data-industry="finance">
+                    <label for="ind-finance" class="filter-label">Finance & Banking</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="ind-health" class="filter-checkbox" data-industry="health">
+                    <label for="ind-health" class="filter-label">Healthcare</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="ind-mfg" class="filter-checkbox" data-industry="manufacturing">
+                    <label for="ind-mfg" class="filter-label">Manufacturing</label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Rating</h3>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating-5" class="filter-checkbox">
+                    <label for="rating-5" class="filter-label">★★★★★ 5 stars</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating-4" class="filter-checkbox">
+                    <label for="rating-4" class="filter-label">★★★★☆ 4 stars & up</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating-3" class="filter-checkbox">
+                    <label for="rating-3" class="filter-label">★★★☆☆ 3 stars & up</label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Features</h3>
+                <div class="filter-option">
+                    <input type="checkbox" id="feat-auto" class="filter-checkbox">
+                    <label for="feat-auto" class="filter-label">Has automation</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="feat-approval" class="filter-checkbox">
+                    <label for="feat-approval" class="filter-label">Includes approvals</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="feat-compliance" class="filter-checkbox">
+                    <label for="feat-compliance" class="filter-label">Compliance ready</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="feat-reports" class="filter-checkbox">
+                    <label for="feat-reports" class="filter-label">Pre-built reports</label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="header-title">Template Gallery</h1>
+                <p class="header-subtitle">100+ Templates Ready to Use</p>
+            </header>
+
+            <!-- Search & Filters -->
+            <section class="search-section">
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input
+                            type="text"
+                            id="searchInput"
+                            class="search-input"
+                            placeholder="Search by name, category, or keywords..."
+                        >
+                    </div>
+                </div>
+                <div class="filter-controls">
+                    <select class="filter-dropdown">
+                        <option>Category: All</option>
+                        <option>Workflow</option>
+                        <option>Project</option>
+                        <option>Compliance</option>
+                        <option>Kanban</option>
+                    </select>
+                    <select class="filter-dropdown">
+                        <option>Industry: All</option>
+                        <option>Technology</option>
+                        <option>Finance</option>
+                        <option>Healthcare</option>
+                        <option>Manufacturing</option>
+                    </select>
+                    <select class="filter-dropdown">
+                        <option>Sort: Popular</option>
+                        <option>Newest</option>
+                        <option>Highest Rated</option>
+                        <option>A-Z</option>
+                    </select>
+                    <button class="btn-clear-filters">Clear Filters</button>
+                </div>
+            </section>
+
+            <!-- Template Grid -->
+            <div id="templateGrid" class="template-grid">
+                <!-- Template cards will be dynamically generated -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3 class="empty-title">No templates match your search</h3>
+                <p class="empty-text">Try adjusting your filters or search terms</p>
+                <button class="btn-clear-filters">Clear All Filters</button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="btn-load-more">Load More</button>
+                <span class="pagination-info">Showing 1-12 of 100+</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Template Name</h2>
+                <button class="btn-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-preview">
+                    <div class="preview-tabs">
+                        <button class="preview-tab active" onclick="switchTab('overview')">Overview</button>
+                        <button class="preview-tab" onclick="switchTab('workflow')">Workflow</button>
+                        <button class="preview-tab" onclick="switchTab('tasks')">Tasks</button>
+                    </div>
+                    <div id="tab-overview" class="tab-content active">
+                        <div class="preview-image">
+                            <span style="font-size: 4rem;">📊</span>
+                        </div>
+                        <p class="details-text" id="modalDescription">Full description of the template...</p>
+                    </div>
+                    <div id="tab-workflow" class="tab-content">
+                        <div class="preview-image">
+                            <span style="font-size: 4rem;">🔄</span>
+                        </div>
+                        <p class="details-text">Detailed workflow visualization showing all automation steps...</p>
+                    </div>
+                    <div id="tab-tasks" class="tab-content">
+                        <div class="preview-image">
+                            <span style="font-size: 4rem;">✓</span>
+                        </div>
+                        <ul class="features-list" id="modalTasks">
+                            <li class="feature-item"><span class="feature-check">✓</span> Task 1</li>
+                            <li class="feature-item"><span class="feature-check">✓</span> Task 2</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-details">
+                    <div class="details-section">
+                        <h4 class="details-title">Features</h4>
+                        <ul class="features-list" id="modalFeatures">
+                            <li class="feature-item"><span class="feature-check">✓</span> Automation included</li>
+                            <li class="feature-item"><span class="feature-check">✓</span> Approval workflows</li>
+                        </ul>
+                    </div>
+                    <div class="details-section">
+                        <h4 class="details-title">Requirements</h4>
+                        <p class="details-text" id="modalRequirements">
+                            • Minimum role: Team Member<br>
+                            • Setup time: 15 minutes<br>
+                            • Complexity: Intermediate
+                        </p>
+                    </div>
+                    <div class="details-section">
+                        <h4 class="details-title">What's Included</h4>
+                        <p class="details-text" id="modalIncluded">
+                            • 12 pre-configured tasks<br>
+                            • 3 automation rules<br>
+                            • Sample data & documentation
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-secondary">♥ Add to Favorites</button>
+                <button class="btn-primary">Use Template</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Template data
+        const templates = [
+            {
+                id: 1,
+                name: "Employee Onboarding Workflow",
+                creator: "System",
+                category: "workflow",
+                description: "Complete onboarding process for new employees with automated task assignments, approval workflows, and document collection.",
+                rating: 4.9,
+                ratingCount: 234,
+                uses: 3500,
+                tasks: 12,
+                setupTime: "15 min",
+                industry: "general",
+                features: ["Automation included", "Approval workflows", "Document templates", "Email notifications"],
+                requirements: "Team Member role or higher",
+                included: "12 tasks, 5 automation rules, 3 approval steps"
+            },
+            {
+                id: 2,
+                name: "Project Kickoff Checklist",
+                creator: "Community",
+                category: "project",
+                description: "Standardized project initiation process including stakeholder alignment, resource planning, and kickoff meeting preparation.",
+                rating: 4.8,
+                ratingCount: 189,
+                uses: 2800,
+                tasks: 18,
+                setupTime: "20 min",
+                industry: "general",
+                features: ["Task templates", "Meeting scheduler", "Resource allocation"],
+                requirements: "Project Manager role",
+                included: "18 tasks, 2 milestones, project charter template"
+            },
+            {
+                id: 3,
+                name: "IT Service Request Management",
+                creator: "System",
+                category: "workflow",
+                description: "Handle IT support tickets with automated routing, SLA tracking, and escalation workflows for efficient issue resolution.",
+                rating: 4.7,
+                ratingCount: 156,
+                uses: 4200,
+                tasks: 8,
+                setupTime: "10 min",
+                industry: "tech",
+                features: ["SLA tracking", "Auto-routing", "Priority management", "Escalation rules"],
+                requirements: "Support team access",
+                included: "8 task types, 4 automation rules, SLA templates"
+            },
+            {
+                id: 4,
+                name: "Compliance Audit Tracker",
+                creator: "System",
+                category: "compliance",
+                description: "Comprehensive audit management system with evidence collection, finding tracking, and remediation workflows.",
+                rating: 4.9,
+                ratingCount: 98,
+                uses: 1500,
+                tasks: 25,
+                setupTime: "30 min",
+                industry: "finance",
+                features: ["Compliance ready", "Evidence vault", "Audit trail", "Custom reports"],
+                requirements: "Compliance Officer role",
+                included: "25 audit tasks, compliance checklist, reporting dashboard"
+            },
+            {
+                id: 5,
+                name: "Sprint Planning Board",
+                creator: "Community",
+                category: "kanban",
+                description: "Agile sprint board with story point tracking, velocity charts, and backlog refinement tools.",
+                rating: 4.8,
+                ratingCount: 312,
+                uses: 5600,
+                tasks: 0,
+                setupTime: "5 min",
+                industry: "tech",
+                features: ["Kanban view", "Story points", "Velocity tracking", "Burndown charts"],
+                requirements: "Scrum Master or Developer",
+                included: "Kanban board, sprint templates, velocity calculator"
+            },
+            {
+                id: 6,
+                name: "Sales Pipeline Management",
+                creator: "System",
+                category: "workflow",
+                description: "Track deals from lead to close with automated follow-ups, stage transitions, and revenue forecasting.",
+                rating: 4.6,
+                ratingCount: 145,
+                uses: 2100,
+                tasks: 15,
+                setupTime: "20 min",
+                industry: "general",
+                features: ["Pipeline stages", "Revenue forecasting", "Auto-reminders", "Custom fields"],
+                requirements: "Sales team access",
+                included: "15 stage tasks, 6 automation rules, forecast dashboard"
+            },
+            {
+                id: 7,
+                name: "Product Launch Campaign",
+                creator: "Community",
+                category: "project",
+                description: "End-to-end product launch management with marketing campaigns, stakeholder coordination, and success metrics.",
+                rating: 4.7,
+                ratingCount: 87,
+                uses: 890,
+                tasks: 32,
+                setupTime: "45 min",
+                industry: "general",
+                features: ["Marketing automation", "Timeline view", "Stakeholder map", "KPI tracking"],
+                requirements: "Product Manager role",
+                included: "32 launch tasks, GTM checklist, success metrics template"
+            },
+            {
+                id: 8,
+                name: "Quarterly Business Review",
+                creator: "System",
+                category: "compliance",
+                description: "Structured QBR process with performance analysis, strategic planning, and executive reporting.",
+                rating: 4.8,
+                ratingCount: 76,
+                uses: 650,
+                tasks: 20,
+                setupTime: "25 min",
+                industry: "general",
+                features: ["Executive dashboard", "Performance metrics", "Strategic planning", "Custom reports"],
+                requirements: "Executive access",
+                included: "20 review tasks, metrics dashboard, presentation template"
+            },
+            {
+                id: 9,
+                name: "Customer Feedback Loop",
+                creator: "Community",
+                category: "workflow",
+                description: "Collect, analyze, and act on customer feedback with sentiment analysis and action item tracking.",
+                rating: 4.5,
+                ratingCount: 134,
+                uses: 1800,
+                tasks: 10,
+                setupTime: "15 min",
+                industry: "general",
+                features: ["Feedback collection", "Sentiment analysis", "Action tracking", "Integration ready"],
+                requirements: "Customer Success role",
+                included: "10 feedback tasks, sentiment dashboard, follow-up automation"
+            },
+            {
+                id: 10,
+                name: "Risk Assessment Framework",
+                creator: "System",
+                category: "compliance",
+                description: "Identify, assess, and mitigate business risks with scoring matrix and mitigation plan workflows.",
+                rating: 4.9,
+                ratingCount: 65,
+                uses: 720,
+                tasks: 16,
+                setupTime: "30 min",
+                industry: "finance",
+                features: ["Risk scoring", "Mitigation planning", "Compliance tracking", "Audit trail"],
+                requirements: "Risk Manager role",
+                included: "16 risk tasks, scoring matrix, mitigation templates"
+            },
+            {
+                id: 11,
+                name: "Marketing Campaign Tracker",
+                creator: "Community",
+                category: "kanban",
+                description: "Visual campaign management with content calendar, budget tracking, and performance analytics.",
+                rating: 4.7,
+                ratingCount: 198,
+                uses: 3200,
+                tasks: 0,
+                setupTime: "10 min",
+                industry: "general",
+                features: ["Content calendar", "Budget tracking", "Analytics", "Multi-channel"],
+                requirements: "Marketing team access",
+                included: "Kanban board, content calendar, budget tracker"
+            },
+            {
+                id: 12,
+                name: "Healthcare Patient Journey",
+                creator: "System",
+                category: "workflow",
+                description: "Patient care coordination from intake to discharge with appointment scheduling and care plan management.",
+                rating: 4.8,
+                ratingCount: 112,
+                uses: 980,
+                tasks: 22,
+                setupTime: "35 min",
+                industry: "health",
+                features: ["HIPAA compliant", "Appointment sync", "Care coordination", "Document security"],
+                requirements: "Healthcare provider access",
+                included: "22 care tasks, appointment templates, HIPAA-compliant forms"
+            }
+        ];
+
+        // Render templates
+        function renderTemplates(templatesToRender = templates) {
+            const grid = document.getElementById('templateGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (templatesToRender.length === 0) {
+                grid.style.display = 'none';
+                emptyState.classList.add('active');
+                return;
+            } else {
+                grid.style.display = 'grid';
+                emptyState.classList.remove('active');
+            }
+
+            grid.innerHTML = templatesToRender.map(template => `
+                <div class="template-card" data-name="${template.name.toLowerCase()}" data-category="${template.category}">
+                    <div class="template-preview">
+                        <span class="template-preview-icon">${getCategoryIcon(template.category)}</span>
+                        <button class="favorite-btn">♡</button>
+                    </div>
+                    <div class="template-content">
+                        <div class="template-header">
+                            <h3 class="template-name">${template.name}</h3>
+                            <div class="template-meta">
+                                <span class="template-creator">By ${template.creator}</span>
+                                <span>•</span>
+                                <span class="category-badge category-${template.category}">${capitalize(template.category)}</span>
+                            </div>
+                        </div>
+                        <p class="template-description">${template.description}</p>
+                        <div class="template-stats">
+                            <div class="stat-item">
+                                <span class="stars">⭐</span>
+                                <span>${template.rating} (${template.ratingCount})</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>🚀</span>
+                                <span>${formatNumber(template.uses)} uses</span>
+                            </div>
+                        </div>
+                        <div class="template-stats">
+                            <div class="stat-item">
+                                <span>📦</span>
+                                <span>${template.tasks > 0 ? template.tasks + ' tasks' : 'Kanban'}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span>⏱️</span>
+                                <span>${template.setupTime}</span>
+                            </div>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn-preview" onclick='openPreview(${JSON.stringify(template).replace(/'/g, "&#39;")})'>Preview</button>
+                            <button class="btn-use-template">Use Template</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Helper functions
+        function getCategoryIcon(category) {
+            const icons = {
+                workflow: '🔄',
+                project: '📊',
+                compliance: '✓',
+                kanban: '📋'
+            };
+            return icons[category] || '📄';
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'k';
+            }
+            return num;
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = templates.filter(template =>
+                template.name.toLowerCase().includes(searchTerm) ||
+                template.description.toLowerCase().includes(searchTerm) ||
+                template.category.toLowerCase().includes(searchTerm)
+            );
+            renderTemplates(filtered);
+        });
+
+        // Modal functions
+        function openPreview(template) {
+            const modal = document.getElementById('previewModal');
+            document.getElementById('modalTitle').textContent = template.name;
+            document.getElementById('modalDescription').textContent = template.description;
+
+            // Update features
+            const featuresHtml = template.features.map(f =>
+                `<li class="feature-item"><span class="feature-check">✓</span> ${f}</li>`
+            ).join('');
+            document.getElementById('modalFeatures').innerHTML = featuresHtml;
+
+            // Update requirements
+            document.getElementById('modalRequirements').innerHTML =
+                `• ${template.requirements}<br>• Setup time: ${template.setupTime}<br>• Industry: ${capitalize(template.industry)}`;
+
+            // Update included
+            document.getElementById('modalIncluded').textContent = template.included;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        function switchTab(tabName) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.preview-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('previewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Clear filters
+        document.querySelectorAll('.btn-clear-filters').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('searchInput').value = '';
+                renderTemplates(templates);
+            });
+        });
+
+        // Initialize
+        renderTemplates();
+    </script>
+</body>
+</html>

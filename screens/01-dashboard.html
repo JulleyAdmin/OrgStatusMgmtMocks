@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Hub - AI Org Platform</title>
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        .page-header {
+            padding: var(--space-6);
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .page-subtitle {
+            font-size: var(--text-base);
+            color: var(--text-tertiary);
+        }
+
+        .dashboard-content {
+            padding: var(--space-6);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 0.7fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-6);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: var(--error-500);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+            font-weight: var(--font-bold);
+        }
+
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: var(--space-2) var(--space-4);
+            padding-left: var(--space-10);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .icon-button:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .task-actions {
+            display: none;
+            gap: var(--space-2);
+        }
+
+        .task-card:hover .task-actions {
+            display: flex;
+        }
+
+        .action-btn {
+            padding: var(--space-1) var(--space-2);
+            font-size: var(--text-xs);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .action-btn:hover {
+            background-color: var(--primary-50);
+            border-color: var(--primary-300);
+            color: var(--primary-700);
+        }
+
+        @media (max-width: 1279px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" rx="8" fill="#3B82F6"/>
+                <path d="M16 8L20 12H12L16 8Z" fill="white"/>
+                <path d="M12 14H20V24H12V14Z" fill="white"/>
+            </svg>
+            AI Org Platform
+        </div>
+        <ul class="sidebar-nav">
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link active">
+                    <span>🏠</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>📊</span>
+                    <span>Tasks</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>📅</span>
+                    <span>Calendar</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>📁</span>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>🏢</span>
+                    <span>Organization</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>🔄</span>
+                    <span>Workflows</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>📈</span>
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>📋</span>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>⏱️</span>
+                    <span>Time Tracking</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>✓</span>
+                    <span>Compliance</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>📚</span>
+                    <span>Templates</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>🔌</span>
+                    <span>Integrations</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-item">
+                <a href="#" class="sidebar-nav-link">
+                    <span>⚙️</span>
+                    <span>Admin</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search... (Cmd+K)">
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary">
+                    <span>+</span>
+                    <span>Create New</span>
+                </button>
+                <button class="icon-button">
+                    <span>🔔</span>
+                    <span class="notification-badge">5</span>
+                </button>
+                <button class="icon-button">
+                    <span>❓</span>
+                </button>
+                <div class="avatar">
+                    <span>JD</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Welcome back, John Doe!</h1>
+            <p class="page-subtitle">Today: January 15, 2025 | Here's what's happening with your tasks and team.</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <!-- My Tasks -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <div>
+                            <div class="kpi-card-value">24</div>
+                            <div class="kpi-card-label">My Tasks</div>
+                        </div>
+                        <div class="kpi-card-icon" style="background-color: var(--primary-50); color: var(--primary-600);">
+                            📋
+                        </div>
+                    </div>
+                    <div class="kpi-card-trend positive">
+                        <span>↑</span>
+                        <span>12%</span>
+                        <span style="font-weight: normal; color: var(--text-tertiary);">vs last week</span>
+                    </div>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <div>
+                            <div class="kpi-card-value">8</div>
+                            <div class="kpi-card-label">Pending Approvals</div>
+                        </div>
+                        <div class="kpi-card-icon" style="background-color: var(--warning-50); color: var(--warning-700);">
+                            ⏳
+                        </div>
+                    </div>
+                    <div class="kpi-card-trend negative">
+                        <span>↑</span>
+                        <span>3 new</span>
+                        <span style="font-weight: normal; color: var(--text-tertiary);">today</span>
+                    </div>
+                </div>
+
+                <!-- Overdue -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <div>
+                            <div class="kpi-card-value">3</div>
+                            <div class="kpi-card-label">Overdue</div>
+                        </div>
+                        <div class="kpi-card-icon" style="background-color: var(--error-50); color: var(--error-700);">
+                            ⚠️
+                        </div>
+                    </div>
+                    <div class="kpi-card-trend negative">
+                        <span>⚠️</span>
+                        <span>Needs attention</span>
+                    </div>
+                </div>
+
+                <!-- Completed This Week -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <div>
+                            <div class="kpi-card-value">47</div>
+                            <div class="kpi-card-label">Completed This Week</div>
+                        </div>
+                        <div class="kpi-card-icon" style="background-color: var(--success-50); color: var(--success-700);">
+                            ✓
+                        </div>
+                    </div>
+                    <div class="kpi-card-trend positive">
+                        <span>↑</span>
+                        <span>23%</span>
+                        <span style="font-weight: normal; color: var(--text-tertiary);">vs last week</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Grid: Tasks & Activity Feed -->
+            <div class="main-grid">
+                <!-- Priority Tasks Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Priority Tasks</h2>
+                        <div style="display: flex; gap: var(--space-2);">
+                            <button class="btn btn-secondary" style="padding: var(--space-1) var(--space-3); font-size: var(--text-xs);">All</button>
+                            <button class="btn btn-secondary" style="padding: var(--space-1) var(--space-3); font-size: var(--text-xs);">My Tasks</button>
+                            <button class="btn btn-secondary" style="padding: var(--space-1) var(--space-3); font-size: var(--text-xs);">Delegated</button>
+                        </div>
+                    </div>
+                    <ul class="task-list">
+                        <!-- Task 1 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Review Q1 Budget Proposal</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-high">High</span>
+                                    <span class="badge badge-pending">In Progress</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Due in 2 hours</span>
+                                <span>•</span>
+                                <span>Finance Department</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>AM</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Task 2 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Update Employee Handbook</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-medium">Medium</span>
+                                    <span class="badge badge-active">Active</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Due tomorrow</span>
+                                <span>•</span>
+                                <span>HR Department</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>SK</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Task 3 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Approve Marketing Campaign Assets</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-high">High</span>
+                                    <span class="badge badge-pending">Pending</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Due today</span>
+                                <span>•</span>
+                                <span>Marketing Department</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>JL</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Task 4 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Complete Security Audit Report</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-high">High</span>
+                                    <span class="badge badge-overdue">Overdue</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Overdue by 1 day</span>
+                                <span>•</span>
+                                <span>IT Department</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>RC</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Task 5 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Schedule Team Building Event</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-low">Low</span>
+                                    <span class="badge badge-draft">Draft</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Due in 3 days</span>
+                                <span>•</span>
+                                <span>Operations Department</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>MP</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Task 6 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Review Customer Feedback Analysis</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-medium">Medium</span>
+                                    <span class="badge badge-active">Active</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Due in 5 days</span>
+                                <span>•</span>
+                                <span>Customer Success</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>TW</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Task 7 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Prepare Sales Presentation</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-high">High</span>
+                                    <span class="badge badge-pending">In Progress</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Due in 4 hours</span>
+                                <span>•</span>
+                                <span>Sales Department</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>DK</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Task 8 -->
+                        <li class="task-card">
+                            <div class="task-card-header">
+                                <div class="task-card-title">Update API Documentation</div>
+                                <div style="display: flex; gap: var(--space-2); align-items: center;">
+                                    <span class="badge badge-priority-medium">Medium</span>
+                                    <span class="badge badge-active">Active</span>
+                                </div>
+                            </div>
+                            <div class="task-card-meta">
+                                <span>📅 Due in 1 week</span>
+                                <span>•</span>
+                                <span>Engineering Department</span>
+                            </div>
+                            <div class="task-card-footer">
+                                <div class="avatar avatar-sm">
+                                    <span>LP</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn">View</button>
+                                    <button class="action-btn">Edit</button>
+                                    <button class="action-btn">Complete</button>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Activity Feed Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Activity Feed</h2>
+                        <button class="btn btn-secondary" style="padding: var(--space-1) var(--space-3); font-size: var(--text-xs);">View All</button>
+                    </div>
+                    <ul class="activity-feed">
+                        <!-- Activity 1 -->
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <div class="avatar avatar-sm">
+                                    <span>AM</span>
+                                </div>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Alice Miller</strong> assigned you to <strong>Review Q1 Budget Proposal</strong>
+                                </div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                        </li>
+
+                        <!-- Activity 2 -->
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <span>💬</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Bob Chen</strong> commented on <strong>Marketing Campaign Assets</strong>
+                                </div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                        </li>
+
+                        <!-- Activity 3 -->
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <span>✓</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Sarah Kim</strong> completed <strong>Employee Training Module</strong>
+                                </div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                        </li>
+
+                        <!-- Activity 4 -->
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <span>🔔</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Approval needed</strong> for <strong>Budget Reallocation Request</strong>
+                                </div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </li>
+
+                        <!-- Activity 5 -->
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <span>📎</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>John Lee</strong> attached document to <strong>Security Audit Report</strong>
+                                </div>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                        </li>
+
+                        <!-- Activity 6 -->
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <span>🔄</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>System</strong> updated workflow status for <strong>Onboarding Process</strong>
+                                </div>
+                                <div class="activity-time">4 hours ago</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <!-- Task Trend Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Task Trend (30 Days)</h3>
+                        <select class="btn btn-secondary" style="padding: var(--space-1) var(--space-3); font-size: var(--text-xs);">
+                            <option>Last 30 Days</option>
+                            <option>Last 90 Days</option>
+                            <option>This Year</option>
+                        </select>
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="taskTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- SLA Compliance Gauge -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">SLA Compliance</h3>
+                        <span class="badge badge-active">92% On Track</span>
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="slaGaugeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Team Load Bar Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Team Workload</h3>
+                        <button class="btn btn-secondary" style="padding: var(--space-1) var(--space-3); font-size: var(--text-xs);">Sort by Load</button>
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="teamLoadChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Task Trend Line Chart
+        const taskTrendCtx = document.getElementById('taskTrendChart').getContext('2d');
+        const taskTrendChart = new Chart(taskTrendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan 1', 'Jan 5', 'Jan 10', 'Jan 15', 'Jan 20', 'Jan 25', 'Jan 30'],
+                datasets: [
+                    {
+                        label: 'Created',
+                        data: [12, 19, 15, 25, 22, 30, 28],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Completed',
+                        data: [8, 15, 12, 20, 18, 25, 24],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Overdue',
+                        data: [2, 3, 2, 4, 3, 4, 3],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 10
+                        }
+                    }
+                }
+            }
+        });
+
+        // SLA Compliance Gauge Chart
+        const slaGaugeCtx = document.getElementById('slaGaugeChart').getContext('2d');
+        const slaGaugeChart = new Chart(slaGaugeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['On Track', 'At Risk', 'Remaining'],
+                datasets: [{
+                    data: [92, 8, 0],
+                    backgroundColor: [
+                        '#10B981',
+                        '#F59E0B',
+                        '#E5E7EB'
+                    ],
+                    borderWidth: 0,
+                    circumference: 180,
+                    rotation: 270
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Team Load Bar Chart
+        const teamLoadCtx = document.getElementById('teamLoadChart').getContext('2d');
+        const teamLoadChart = new Chart(teamLoadCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Alice M.', 'Bob C.', 'Sarah K.', 'John L.', 'Rachel C.', 'Mike P.', 'Tom W.', 'Lisa P.'],
+                datasets: [
+                    {
+                        label: 'Active',
+                        data: [12, 15, 10, 18, 14, 9, 16, 11],
+                        backgroundColor: '#3B82F6'
+                    },
+                    {
+                        label: 'Pending',
+                        data: [5, 7, 4, 6, 5, 3, 7, 4],
+                        backgroundColor: '#F59E0B'
+                    },
+                    {
+                        label: 'Blocked',
+                        data: [2, 1, 3, 2, 1, 2, 1, 2],
+                        backgroundColor: '#EF4444'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        beginAtZero: true,
+                        max: 25
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+
+        // Keyboard shortcut for search (Cmd+K)
+        document.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('.search-bar input').focus();
+            }
+        });
+
+        // Show help on ? key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '?') {
+                alert('Keyboard Shortcuts:\n\nCmd+K: Search\n?: Show this help\nCmd+N: Create new task');
+            }
+        });
+    </script>
+</body>
+</html>

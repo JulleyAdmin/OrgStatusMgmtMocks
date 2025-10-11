@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Log Viewer - AI Org Platform</title>
+  <link rel="stylesheet" href="../assets/css/design-system.css">
+
+  <!-- Flatpickr Date Range Picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <style>
+    body {
+      background-color: var(--bg-secondary);
+    }
+
+    .main-content {
+      margin-left: 256px;
+      margin-top: 64px;
+      padding: var(--space-6);
+      min-height: calc(100vh - 64px);
+    }
+
+    /* Filter Bar Styling */
+    .filter-bar {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    /* Summary Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .stat-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    /* Audit Table Styling */
+    .audit-table-container {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .audit-table thead {
+      background: var(--bg-tertiary);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .audit-table th {
+      padding: var(--space-3) var(--space-4);
+      text-align: left;
+      font-weight: var(--font-semibold);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .audit-table th:hover {
+      background: var(--neutral-200);
+    }
+
+    .audit-table th.sortable::after {
+      content: '⇅';
+      position: absolute;
+      right: 8px;
+      opacity: 0.3;
+      font-size: 12px;
+    }
+
+    .audit-table th.sorted-asc::after {
+      content: '↑';
+      opacity: 1;
+      color: var(--primary-600);
+    }
+
+    .audit-table th.sorted-desc::after {
+      content: '↓';
+      opacity: 1;
+      color: var(--primary-600);
+    }
+
+    .audit-table td {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border-color);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .audit-table tr {
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+    }
+
+    .audit-table tbody tr:hover {
+      background: var(--bg-secondary);
+    }
+
+    .audit-table tbody tr.selected {
+      background: var(--primary-50);
+    }
+
+    /* Status Badges */
+    .status-success {
+      background: var(--success-50);
+      color: var(--success-700);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      display: inline-block;
+    }
+
+    .status-failed {
+      background: var(--error-50);
+      color: var(--error-700);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      display: inline-block;
+    }
+
+    .status-pending {
+      background: var(--warning-50);
+      color: var(--warning-700);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      display: inline-block;
+    }
+
+    /* Action Type Icons */
+    .action-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      margin-right: var(--space-2);
+      font-size: 12px;
+    }
+
+    .action-login { background: var(--primary-100); color: var(--primary-700); }
+    .action-logout { background: var(--neutral-200); color: var(--neutral-700); }
+    .action-create { background: var(--success-100); color: var(--success-700); }
+    .action-update { background: var(--info-100); color: var(--info-700); }
+    .action-delete { background: var(--error-100); color: var(--error-700); }
+    .action-export { background: var(--warning-100); color: var(--warning-700); }
+    .action-view { background: var(--neutral-100); color: var(--neutral-600); }
+    .action-approve { background: var(--success-100); color: var(--success-700); }
+
+    /* Detail Panel */
+    .detail-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 500px;
+      height: 100vh;
+      background: var(--bg-primary);
+      box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
+      transform: translateX(100%);
+      transition: transform var(--transition-base);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .detail-panel.open {
+      transform: translateX(0);
+    }
+
+    .detail-panel-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-base), visibility var(--transition-base);
+      z-index: 999;
+    }
+
+    .detail-panel-backdrop.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Compliance Export Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-primary);
+      border-radius: var(--radius-xl);
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-2xl);
+    }
+
+    /* Quick Filters */
+    .quick-filters {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+    }
+
+    .quick-filter-btn {
+      padding: var(--space-2) var(--space-4);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .quick-filter-btn:hover {
+      background: var(--primary-50);
+      border-color: var(--primary-300);
+      color: var(--primary-700);
+    }
+
+    .quick-filter-btn.active {
+      background: var(--primary-500);
+      border-color: var(--primary-500);
+      color: white;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4);
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+
+    .pagination-buttons {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .pagination-btn {
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: var(--primary-50);
+      border-color: var(--primary-300);
+      color: var(--primary-700);
+    }
+
+    .pagination-btn.active {
+      background: var(--primary-500);
+      border-color: var(--primary-500);
+      color: white;
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Custom Select Styles */
+    select, input {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      transition: border-color var(--transition-fast);
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-100);
+    }
+
+    /* Checkbox Styles */
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .main-content {
+        margin-left: 0;
+      }
+
+      .detail-panel {
+        width: 100%;
+      }
+
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Code block for hash display */
+    .code-block {
+      background: var(--bg-tertiary);
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      overflow-x: auto;
+      word-break: break-all;
+    }
+
+    /* Diff view */
+    .diff-view {
+      background: var(--bg-tertiary);
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+    }
+
+    .diff-old {
+      color: var(--error-700);
+      background: var(--error-50);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      text-decoration: line-through;
+    }
+
+    .diff-new {
+      color: var(--success-700);
+      background: var(--success-50);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      font-weight: var(--font-medium);
+    }
+
+    .label {
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+      display: block;
+    }
+
+    /* Button styles */
+    .btn {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn-primary {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-600);
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      border: 2px solid var(--border-color);
+      border-top-color: var(--primary-500);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Shell (Simplified) -->
+  <nav style="position: fixed; top: 0; left: 0; right: 0; height: 64px; background: white; border-bottom: 1px solid var(--border-color); z-index: 100; display: flex; align-items: center; padding: 0 var(--space-6); justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: var(--space-4);">
+      <div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-500), var(--primary-700)); border-radius: var(--radius-lg);"></div>
+      <span style="font-weight: var(--font-semibold); font-size: var(--text-lg);">AI Org Platform</span>
+    </div>
+    <div style="color: var(--text-secondary); font-size: var(--text-sm);">Audit Log Viewer</div>
+  </nav>
+
+  <aside style="position: fixed; top: 64px; left: 0; width: 256px; height: calc(100vh - 64px); background: white; border-right: 1px solid var(--border-color); padding: var(--space-4); overflow-y: auto;">
+    <nav style="display: flex; flex-direction: column; gap: var(--space-1);">
+      <a href="#" style="padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); display: flex; align-items: center; gap: var(--space-3); transition: background var(--transition-fast);">
+        <span>🏠</span> Dashboard
+      </a>
+      <a href="#" style="padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); display: flex; align-items: center; gap: var(--space-3); transition: background var(--transition-fast);">
+        <span>📋</span> Tasks
+      </a>
+      <a href="#" style="padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); display: flex; align-items: center; gap: var(--space-3); transition: background var(--transition-fast);">
+        <span>📄</span> Documents
+      </a>
+      <a href="#" style="padding: var(--space-3); border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); color: white; display: flex; align-items: center; gap: var(--space-3); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+        <span>🔍</span> Audit Log
+      </a>
+      <a href="#" style="padding: var(--space-3); border-radius: var(--radius-md); color: var(--text-secondary); display: flex; align-items: center; gap: var(--space-3); transition: background var(--transition-fast);">
+        <span>⚙️</span> Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Page Header -->
+    <div style="margin-bottom: var(--space-6);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+        <div>
+          <h1 style="font-size: var(--text-4xl); font-weight: var(--font-bold); color: var(--text-primary); margin-bottom: var(--space-2);">Audit Log</h1>
+          <p style="color: var(--text-tertiary); font-size: var(--text-base);">Comprehensive audit trail of all system activities for compliance and security</p>
+        </div>
+        <div style="display: flex; gap: var(--space-3);">
+          <button class="btn btn-secondary" id="refreshBtn">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
+          <button class="btn btn-primary" id="exportModalBtn">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Compliance Export
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-3);">
+          <div>
+            <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-1);">Total Events</p>
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--text-primary);">12,453</p>
+          </div>
+          <div style="width: 48px; height: 48px; background: var(--primary-100); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 24px;">📊</div>
+        </div>
+        <p style="font-size: var(--text-xs); color: var(--success-700);">↑ 8.2% from last period</p>
+      </div>
+
+      <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-3);">
+          <div>
+            <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-1);">Unique Users</p>
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--text-primary);">147</p>
+          </div>
+          <div style="width: 48px; height: 48px; background: var(--success-100); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 24px;">👥</div>
+        </div>
+        <p style="font-size: var(--text-xs); color: var(--text-tertiary);">Active in last 90 days</p>
+      </div>
+
+      <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-3);">
+          <div>
+            <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-1);">Failed Actions</p>
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--error-700);">23</p>
+          </div>
+          <div style="width: 48px; height: 48px; background: var(--error-100); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 24px;">⚠️</div>
+        </div>
+        <p style="font-size: var(--text-xs); color: var(--error-700);">Requires attention</p>
+      </div>
+
+      <div class="stat-card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-3);">
+          <div>
+            <p style="font-size: var(--text-sm); color: var(--text-tertiary); margin-bottom: var(--space-1);">Data Exports</p>
+            <p style="font-size: var(--text-3xl); font-weight: var(--font-bold); color: var(--text-primary);">45</p>
+          </div>
+          <div style="width: 48px; height: 48px; background: var(--warning-100); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 24px;">📤</div>
+        </div>
+        <p style="font-size: var(--text-xs); color: var(--text-tertiary);">Last 30 days</p>
+      </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="quick-filters">
+      <button class="quick-filter-btn" data-filter="today">Today</button>
+      <button class="quick-filter-btn" data-filter="7days">Last 7 Days</button>
+      <button class="quick-filter-btn" data-filter="30days">Last 30 Days</button>
+      <button class="quick-filter-btn" data-filter="failed">Failed Actions</button>
+      <button class="quick-filter-btn" data-filter="admin">Admin Actions</button>
+      <button class="quick-filter-btn" data-filter="exports">Data Exports</button>
+    </div>
+
+    <!-- Advanced Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-grid">
+        <div>
+          <label class="label" for="dateRangeInput">Date Range</label>
+          <input type="text" id="dateRangeInput" placeholder="Select date range..." readonly>
+        </div>
+
+        <div>
+          <label class="label" for="userFilter">User</label>
+          <select id="userFilter" multiple size="1">
+            <option value="">All Users</option>
+            <option value="john.doe@company.com">John Doe</option>
+            <option value="jane.smith@company.com">Jane Smith</option>
+            <option value="admin@company.com">System Admin</option>
+            <option value="mike.johnson@company.com">Mike Johnson</option>
+            <option value="sarah.williams@company.com">Sarah Williams</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="actionFilter">Action Type</label>
+          <select id="actionFilter">
+            <option value="">All Actions</option>
+            <option value="Login">Login</option>
+            <option value="Logout">Logout</option>
+            <option value="Create">Create</option>
+            <option value="Update">Update</option>
+            <option value="Delete">Delete</option>
+            <option value="View">View</option>
+            <option value="Export">Export</option>
+            <option value="Import">Import</option>
+            <option value="Approve">Approve</option>
+            <option value="Reject">Reject</option>
+            <option value="Share">Share</option>
+            <option value="Download">Download</option>
+            <option value="Upload">Upload</option>
+            <option value="Change Permission">Change Permission</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="resourceFilter">Resource Type</label>
+          <select id="resourceFilter">
+            <option value="">All Resources</option>
+            <option value="Task">Task</option>
+            <option value="User">User</option>
+            <option value="Document">Document</option>
+            <option value="Project">Project</option>
+            <option value="Workflow">Workflow</option>
+            <option value="Template">Template</option>
+            <option value="Position">Position</option>
+            <option value="Organization">Organization</option>
+            <option value="Report">Report</option>
+            <option value="Integration">Integration</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="statusFilter">Status</label>
+          <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Success">Success</option>
+            <option value="Failed">Failed</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="searchInput">Search</label>
+          <input type="text" id="searchInput" placeholder="Search logs...">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; gap: var(--space-3);">
+          <button class="btn btn-primary" id="applyFiltersBtn">Apply Filters</button>
+          <button class="btn btn-secondary" id="clearFiltersBtn">Clear All</button>
+        </div>
+        <div style="color: var(--text-tertiary); font-size: var(--text-sm);">
+          <span id="resultCount">537</span> results found
+        </div>
+      </div>
+    </div>
+
+    <!-- Audit Table -->
+    <div class="audit-table-container">
+      <table class="audit-table" id="auditTable">
+        <thead>
+          <tr>
+            <th style="width: 40px;">
+              <input type="checkbox" id="selectAll" aria-label="Select all">
+            </th>
+            <th class="sortable" data-column="timestamp">Timestamp</th>
+            <th class="sortable" data-column="user">User</th>
+            <th class="sortable" data-column="action">Action</th>
+            <th class="sortable" data-column="resource">Resource Type</th>
+            <th class="sortable" data-column="resourceId">Resource ID</th>
+            <th class="sortable" data-column="ip">IP Address</th>
+            <th class="sortable" data-column="location">Location</th>
+            <th class="sortable" data-column="status">Status</th>
+            <th style="width: 80px;">Details</th>
+          </tr>
+        </thead>
+        <tbody id="auditTableBody">
+          <!-- Table rows will be populated by JavaScript -->
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <div style="color: var(--text-secondary); font-size: var(--text-sm);">
+          Showing <span id="showingStart">1</span>-<span id="showingEnd">20</span> of <span id="totalRecords">537</span>
+        </div>
+        <div class="pagination-buttons">
+          <button class="pagination-btn" id="prevPageBtn" disabled>Previous</button>
+          <button class="pagination-btn active">1</button>
+          <button class="pagination-btn">2</button>
+          <button class="pagination-btn">3</button>
+          <button class="pagination-btn">4</button>
+          <button class="pagination-btn">5</button>
+          <span style="padding: var(--space-2);">...</span>
+          <button class="pagination-btn">27</button>
+          <button class="pagination-btn" id="nextPageBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Audit Detail Panel -->
+  <div class="detail-panel-backdrop" id="detailBackdrop"></div>
+  <div class="detail-panel" id="detailPanel">
+    <div style="padding: var(--space-6); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: start;">
+      <div>
+        <h2 style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--text-primary); margin-bottom: var(--space-1);">Audit Event Details</h2>
+        <p style="color: var(--text-tertiary); font-size: var(--text-sm);">Complete event information and metadata</p>
+      </div>
+      <button class="btn btn-secondary" id="closePanelBtn" style="padding: var(--space-2);">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div style="padding: var(--space-6);" id="detailContent">
+      <!-- Content will be populated dynamically -->
+    </div>
+  </div>
+
+  <!-- Compliance Export Modal -->
+  <div class="modal" id="exportModal">
+    <div class="modal-content">
+      <div style="padding: var(--space-6); border-bottom: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-2);">
+          <h2 style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--text-primary);">Compliance Export</h2>
+          <button class="btn btn-secondary" id="closeModalBtn" style="padding: var(--space-2);">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <p style="color: var(--text-tertiary); font-size: var(--text-sm);">Generate compliance-ready audit reports with cryptographic verification</p>
+      </div>
+
+      <div style="padding: var(--space-6);">
+        <form id="exportForm">
+          <div style="margin-bottom: var(--space-4);">
+            <label class="label" for="exportFormat">Export Format</label>
+            <select id="exportFormat" required>
+              <option value="csv">CSV (Spreadsheet)</option>
+              <option value="json">JSON (SIEM Integration)</option>
+              <option value="pdf">PDF (Formatted Report)</option>
+              <option value="xml">XML (Compliance Systems)</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: var(--space-4);">
+            <label class="label" for="exportDateRange">Date Range</label>
+            <input type="text" id="exportDateRange" placeholder="Select date range..." required readonly>
+          </div>
+
+          <div style="margin-bottom: var(--space-4);">
+            <label class="label">Event Types (Select all that apply)</label>
+            <div style="display: grid; gap: var(--space-2); margin-top: var(--space-2);">
+              <div class="checkbox-wrapper">
+                <input type="checkbox" id="exportAll" value="all" checked>
+                <label for="exportAll" style="font-size: var(--text-sm);">All Events</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input type="checkbox" id="exportAuth" value="auth">
+                <label for="exportAuth" style="font-size: var(--text-sm);">Authentication Events</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input type="checkbox" id="exportData" value="data">
+                <label for="exportData" style="font-size: var(--text-sm);">Data Changes</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input type="checkbox" id="exportAccess" value="access">
+                <label for="exportAccess" style="font-size: var(--text-sm);">Access Control Changes</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input type="checkbox" id="exportExport" value="export">
+                <label for="exportExport" style="font-size: var(--text-sm);">Data Exports</label>
+              </div>
+              <div class="checkbox-wrapper">
+                <input type="checkbox" id="exportFailed" value="failed">
+                <label for="exportFailed" style="font-size: var(--text-sm);">Failed Attempts</label>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: var(--info-50); border: 1px solid var(--info-200); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-4);">
+            <p style="font-weight: var(--font-semibold); color: var(--info-700); font-size: var(--text-sm); margin-bottom: var(--space-2);">📋 Retention Policy Information</p>
+            <ul style="color: var(--text-secondary); font-size: var(--text-sm); list-style: disc; padding-left: var(--space-5); line-height: 1.6;">
+              <li>Audit logs are retained for 7 years per compliance requirements</li>
+              <li>All exports include SHA-256 cryptographic hashes for tamper verification</li>
+              <li>Exports are logged in the audit trail with user attribution</li>
+              <li>Sensitive data is automatically redacted per data protection policies</li>
+            </ul>
+          </div>
+
+          <div style="display: flex; gap: var(--space-3); justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Generate Export
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock Data Generator
+    const users = [
+      'john.doe@company.com', 'jane.smith@company.com', 'admin@company.com',
+      'mike.johnson@company.com', 'sarah.williams@company.com', 'david.brown@company.com',
+      'emily.davis@company.com', 'robert.wilson@company.com', 'lisa.anderson@company.com',
+      'james.taylor@company.com', 'maria.garcia@company.com', 'chris.martinez@company.com'
+    ];
+
+    const actions = [
+      { name: 'Login', icon: '🔓', class: 'action-login' },
+      { name: 'Logout', icon: '🔒', class: 'action-logout' },
+      { name: 'Create', icon: '➕', class: 'action-create' },
+      { name: 'Update', icon: '✏️', class: 'action-update' },
+      { name: 'Delete', icon: '🗑️', class: 'action-delete' },
+      { name: 'View', icon: '👁️', class: 'action-view' },
+      { name: 'Export', icon: '📤', class: 'action-export' },
+      { name: 'Import', icon: '📥', class: 'action-create' },
+      { name: 'Approve', icon: '✅', class: 'action-approve' },
+      { name: 'Reject', icon: '❌', class: 'action-delete' },
+      { name: 'Share', icon: '🔗', class: 'action-update' },
+      { name: 'Download', icon: '⬇️', class: 'action-export' },
+      { name: 'Upload', icon: '⬆️', class: 'action-create' },
+      { name: 'Change Permission', icon: '🔐', class: 'action-update' }
+    ];
+
+    const resources = [
+      'Task', 'User', 'Document', 'Project', 'Workflow',
+      'Template', 'Position', 'Organization', 'Report', 'Integration'
+    ];
+
+    const locations = [
+      'San Francisco, CA', 'New York, NY', 'London, UK', 'Singapore',
+      'Sydney, Australia', 'Tokyo, Japan', 'Mumbai, India', 'Toronto, Canada',
+      'Berlin, Germany', 'Paris, France', 'Dubai, UAE', 'São Paulo, Brazil'
+    ];
+
+    const ipAddresses = [
+      '192.168.1.100', '192.168.1.101', '192.168.1.102', '10.0.0.45',
+      '10.0.0.87', '172.16.0.23', '203.45.67.89', '198.51.100.42',
+      '45.123.89.21', '87.234.12.90', '156.78.34.12', '201.34.89.45'
+    ];
+
+    const statuses = ['Success', 'Failed', 'Pending'];
+
+    // Generate mock audit log data
+    function generateAuditLogs(count = 537) {
+      const logs = [];
+      const now = new Date();
+
+      for (let i = 0; i < count; i++) {
+        const daysAgo = Math.floor(Math.random() * 90);
+        const hoursAgo = Math.floor(Math.random() * 24);
+        const minutesAgo = Math.floor(Math.random() * 60);
+
+        const timestamp = new Date(now);
+        timestamp.setDate(timestamp.getDate() - daysAgo);
+        timestamp.setHours(timestamp.getHours() - hoursAgo);
+        timestamp.setMinutes(timestamp.getMinutes() - minutesAgo);
+
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        const resource = resources[Math.floor(Math.random() * resources.length)];
+        const status = Math.random() > 0.03 ? 'Success' : (Math.random() > 0.5 ? 'Failed' : 'Pending');
+
+        logs.push({
+          id: `audit-${10000 + i}`,
+          timestamp: timestamp,
+          user: users[Math.floor(Math.random() * users.length)],
+          action: action.name,
+          actionIcon: action.icon,
+          actionClass: action.class,
+          resource: resource,
+          resourceId: `${resource.toLowerCase()}-${Math.floor(Math.random() * 9999)}`,
+          ip: ipAddresses[Math.floor(Math.random() * ipAddresses.length)],
+          location: locations[Math.floor(Math.random() * locations.length)],
+          status: status,
+          hash: generateHash(),
+          metadata: generateMetadata(action.name, resource)
+        });
+      }
+
+      return logs.sort((a, b) => b.timestamp - a.timestamp);
+    }
+
+    function generateHash() {
+      return Array.from({length: 64}, () =>
+        Math.floor(Math.random() * 16).toString(16)
+      ).join('');
+    }
+
+    function generateMetadata(action, resource) {
+      const metadata = {
+        sessionId: `sess-${Math.random().toString(36).substring(7)}`,
+        requestId: `req-${Math.random().toString(36).substring(7)}`,
+        userAgent: ['Chrome/120', 'Firefox/121', 'Safari/17', 'Edge/120'][Math.floor(Math.random() * 4)],
+        platform: ['Windows', 'macOS', 'Linux', 'iOS', 'Android'][Math.floor(Math.random() * 5)]
+      };
+
+      if (action === 'Update') {
+        metadata.changes = {
+          before: { status: 'Open', priority: 'Medium' },
+          after: { status: 'In Progress', priority: 'High' }
+        };
+      }
+
+      return metadata;
+    }
+
+    // Global state
+    let auditLogs = generateAuditLogs();
+    let filteredLogs = [...auditLogs];
+    let currentPage = 1;
+    const logsPerPage = 20;
+    let sortColumn = 'timestamp';
+    let sortDirection = 'desc';
+
+    // Initialize date range pickers
+    flatpickr("#dateRangeInput", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      maxDate: "today"
+    });
+
+    flatpickr("#exportDateRange", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      maxDate: "today"
+    });
+
+    // Format timestamp
+    function formatTimestamp(date) {
+      const options = {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      };
+      return date.toLocaleString('en-US', options);
+    }
+
+    function formatRelativeTime(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      if (diffDays < 30) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      return formatTimestamp(date);
+    }
+
+    // Render table
+    function renderTable() {
+      const tbody = document.getElementById('auditTableBody');
+      const start = (currentPage - 1) * logsPerPage;
+      const end = start + logsPerPage;
+      const pageData = filteredLogs.slice(start, end);
+
+      tbody.innerHTML = pageData.map(log => `
+        <tr data-log-id="${log.id}">
+          <td><input type="checkbox" class="row-checkbox" data-id="${log.id}"></td>
+          <td style="white-space: nowrap;">
+            <div style="font-weight: var(--font-medium); color: var(--text-primary);">${formatTimestamp(log.timestamp)}</div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">${formatRelativeTime(log.timestamp)}</div>
+          </td>
+          <td>
+            <div style="font-weight: var(--font-medium); color: var(--text-primary);">${log.user.split('@')[0]}</div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">${log.user.split('@')[1]}</div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center;">
+              <span class="action-icon ${log.actionClass}">${log.actionIcon}</span>
+              <span style="font-weight: var(--font-medium);">${log.action}</span>
+            </div>
+          </td>
+          <td>${log.resource}</td>
+          <td><code style="font-size: var(--text-xs); color: var(--primary-600);">${log.resourceId}</code></td>
+          <td><code style="font-size: var(--text-xs);">${log.ip}</code></td>
+          <td>${log.location}</td>
+          <td>
+            <span class="status-${log.status.toLowerCase()}">${log.status}</span>
+          </td>
+          <td>
+            <button class="btn btn-secondary" style="padding: var(--space-1) var(--space-2); font-size: var(--text-xs);" onclick="showDetail('${log.id}')">
+              View
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      updatePaginationInfo();
+    }
+
+    // Update pagination
+    function updatePaginationInfo() {
+      const start = (currentPage - 1) * logsPerPage + 1;
+      const end = Math.min(currentPage * logsPerPage, filteredLogs.length);
+
+      document.getElementById('showingStart').textContent = start;
+      document.getElementById('showingEnd').textContent = end;
+      document.getElementById('totalRecords').textContent = filteredLogs.length;
+      document.getElementById('resultCount').textContent = filteredLogs.length;
+    }
+
+    // Show detail panel
+    function showDetail(logId) {
+      const log = auditLogs.find(l => l.id === logId);
+      if (!log) return;
+
+      const detailContent = document.getElementById('detailContent');
+
+      let changesHtml = '';
+      if (log.metadata.changes) {
+        changesHtml = `
+          <div style="margin-bottom: var(--space-6);">
+            <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-bottom: var(--space-3);">Changes Made</h3>
+            <div class="diff-view">
+              <div style="margin-bottom: var(--space-2);">
+                <strong>Status:</strong>
+                <span class="diff-old">${log.metadata.changes.before.status}</span>
+                →
+                <span class="diff-new">${log.metadata.changes.after.status}</span>
+              </div>
+              <div>
+                <strong>Priority:</strong>
+                <span class="diff-old">${log.metadata.changes.before.priority}</span>
+                →
+                <span class="diff-new">${log.metadata.changes.after.priority}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      detailContent.innerHTML = `
+        <div style="margin-bottom: var(--space-6);">
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-bottom: var(--space-3);">Event Information</h3>
+          <div style="display: grid; gap: var(--space-4);">
+            <div>
+              <span class="label">Action</span>
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <span class="action-icon ${log.actionClass}">${log.actionIcon}</span>
+                <span style="font-weight: var(--font-semibold); font-size: var(--text-lg);">${log.action}</span>
+              </div>
+            </div>
+            <div>
+              <span class="label">User</span>
+              <div style="font-weight: var(--font-medium);">${log.user}</div>
+            </div>
+            <div>
+              <span class="label">Timestamp</span>
+              <div style="font-weight: var(--font-medium);">${formatTimestamp(log.timestamp)}</div>
+            </div>
+            <div>
+              <span class="label">IP Address</span>
+              <div><code>${log.ip}</code></div>
+            </div>
+            <div>
+              <span class="label">Location</span>
+              <div>${log.location}</div>
+            </div>
+            <div>
+              <span class="label">Status</span>
+              <div><span class="status-${log.status.toLowerCase()}">${log.status}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: var(--space-6);">
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-bottom: var(--space-3);">Resource Details</h3>
+          <div style="display: grid; gap: var(--space-4);">
+            <div>
+              <span class="label">Resource Type</span>
+              <div style="font-weight: var(--font-medium);">${log.resource}</div>
+            </div>
+            <div>
+              <span class="label">Resource ID</span>
+              <div><code style="color: var(--primary-600);">${log.resourceId}</code></div>
+            </div>
+          </div>
+        </div>
+
+        ${changesHtml}
+
+        <div style="margin-bottom: var(--space-6);">
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-bottom: var(--space-3);">Session Metadata</h3>
+          <div style="display: grid; gap: var(--space-4);">
+            <div>
+              <span class="label">Session ID</span>
+              <div><code>${log.metadata.sessionId}</code></div>
+            </div>
+            <div>
+              <span class="label">Request ID</span>
+              <div><code>${log.metadata.requestId}</code></div>
+            </div>
+            <div>
+              <span class="label">User Agent</span>
+              <div>${log.metadata.userAgent} on ${log.metadata.platform}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-semibold); margin-bottom: var(--space-3);">Cryptographic Verification</h3>
+          <div>
+            <span class="label">SHA-256 Hash</span>
+            <div class="code-block">${log.hash}</div>
+          </div>
+          <div style="background: var(--success-50); border: 1px solid var(--success-200); border-radius: var(--radius-md); padding: var(--space-3); margin-top: var(--space-3); display: flex; align-items: start; gap: var(--space-2);">
+            <span style="font-size: 20px;">✓</span>
+            <div>
+              <p style="font-weight: var(--font-semibold); color: var(--success-700); font-size: var(--text-sm); margin-bottom: var(--space-1);">Integrity Verified</p>
+              <p style="color: var(--text-secondary); font-size: var(--text-xs);">This audit entry has not been tampered with and matches the cryptographic chain.</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detailPanel').classList.add('open');
+      document.getElementById('detailBackdrop').classList.add('visible');
+    }
+
+    // Close detail panel
+    function closeDetailPanel() {
+      document.getElementById('detailPanel').classList.remove('open');
+      document.getElementById('detailBackdrop').classList.remove('visible');
+    }
+
+    // Sorting
+    document.querySelectorAll('.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const column = th.dataset.column;
+
+        if (sortColumn === column) {
+          sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortColumn = column;
+          sortDirection = 'asc';
+        }
+
+        // Update sort indicators
+        document.querySelectorAll('.sortable').forEach(t => {
+          t.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        th.classList.add(`sorted-${sortDirection}`);
+
+        // Sort data
+        filteredLogs.sort((a, b) => {
+          let aVal = a[column];
+          let bVal = b[column];
+
+          if (column === 'timestamp') {
+            aVal = a.timestamp.getTime();
+            bVal = b.timestamp.getTime();
+          }
+
+          if (sortDirection === 'asc') {
+            return aVal > bVal ? 1 : -1;
+          } else {
+            return aVal < bVal ? 1 : -1;
+          }
+        });
+
+        renderTable();
+      });
+    });
+
+    // Quick filters
+    document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        const now = new Date();
+
+        switch(filter) {
+          case 'today':
+            filteredLogs = auditLogs.filter(log => {
+              const logDate = new Date(log.timestamp);
+              return logDate.toDateString() === now.toDateString();
+            });
+            break;
+          case '7days':
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            filteredLogs = auditLogs.filter(log => log.timestamp >= sevenDaysAgo);
+            break;
+          case '30days':
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            filteredLogs = auditLogs.filter(log => log.timestamp >= thirtyDaysAgo);
+            break;
+          case 'failed':
+            filteredLogs = auditLogs.filter(log => log.status === 'Failed');
+            break;
+          case 'admin':
+            filteredLogs = auditLogs.filter(log => log.user.includes('admin'));
+            break;
+          case 'exports':
+            filteredLogs = auditLogs.filter(log => log.action === 'Export');
+            break;
+          default:
+            filteredLogs = [...auditLogs];
+        }
+
+        currentPage = 1;
+        renderTable();
+      });
+    });
+
+    // Apply filters
+    document.getElementById('applyFiltersBtn').addEventListener('click', () => {
+      filteredLogs = auditLogs.filter(log => {
+        const userFilter = document.getElementById('userFilter').value;
+        const actionFilter = document.getElementById('actionFilter').value;
+        const resourceFilter = document.getElementById('resourceFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        if (userFilter && log.user !== userFilter) return false;
+        if (actionFilter && log.action !== actionFilter) return false;
+        if (resourceFilter && log.resource !== resourceFilter) return false;
+        if (statusFilter && log.status !== statusFilter) return false;
+        if (searchTerm && !JSON.stringify(log).toLowerCase().includes(searchTerm)) return false;
+
+        return true;
+      });
+
+      currentPage = 1;
+      renderTable();
+    });
+
+    // Clear filters
+    document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+      document.getElementById('userFilter').value = '';
+      document.getElementById('actionFilter').value = '';
+      document.getElementById('resourceFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('dateRangeInput').value = '';
+
+      document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
+
+      filteredLogs = [...auditLogs];
+      currentPage = 1;
+      renderTable();
+    });
+
+    // Refresh
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      const icon = document.querySelector('#refreshBtn svg');
+      icon.style.animation = 'spin 0.6s linear';
+      setTimeout(() => {
+        icon.style.animation = '';
+      }, 600);
+    });
+
+    // Export modal
+    document.getElementById('exportModalBtn').addEventListener('click', () => {
+      document.getElementById('exportModal').classList.add('open');
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      document.getElementById('exportModal').classList.remove('open');
+    });
+
+    document.getElementById('cancelExportBtn').addEventListener('click', () => {
+      document.getElementById('exportModal').classList.remove('open');
+    });
+
+    document.getElementById('exportForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const format = document.getElementById('exportFormat').value;
+      const dateRange = document.getElementById('exportDateRange').value;
+
+      alert(`Generating ${format.toUpperCase()} export for date range: ${dateRange || 'All time'}\n\nYour export will be ready in a few moments and will include cryptographic verification hashes.`);
+
+      document.getElementById('exportModal').classList.remove('open');
+    });
+
+    // Close panel
+    document.getElementById('closePanelBtn').addEventListener('click', closeDetailPanel);
+    document.getElementById('detailBackdrop').addEventListener('click', closeDetailPanel);
+
+    // Select all checkbox
+    document.getElementById('selectAll').addEventListener('change', (e) => {
+      document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = e.target.checked;
+      });
+    });
+
+    // Initialize
+    renderTable();
+  </script>
+</body>
+</html>

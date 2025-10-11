@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Command Center - AI-Powered Organizational Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide-icons/1.0.0/lucide.min.css">
+    <style>
+        /* Design System Tokens */
+        :root {
+            /* Primary Colors */
+            --primary-50: #EFF6FF;
+            --primary-100: #DBEAFE;
+            --primary-200: #BFDBFE;
+            --primary-300: #93C5FD;
+            --primary-400: #60A5FA;
+            --primary-500: #3B82F6;
+            --primary-600: #2563EB;
+            --primary-700: #1D4ED8;
+            --primary-800: #1E40AF;
+            --primary-900: #1E3A8A;
+
+            /* Neutral Colors */
+            --neutral-50: #F9FAFB;
+            --neutral-100: #F3F4F6;
+            --neutral-200: #E5E7EB;
+            --neutral-300: #D1D5DB;
+            --neutral-400: #9CA3AF;
+            --neutral-500: #6B7280;
+            --neutral-600: #4B5563;
+            --neutral-700: #374151;
+            --neutral-800: #1F2937;
+            --neutral-900: #111827;
+
+            /* Semantic Colors */
+            --success-500: #10B981;
+            --warning-500: #F59E0B;
+            --error-500: #EF4444;
+            --info-500: #3B82F6;
+
+            /* Status Colors */
+            --status-open: #3B82F6;
+            --status-progress: #F59E0B;
+            --status-review: #8B5CF6;
+            --status-blocked: #EF4444;
+            --status-completed: #10B981;
+
+            /* Priority Colors */
+            --priority-high: #EF4444;
+            --priority-medium: #F59E0B;
+            --priority-low: #6B7280;
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --font-normal: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
+
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            font-size: var(--text-base);
+            line-height: 1.5;
+            color: var(--neutral-800);
+            background-color: var(--neutral-50);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Layout */
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--neutral-200);
+            padding: var(--space-4) var(--space-6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .header-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--neutral-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-500);
+            color: white;
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            min-width: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            background: white;
+            color: var(--neutral-700);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn:hover {
+            background: var(--neutral-50);
+            border-color: var(--neutral-400);
+        }
+
+        .btn-primary {
+            background: var(--primary-600);
+            color: white;
+            border-color: var(--primary-600);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-700);
+            border-color: var(--primary-700);
+        }
+
+        .btn-icon {
+            padding: var(--space-2);
+            position: relative;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: var(--error-500);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            border-bottom: 1px solid var(--neutral-200);
+            padding: var(--space-4) var(--space-6);
+        }
+
+        .preset-filters {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-full);
+            background: white;
+            color: var(--neutral-700);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .filter-pill:hover {
+            background: var(--neutral-50);
+        }
+
+        .filter-pill.active {
+            background: var(--primary-600);
+            color: white;
+            border-color: var(--primary-600);
+        }
+
+        .filter-pill.overdue {
+            background: var(--error-50);
+            color: var(--error-500);
+            border-color: var(--error-200);
+        }
+
+        .filter-pill.overdue.active {
+            background: var(--error-500);
+            color: white;
+            border-color: var(--error-500);
+        }
+
+        .dropdown-filters {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-dropdown select {
+            padding: var(--space-2) var(--space-4);
+            padding-right: var(--space-8);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            background: white;
+            color: var(--neutral-700);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: var(--space-2) var(--space-4);
+            padding-left: var(--space-10);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid var(--neutral-200);
+            overflow-y: auto;
+            padding: var(--space-4);
+        }
+
+        .sidebar-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .sidebar-section-title {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            color: var(--neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-3);
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background var(--transition-base);
+        }
+
+        .filter-item:hover {
+            background: var(--neutral-50);
+        }
+
+        .filter-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .filter-label {
+            flex: 1;
+            font-size: var(--text-sm);
+            color: var(--neutral-700);
+        }
+
+        .filter-count {
+            font-size: var(--text-xs);
+            color: var(--neutral-500);
+            background: var(--neutral-100);
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Task List */
+        .task-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-6);
+        }
+
+        .task-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .sort-dropdown {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--neutral-600);
+        }
+
+        .sort-dropdown select {
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            cursor: pointer;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        /* Task Card */
+        .task-card {
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            transition: all var(--transition-base);
+            cursor: pointer;
+        }
+
+        .task-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-300);
+        }
+
+        .task-card.selected {
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px var(--primary-100);
+        }
+
+        .task-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: var(--error-50);
+            color: var(--priority-high);
+        }
+
+        .priority-medium {
+            background: var(--warning-50);
+            color: var(--priority-medium);
+        }
+
+        .priority-low {
+            background: var(--neutral-100);
+            color: var(--priority-low);
+        }
+
+        .task-title-section {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: var(--text-base);
+            font-weight: var(--font-medium);
+            color: var(--neutral-900);
+            margin-bottom: var(--space-2);
+        }
+
+        .task-description {
+            font-size: var(--text-sm);
+            color: var(--neutral-600);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .task-menu-btn {
+            padding: var(--space-1);
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--neutral-400);
+            font-size: 18px;
+        }
+
+        .task-menu-btn:hover {
+            color: var(--neutral-600);
+        }
+
+        .task-metadata {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            padding: var(--space-3) 0;
+            border-top: 1px solid var(--neutral-100);
+            border-bottom: 1px solid var(--neutral-100);
+            margin: var(--space-3) 0;
+            font-size: var(--text-sm);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: var(--neutral-600);
+        }
+
+        .meta-item.overdue {
+            color: var(--error-500);
+        }
+
+        .meta-item.due-today {
+            color: var(--warning-500);
+        }
+
+        .avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            color: var(--primary-600);
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            background: var(--neutral-100);
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+            color: var(--neutral-700);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: var(--space-2);
+            align-items: center;
+        }
+
+        .status-select {
+            padding: var(--space-1) var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            background: white;
+        }
+
+        .action-btn {
+            padding: var(--space-1) var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            background: white;
+            font-size: var(--text-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .action-btn:hover {
+            background: var(--neutral-50);
+            border-color: var(--neutral-400);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-2);
+            margin-top: var(--space-6);
+        }
+
+        .pagination button {
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            background: white;
+            cursor: pointer;
+            font-size: var(--text-sm);
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--neutral-50);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: var(--primary-600);
+            color: white;
+            border-color: var(--primary-600);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-6);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .modal-header {
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--neutral-900);
+        }
+
+        .modal-close {
+            padding: var(--space-2);
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--neutral-400);
+        }
+
+        .modal-close:hover {
+            color: var(--neutral-600);
+        }
+
+        .modal-body {
+            padding: var(--space-6);
+        }
+
+        .detail-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .detail-section-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-3);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+
+        .detail-label {
+            font-size: var(--text-xs);
+            color: var(--neutral-500);
+            font-weight: var(--font-medium);
+        }
+
+        .detail-value {
+            font-size: var(--text-sm);
+            color: var(--neutral-900);
+        }
+
+        .activity-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .activity-item {
+            display: flex;
+            gap: var(--space-3);
+            position: relative;
+        }
+
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 32px;
+            bottom: -16px;
+            width: 2px;
+            background: var(--neutral-200);
+        }
+
+        .activity-item:last-child::before {
+            display: none;
+        }
+
+        .activity-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--primary-600);
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: var(--text-sm);
+            color: var(--neutral-700);
+            margin-bottom: var(--space-1);
+        }
+
+        .activity-time {
+            font-size: var(--text-xs);
+            color: var(--neutral-500);
+        }
+
+        .comment-box {
+            margin-top: var(--space-4);
+        }
+
+        .comment-box textarea {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: var(--text-sm);
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-footer {
+            padding: var(--space-6);
+            border-top: 1px solid var(--neutral-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-3);
+        }
+
+        /* Bulk Actions Bar */
+        .bulk-actions-bar {
+            display: none;
+            position: fixed;
+            bottom: var(--space-6);
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 1px solid var(--neutral-200);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4) var(--space-6);
+            box-shadow: var(--shadow-xl);
+            z-index: 100;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .bulk-actions-bar.active {
+            display: flex;
+        }
+
+        .bulk-count {
+            font-weight: var(--font-semibold);
+            color: var(--neutral-900);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -240px;
+                top: 0;
+                bottom: 0;
+                z-index: 10;
+                transition: left var(--transition-base);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .task-metadata {
+                flex-direction: column;
+                gap: var(--space-2);
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-12);
+            color: var(--neutral-500);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-4);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="header-title">
+                    My Tasks
+                    <span class="count-badge" id="taskCount">24</span>
+                </h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="alert('Create new task')">
+                    <span>+</span> New Task
+                </button>
+                <button class="btn btn-icon" onclick="alert('Notifications')">
+                    🔔
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="btn" onclick="alert('More options')">⋮</button>
+            </div>
+        </header>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="preset-filters">
+                <button class="filter-pill active" data-filter="all">All</button>
+                <button class="filter-pill" data-filter="my-tasks">My Tasks</button>
+                <button class="filter-pill" data-filter="delegated">Delegated</button>
+                <button class="filter-pill" data-filter="watching">Watching</button>
+                <button class="filter-pill overdue" data-filter="overdue">Overdue</button>
+                <button class="filter-pill" data-filter="completed-today">Completed Today</button>
+            </div>
+            <div class="dropdown-filters">
+                <div class="filter-dropdown">
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="blocked">Blocked</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="filter-dropdown">
+                    <select id="priorityFilter">
+                        <option value="">All Priority</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="filter-dropdown">
+                    <select id="dueDateFilter">
+                        <option value="">All Due Dates</option>
+                        <option value="today">Today</option>
+                        <option value="this-week">This Week</option>
+                        <option value="next-week">Next Week</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search tasks..." />
+                </div>
+                <button class="btn" onclick="clearFilters()">Clear All</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <!-- Status Filters -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">Status</h3>
+                    <label class="filter-item">
+                        <input type="checkbox" class="status-filter" value="open" />
+                        <span class="status-dot" style="background: var(--status-open);"></span>
+                        <span class="filter-label">Open</span>
+                        <span class="filter-count">12</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="status-filter" value="in-progress" />
+                        <span class="status-dot" style="background: var(--status-progress);"></span>
+                        <span class="filter-label">In Progress</span>
+                        <span class="filter-count">8</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="status-filter" value="review" />
+                        <span class="status-dot" style="background: var(--status-review);"></span>
+                        <span class="filter-label">Review</span>
+                        <span class="filter-count">3</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="status-filter" value="blocked" />
+                        <span class="status-dot" style="background: var(--status-blocked);"></span>
+                        <span class="filter-label">Blocked</span>
+                        <span class="filter-count">1</span>
+                    </label>
+                </div>
+
+                <!-- Priority Filters -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">Priority</h3>
+                    <label class="filter-item">
+                        <input type="checkbox" class="priority-filter" value="high" />
+                        <span class="filter-label">High</span>
+                        <span class="filter-count">5</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="priority-filter" value="medium" />
+                        <span class="filter-label">Medium</span>
+                        <span class="filter-count">14</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="priority-filter" value="low" />
+                        <span class="filter-label">Low</span>
+                        <span class="filter-count">5</span>
+                    </label>
+                </div>
+
+                <!-- Assigned By Filters -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">Assigned By</h3>
+                    <label class="filter-item">
+                        <input type="checkbox" class="assigned-by-filter" value="me" />
+                        <span class="filter-label">Me</span>
+                        <span class="filter-count">8</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="assigned-by-filter" value="manager" />
+                        <span class="filter-label">Manager</span>
+                        <span class="filter-count">12</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="assigned-by-filter" value="system" />
+                        <span class="filter-label">System</span>
+                        <span class="filter-count">4</span>
+                    </label>
+                </div>
+
+                <!-- Project Filters -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">Project</h3>
+                    <label class="filter-item">
+                        <input type="checkbox" class="project-filter" value="q1-initiative" />
+                        <span class="filter-label">Q1 Initiative</span>
+                        <span class="filter-count">6</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="project-filter" value="platform-upgrade" />
+                        <span class="filter-label">Platform Upgrade</span>
+                        <span class="filter-count">8</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="project-filter" value="customer-success" />
+                        <span class="filter-label">Customer Success</span>
+                        <span class="filter-count">5</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" class="project-filter" value="security-audit" />
+                        <span class="filter-label">Security Audit</span>
+                        <span class="filter-count">5</span>
+                    </label>
+                </div>
+
+                <!-- Tags -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">Tags</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <span class="tag" style="cursor: pointer;" data-tag="urgent">urgent</span>
+                        <span class="tag" style="cursor: pointer;" data-tag="bug">bug</span>
+                        <span class="tag" style="cursor: pointer;" data-tag="feature">feature</span>
+                        <span class="tag" style="cursor: pointer;" data-tag="review">review</span>
+                        <span class="tag" style="cursor: pointer;" data-tag="docs">docs</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Task List -->
+            <main class="task-list-container">
+                <div class="task-list-header">
+                    <div class="sort-dropdown">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy">
+                            <option value="due-date">Due Date</option>
+                            <option value="priority">Priority</option>
+                            <option value="created">Created Date</option>
+                            <option value="updated">Last Updated</option>
+                            <option value="alphabetical">Alphabetical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="task-list" id="taskList">
+                    <!-- Tasks will be rendered here by JavaScript -->
+                </div>
+
+                <div class="pagination">
+                    <button id="prevPage" disabled>← Previous</button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button id="nextPage">Next →</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Bulk Actions Bar -->
+        <div class="bulk-actions-bar" id="bulkActionsBar">
+            <span class="bulk-count"><span id="selectedCount">0</span> tasks selected</span>
+            <button class="btn" onclick="alert('Change status')">Change Status</button>
+            <button class="btn" onclick="alert('Assign to')">Assign to</button>
+            <button class="btn" onclick="alert('Add tag')">Add Tag</button>
+            <button class="btn" onclick="alert('Export')">Export</button>
+            <button class="btn" style="color: var(--error-500);" onclick="alert('Delete')">Delete</button>
+            <button class="btn" onclick="deselectAll()">Deselect All</button>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="flex: 1;">
+                    <h2 class="modal-title" id="modalTaskTitle">Task Title</h2>
+                    <div style="display: flex; gap: var(--space-3); margin-top: var(--space-3); align-items: center;">
+                        <span class="priority-badge" id="modalPriority">HIGH</span>
+                        <select class="status-select" id="modalStatus">
+                            <option value="open">Open</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="review">Review</option>
+                            <option value="blocked">Blocked</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Description -->
+                <div class="detail-section">
+                    <h3 class="detail-section-title">Description</h3>
+                    <p id="modalDescription" style="color: var(--neutral-700); line-height: 1.6;">
+                        Task description will appear here.
+                    </p>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="detail-section">
+                    <h3 class="detail-section-title">Details</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Assigned To</span>
+                            <span class="detail-value" id="modalAssignee">John Smith</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Due Date</span>
+                            <span class="detail-value" id="modalDueDate">Jan 18, 2025</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Project</span>
+                            <span class="detail-value" id="modalProject">Q1 Initiative</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Assigned By</span>
+                            <span class="detail-value" id="modalAssignedBy">Manager</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Created</span>
+                            <span class="detail-value" id="modalCreated">Jan 10, 2025</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Updated</span>
+                            <span class="detail-value" id="modalUpdated">2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div class="detail-section">
+                    <h3 class="detail-section-title">Tags</h3>
+                    <div id="modalTags" style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                        <!-- Tags will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="detail-section">
+                    <h3 class="detail-section-title">Activity</h3>
+                    <div class="activity-timeline">
+                        <div class="activity-item">
+                            <div class="activity-avatar">JS</div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>John Smith</strong> changed status to <strong>In Progress</strong></div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-avatar">SM</div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>Sarah Manager</strong> assigned to <strong>John Smith</strong></div>
+                                <div class="activity-time">1 day ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-avatar">SM</div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>Sarah Manager</strong> created this task</div>
+                                <div class="activity-time">3 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="detail-section">
+                    <h3 class="detail-section-title">Comments</h3>
+                    <div class="comment-box">
+                        <textarea placeholder="Add a comment..."></textarea>
+                        <button class="btn btn-primary" style="margin-top: var(--space-2);">Add Comment</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="alert('Duplicate task')">Duplicate</button>
+                <button class="btn" onclick="alert('Share task')">Share</button>
+                <button class="btn" style="color: var(--error-500);" onclick="alert('Delete task')">Delete</button>
+                <button class="btn btn-primary" onclick="closeModal()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Task Data
+        const tasks = [
+            {
+                id: 1,
+                title: "Fix critical authentication bug",
+                description: "Users are experiencing login issues on mobile devices. Need to investigate and fix ASAP.",
+                priority: "high",
+                status: "in-progress",
+                dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+                assignee: { name: "John Smith", initials: "JS" },
+                project: "Platform Upgrade",
+                tags: ["urgent", "bug"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 2,
+                title: "Update user documentation",
+                description: "Revise the getting started guide to reflect new UI changes and add screenshots.",
+                priority: "medium",
+                status: "open",
+                dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days
+                assignee: { name: "Jane Doe", initials: "JD" },
+                project: "Customer Success",
+                tags: ["docs", "feature"],
+                assignedBy: "me",
+                createdDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 3,
+                title: "Design new dashboard layout",
+                description: "Create mockups for the revamped analytics dashboard with better data visualization.",
+                priority: "medium",
+                status: "review",
+                dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // Tomorrow
+                assignee: { name: "Alex Chen", initials: "AC" },
+                project: "Q1 Initiative",
+                tags: ["design", "feature"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 4,
+                title: "Security audit for API endpoints",
+                description: "Perform comprehensive security review of all public API endpoints and document findings.",
+                priority: "high",
+                status: "open",
+                dueDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // Overdue
+                assignee: { name: "Mike Wilson", initials: "MW" },
+                project: "Security Audit",
+                tags: ["urgent", "security"],
+                assignedBy: "system",
+                createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 5,
+                title: "Implement dark mode theme",
+                description: "Add dark mode support across all application pages with theme toggle.",
+                priority: "medium",
+                status: "in-progress",
+                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Sarah Johnson", initials: "SJ" },
+                project: "Platform Upgrade",
+                tags: ["feature", "ui"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 6,
+                title: "Optimize database queries",
+                description: "Identify and optimize slow database queries affecting dashboard performance.",
+                priority: "high",
+                status: "in-progress",
+                dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Tom Anderson", initials: "TA" },
+                project: "Platform Upgrade",
+                tags: ["performance", "backend"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 7,
+                title: "Setup CI/CD pipeline",
+                description: "Configure automated testing and deployment pipeline for staging and production.",
+                priority: "medium",
+                status: "open",
+                dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Lisa Brown", initials: "LB" },
+                project: "Platform Upgrade",
+                tags: ["devops", "infrastructure"],
+                assignedBy: "me",
+                createdDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 8,
+                title: "Customer feedback integration",
+                description: "Build widget for collecting and displaying customer feedback in the dashboard.",
+                priority: "low",
+                status: "open",
+                dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Emma Davis", initials: "ED" },
+                project: "Customer Success",
+                tags: ["feature", "customer"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 9,
+                title: "Fix broken email notifications",
+                description: "Email notifications for task assignments are not being sent. Investigate and fix.",
+                priority: "high",
+                status: "blocked",
+                dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Overdue
+                assignee: { name: "Chris Martin", initials: "CM" },
+                project: "Platform Upgrade",
+                tags: ["bug", "urgent"],
+                assignedBy: "system",
+                createdDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 10,
+                title: "Mobile app prototype",
+                description: "Create interactive prototype for mobile app using Figma.",
+                priority: "low",
+                status: "open",
+                dueDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+                assignee: { name: "David Lee", initials: "DL" },
+                project: "Q1 Initiative",
+                tags: ["design", "mobile"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 11,
+                title: "Refactor authentication service",
+                description: "Modernize authentication code and add support for SSO providers.",
+                priority: "medium",
+                status: "in-progress",
+                dueDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Rachel Green", initials: "RG" },
+                project: "Security Audit",
+                tags: ["refactor", "security"],
+                assignedBy: "me",
+                createdDate: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 12,
+                title: "Write API integration tests",
+                description: "Add comprehensive test coverage for all API endpoints.",
+                priority: "medium",
+                status: "open",
+                dueDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Kevin Patel", initials: "KP" },
+                project: "Platform Upgrade",
+                tags: ["testing", "backend"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 13,
+                title: "Update dependencies",
+                description: "Review and update all npm packages to latest stable versions.",
+                priority: "low",
+                status: "open",
+                dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Amy Zhang", initials: "AZ" },
+                project: "Platform Upgrade",
+                tags: ["maintenance"],
+                assignedBy: "system",
+                createdDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 14,
+                title: "Create onboarding tutorial",
+                description: "Design and implement interactive tutorial for new users.",
+                priority: "medium",
+                status: "review",
+                dueDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Brian Kim", initials: "BK" },
+                project: "Customer Success",
+                tags: ["feature", "ux"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 15,
+                title: "Performance monitoring setup",
+                description: "Implement application performance monitoring with error tracking.",
+                priority: "high",
+                status: "in-progress",
+                dueDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Nancy White", initials: "NW" },
+                project: "Platform Upgrade",
+                tags: ["monitoring", "devops"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 16,
+                title: "Implement data export feature",
+                description: "Add ability for users to export their data in CSV and JSON formats.",
+                priority: "low",
+                status: "open",
+                dueDate: new Date(Date.now() + 18 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Steve Rogers", initials: "SR" },
+                project: "Customer Success",
+                tags: ["feature"],
+                assignedBy: "me",
+                createdDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 17,
+                title: "Security compliance audit",
+                description: "Complete GDPR compliance checklist and document all findings.",
+                priority: "high",
+                status: "review",
+                dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Diana Prince", initials: "DP" },
+                project: "Security Audit",
+                tags: ["compliance", "security"],
+                assignedBy: "system",
+                createdDate: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000)
+            },
+            {
+                id: 18,
+                title: "Redesign settings page",
+                description: "Improve UX of settings page with better organization and search.",
+                priority: "medium",
+                status: "open",
+                dueDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000),
+                assignee: { name: "Peter Parker", initials: "PP" },
+                project: "Q1 Initiative",
+                tags: ["ui", "feature"],
+                assignedBy: "manager",
+                createdDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)
+            }
+        ];
+
+        let filteredTasks = [...tasks];
+        let selectedTasks = new Set();
+
+        // Render tasks
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+
+            if (filteredTasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No tasks found</h3>
+                        <p>Try adjusting your filters or create a new task</p>
+                    </div>
+                `;
+                return;
+            }
+
+            taskList.innerHTML = filteredTasks.slice(0, 10).map(task => {
+                const isOverdue = task.dueDate < new Date();
+                const isDueToday = task.dueDate.toDateString() === new Date().toDateString();
+                const timeUntilDue = getTimeUntilDue(task.dueDate);
+
+                return `
+                    <div class="task-card ${selectedTasks.has(task.id) ? 'selected' : ''}" data-task-id="${task.id}">
+                        <div class="task-header">
+                            <input type="checkbox" class="task-checkbox"
+                                   ${selectedTasks.has(task.id) ? 'checked' : ''}
+                                   onchange="toggleTaskSelection(${task.id})" />
+                            <span class="priority-badge priority-${task.priority}">${task.priority}</span>
+                            <div class="task-title-section" onclick="openTaskModal(${task.id})">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-description">${task.description}</div>
+                            </div>
+                            <button class="task-menu-btn" onclick="alert('Task menu')">⋮</button>
+                        </div>
+                        <div class="task-metadata">
+                            <div class="meta-item ${isOverdue ? 'overdue' : isDueToday ? 'due-today' : ''}">
+                                📅 ${isOverdue ? 'Overdue: ' : 'Due: '}${timeUntilDue}
+                            </div>
+                            <div class="meta-item">
+                                <div class="avatar">${task.assignee.initials}</div>
+                                @${task.assignee.name}
+                            </div>
+                            <div class="meta-item">
+                                📁 ${task.project}
+                            </div>
+                            <div class="meta-item">
+                                ${task.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <select class="status-select" value="${task.status}" onchange="alert('Status changed')">
+                                <option value="open" ${task.status === 'open' ? 'selected' : ''}>Open</option>
+                                <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="review" ${task.status === 'review' ? 'selected' : ''}>Review</option>
+                                <option value="blocked" ${task.status === 'blocked' ? 'selected' : ''}>Blocked</option>
+                                <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                            <button class="action-btn" onclick="alert('Add comment')">💬 Comment</button>
+                            <button class="action-btn" onclick="alert('Share')">↗ Share</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateTaskCount();
+        }
+
+        // Get time until due
+        function getTimeUntilDue(dueDate) {
+            const now = new Date();
+            const diff = dueDate - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+
+            if (diff < 0) {
+                const absDays = Math.abs(days);
+                return absDays === 0 ? 'Today (overdue)' : `${absDays} day${absDays > 1 ? 's' : ''} overdue`;
+            }
+
+            if (hours < 24) {
+                return hours <= 0 ? 'Due now' : `Due in ${hours} hour${hours > 1 ? 's' : ''}`;
+            }
+
+            return `${days} day${days > 1 ? 's' : ''} left`;
+        }
+
+        // Toggle task selection
+        function toggleTaskSelection(taskId) {
+            if (selectedTasks.has(taskId)) {
+                selectedTasks.delete(taskId);
+            } else {
+                selectedTasks.add(taskId);
+            }
+            updateBulkActionsBar();
+            renderTasks();
+        }
+
+        // Deselect all
+        function deselectAll() {
+            selectedTasks.clear();
+            updateBulkActionsBar();
+            renderTasks();
+        }
+
+        // Update bulk actions bar
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulkActionsBar');
+            const count = document.getElementById('selectedCount');
+            count.textContent = selectedTasks.size;
+
+            if (selectedTasks.size > 0) {
+                bar.classList.add('active');
+            } else {
+                bar.classList.remove('active');
+            }
+        }
+
+        // Update task count
+        function updateTaskCount() {
+            document.getElementById('taskCount').textContent = filteredTasks.length;
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const dueDateFilter = document.getElementById('dueDateFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // Get sidebar filters
+            const statusCheckboxes = Array.from(document.querySelectorAll('.status-filter:checked')).map(cb => cb.value);
+            const priorityCheckboxes = Array.from(document.querySelectorAll('.priority-filter:checked')).map(cb => cb.value);
+            const assignedByCheckboxes = Array.from(document.querySelectorAll('.assigned-by-filter:checked')).map(cb => cb.value);
+            const projectCheckboxes = Array.from(document.querySelectorAll('.project-filter:checked')).map(cb => cb.value);
+
+            filteredTasks = tasks.filter(task => {
+                // Status filter
+                if (statusFilter && task.status !== statusFilter) return false;
+                if (statusCheckboxes.length > 0 && !statusCheckboxes.includes(task.status)) return false;
+
+                // Priority filter
+                if (priorityFilter && task.priority !== priorityFilter) return false;
+                if (priorityCheckboxes.length > 0 && !priorityCheckboxes.includes(task.priority)) return false;
+
+                // Assigned by filter
+                if (assignedByCheckboxes.length > 0 && !assignedByCheckboxes.includes(task.assignedBy)) return false;
+
+                // Project filter
+                if (projectCheckboxes.length > 0) {
+                    const projectSlug = task.project.toLowerCase().replace(/\s+/g, '-');
+                    if (!projectCheckboxes.includes(projectSlug)) return false;
+                }
+
+                // Due date filter
+                if (dueDateFilter) {
+                    const now = new Date();
+                    const taskDate = task.dueDate;
+
+                    if (dueDateFilter === 'today' && taskDate.toDateString() !== now.toDateString()) return false;
+                    if (dueDateFilter === 'overdue' && taskDate >= now) return false;
+                    if (dueDateFilter === 'this-week') {
+                        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                        if (taskDate > weekFromNow) return false;
+                    }
+                    if (dueDateFilter === 'next-week') {
+                        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                        const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+                        if (taskDate <= weekFromNow || taskDate > twoWeeksFromNow) return false;
+                    }
+                }
+
+                // Search filter
+                if (searchTerm) {
+                    const searchableText = `${task.title} ${task.description} ${task.project} ${task.tags.join(' ')}`.toLowerCase();
+                    if (!searchableText.includes(searchTerm)) return false;
+                }
+
+                return true;
+            });
+
+            renderTasks();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('priorityFilter').value = '';
+            document.getElementById('dueDateFilter').value = '';
+            document.getElementById('searchInput').value = '';
+
+            document.querySelectorAll('.status-filter, .priority-filter, .assigned-by-filter, .project-filter').forEach(cb => {
+                cb.checked = false;
+            });
+
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            document.querySelector('.filter-pill[data-filter="all"]').classList.add('active');
+
+            applyFilters();
+        }
+
+        // Open task modal
+        function openTaskModal(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            document.getElementById('modalTaskTitle').textContent = task.title;
+            document.getElementById('modalPriority').textContent = task.priority.toUpperCase();
+            document.getElementById('modalPriority').className = `priority-badge priority-${task.priority}`;
+            document.getElementById('modalStatus').value = task.status;
+            document.getElementById('modalDescription').textContent = task.description;
+            document.getElementById('modalAssignee').textContent = task.assignee.name;
+            document.getElementById('modalDueDate').textContent = task.dueDate.toLocaleDateString();
+            document.getElementById('modalProject').textContent = task.project;
+            document.getElementById('modalAssignedBy').textContent = task.assignedBy.charAt(0).toUpperCase() + task.assignedBy.slice(1);
+            document.getElementById('modalCreated').textContent = task.createdDate.toLocaleDateString();
+            document.getElementById('modalUpdated').textContent = '2 hours ago';
+
+            const tagsContainer = document.getElementById('modalTags');
+            tagsContainer.innerHTML = task.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        // Sort tasks
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            const sortBy = e.target.value;
+
+            filteredTasks.sort((a, b) => {
+                switch (sortBy) {
+                    case 'due-date':
+                        return a.dueDate - b.dueDate;
+                    case 'priority':
+                        const priorityOrder = { high: 0, medium: 1, low: 2 };
+                        return priorityOrder[a.priority] - priorityOrder[b.priority];
+                    case 'created':
+                        return b.createdDate - a.createdDate;
+                    case 'alphabetical':
+                        return a.title.localeCompare(b.title);
+                    default:
+                        return 0;
+                }
+            });
+
+            renderTasks();
+        });
+
+        // Event listeners for filters
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('priorityFilter').addEventListener('change', applyFilters);
+        document.getElementById('dueDateFilter').addEventListener('change', applyFilters);
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+        document.querySelectorAll('.status-filter, .priority-filter, .assigned-by-filter, .project-filter').forEach(checkbox => {
+            checkbox.addEventListener('change', applyFilters);
+        });
+
+        // Preset filter pills
+        document.querySelectorAll('.filter-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+
+                // Reset all filters
+                clearFilters();
+
+                // Apply preset filter
+                if (filter === 'overdue') {
+                    document.getElementById('dueDateFilter').value = 'overdue';
+                }
+
+                this.classList.add('active');
+                applyFilters();
+            });
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('taskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        renderTasks();
+    </script>
+</body>
+</html>

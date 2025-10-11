@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Portfolio - AI Org Platform</title>
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="../assets/css/design-system.css">
+
+  <!-- External Libraries -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- dhtmlxGantt CDN -->
+  <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+  <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+
+  <!-- SortableJS for Kanban -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--neutral-50);
+    }
+
+    /* Layout */
+    .main-layout {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 64px;
+      margin-left: 256px;
+    }
+
+    .content-wrapper {
+      flex: 1;
+      display: flex;
+      gap: var(--space-6);
+      padding: var(--space-6);
+    }
+
+    .main-content {
+      flex: 1;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .sidebar-filters {
+      width: 280px;
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-6);
+      height: fit-content;
+      position: sticky;
+      top: calc(64px + var(--space-6));
+    }
+
+    /* Header */
+    .page-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title {
+      font-size: var(--text-3xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .page-subtitle {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    /* View Switcher */
+    .view-switcher {
+      display: flex;
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .view-btn {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .view-btn:hover {
+      background: var(--neutral-100);
+      color: var(--text-primary);
+    }
+
+    .view-btn.active {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .btn-primary {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-600);
+    }
+
+    .btn-secondary {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--neutral-100);
+    }
+
+    /* View Content */
+    .view-content {
+      padding: var(--space-6);
+      min-height: 600px;
+      display: none;
+    }
+
+    .view-content.active {
+      display: block;
+    }
+
+    /* Gantt View */
+    #gantt-chart {
+      width: 100%;
+      height: 600px;
+    }
+
+    /* Kanban View */
+    .kanban-board {
+      display: flex;
+      gap: var(--space-4);
+      overflow-x: auto;
+      padding-bottom: var(--space-4);
+    }
+
+    .kanban-column {
+      min-width: 320px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      flex-shrink: 0;
+    }
+
+    .kanban-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .kanban-title {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .kanban-count {
+      background: var(--neutral-200);
+      color: var(--text-secondary);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+    }
+
+    .kanban-cards {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      min-height: 100px;
+    }
+
+    .project-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-sm);
+      cursor: grab;
+      transition: all var(--transition-fast);
+    }
+
+    .project-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .project-card:active {
+      cursor: grabbing;
+    }
+
+    .project-card-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+
+    .project-name {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .project-owner {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--neutral-200);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin: var(--space-3) 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-500);
+      transition: width var(--transition-base);
+    }
+
+    .progress-fill.high {
+      background: var(--success-500);
+    }
+
+    .progress-fill.medium {
+      background: var(--warning-500);
+    }
+
+    .progress-fill.low {
+      background: var(--error-500);
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-1) var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      border-radius: var(--radius-full);
+    }
+
+    .status-on-track {
+      background: var(--success-50);
+      color: var(--success-700);
+    }
+
+    .status-at-risk {
+      background: var(--warning-50);
+      color: var(--warning-700);
+    }
+
+    .status-delayed {
+      background: var(--error-50);
+      color: var(--error-700);
+    }
+
+    /* Table View */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .data-table th {
+      background: var(--bg-secondary);
+      padding: var(--space-3) var(--space-4);
+      text-align: left;
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .data-table tr:hover {
+      background: var(--bg-secondary);
+    }
+
+    .table-project-name {
+      font-weight: var(--font-medium);
+      color: var(--text-primary);
+    }
+
+    /* Timeline View */
+    .timeline-container {
+      position: relative;
+      padding: var(--space-4) 0;
+    }
+
+    .timeline-quarter {
+      margin-bottom: var(--space-8);
+    }
+
+    .quarter-header {
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-2);
+      border-bottom: 2px solid var(--primary-500);
+    }
+
+    .timeline-items {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      border-left: 4px solid var(--primary-500);
+    }
+
+    .timeline-date {
+      min-width: 120px;
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+
+    .timeline-title {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .timeline-description {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    /* Sidebar Filters */
+    .filter-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .filter-title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      cursor: pointer;
+    }
+
+    .filter-option input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    .filter-option label {
+      flex: 1;
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .filter-count {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+
+    /* Team Avatars */
+    .team-avatars {
+      display: flex;
+      align-items: center;
+      margin-top: var(--space-2);
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: var(--primary-500);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      border: 2px solid var(--bg-primary);
+      margin-left: -8px;
+    }
+
+    .avatar:first-child {
+      margin-left: 0;
+    }
+
+    .avatar-more {
+      background: var(--neutral-300);
+      color: var(--neutral-700);
+    }
+
+    /* Project Detail Panel */
+    .detail-panel {
+      position: fixed;
+      right: 0;
+      top: 64px;
+      width: 480px;
+      height: calc(100vh - 64px);
+      background: var(--bg-primary);
+      box-shadow: var(--shadow-xl);
+      transform: translateX(100%);
+      transition: transform var(--transition-base);
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .detail-panel.open {
+      transform: translateX(0);
+    }
+
+    .detail-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+
+    .detail-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      padding: var(--space-2);
+    }
+
+    .detail-close:hover {
+      color: var(--text-primary);
+    }
+
+    .detail-body {
+      padding: var(--space-6);
+    }
+
+    .detail-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .detail-section-title {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .detail-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .stat-card {
+      padding: var(--space-4);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+    }
+
+    .stat-label {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-1);
+    }
+
+    .stat-value {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+
+    /* Icons */
+    .icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+    }
+
+    .icon-sm {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1280px) {
+      .main-layout {
+        margin-left: 0;
+      }
+
+      .sidebar-filters {
+        display: none;
+      }
+
+      .detail-panel {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-3);
+      }
+
+      .toolbar-left,
+      .toolbar-right {
+        justify-content: space-between;
+      }
+
+      .kanban-board {
+        flex-direction: column;
+      }
+
+      .kanban-column {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation (copied from navigation.html) -->
+  <nav style="position: fixed; top: 0; left: 0; right: 0; height: 64px; background: white; border-bottom: 1px solid var(--border-color); z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-4);">
+    <div style="display: flex; align-items: center; gap: var(--space-4);">
+      <button style="padding: var(--space-2); border-radius: var(--radius-md); background: none; border: none; cursor: pointer;">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div style="display: flex; align-items: center; gap: var(--space-2);">
+        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary-500), var(--primary-700)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+          <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <span style="font-size: var(--text-xl); font-weight: var(--font-semibold); color: var(--text-primary);">AI Org Platform</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: var(--space-2);">
+      <button class="btn btn-secondary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        Search
+      </button>
+      <button class="btn btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        New Project
+      </button>
+      <div class="avatar" style="margin-left: var(--space-2);">JD</div>
+    </div>
+  </nav>
+
+  <!-- Sidebar (simplified) -->
+  <aside style="position: fixed; top: 64px; left: 0; width: 256px; height: calc(100vh - 64px); background: white; border-right: 1px solid var(--border-color); overflow-y: auto; padding: var(--space-4);">
+    <nav style="display: flex; flex-direction: column; gap: var(--space-1);">
+      <a href="#" style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; transition: background var(--transition-fast);">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+        <span style="font-weight: var(--font-medium);">Home</span>
+      </a>
+      <a href="#" style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; transition: background var(--transition-fast);">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11H3l2-2m0 0L5 7m-2 2h6m3 0v6l2-2m0 0 2 2m-2-2v-6m-7 11h8a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        <span style="font-weight: var(--font-medium);">Tasks</span>
+      </a>
+      <a href="#" style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); color: white; text-decoration: none; box-shadow: var(--shadow-md);">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span style="font-weight: var(--font-medium);">Projects</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <div class="content-wrapper">
+      <!-- Sidebar Filters -->
+      <aside class="sidebar-filters">
+        <div class="filter-section">
+          <div class="filter-title">Status</div>
+          <div class="filter-option">
+            <input type="checkbox" id="status-all" checked>
+            <label for="status-all">All Projects</label>
+            <span class="filter-count">15</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="status-on-track" checked>
+            <label for="status-on-track">On Track</label>
+            <span class="filter-count">9</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="status-at-risk" checked>
+            <label for="status-at-risk">At Risk</label>
+            <span class="filter-count">4</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="status-delayed">
+            <label for="status-delayed">Delayed</label>
+            <span class="filter-count">2</span>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Portfolio</div>
+          <div class="filter-option">
+            <input type="checkbox" id="portfolio-tech" checked>
+            <label for="portfolio-tech">Technology</label>
+            <span class="filter-count">6</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="portfolio-ops" checked>
+            <label for="portfolio-ops">Operations</label>
+            <span class="filter-count">4</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="portfolio-sales">
+            <label for="portfolio-sales">Sales</label>
+            <span class="filter-count">3</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="portfolio-hr">
+            <label for="portfolio-hr">HR</label>
+            <span class="filter-count">2</span>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Priority</div>
+          <div class="filter-option">
+            <input type="checkbox" id="priority-high" checked>
+            <label for="priority-high">High</label>
+            <span class="filter-count">5</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="priority-medium" checked>
+            <label for="priority-medium">Medium</label>
+            <span class="filter-count">7</span>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="priority-low">
+            <label for="priority-low">Low</label>
+            <span class="filter-count">3</span>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" style="width: 100%; justify-content: center;">
+          Clear All Filters
+        </button>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <div class="page-header">
+          <h1 class="page-title">Project Portfolio</h1>
+          <p class="page-subtitle">Manage and track 15 active projects across 5 portfolios</p>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="view-switcher">
+              <button class="view-btn active" data-view="gantt">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                Gantt
+              </button>
+              <button class="view-btn" data-view="kanban">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                Kanban
+              </button>
+              <button class="view-btn" data-view="table">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 3h18v18H3V3zm0 6h18M9 3v18"></path>
+                </svg>
+                Table
+              </button>
+              <button class="view-btn" data-view="timeline">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="2" x2="12" y2="22"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                Timeline
+              </button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-secondary">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              Filter
+            </button>
+            <button class="btn btn-secondary">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 16 4 4 4-4M7 20V4m14 4-4-4-4 4m4-4v16"></path>
+              </svg>
+              Sort
+            </button>
+            <button class="btn btn-secondary">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              Group By
+            </button>
+          </div>
+        </div>
+
+        <!-- Gantt View -->
+        <div class="view-content active" id="gantt-view">
+          <div id="gantt-chart"></div>
+        </div>
+
+        <!-- Kanban View -->
+        <div class="view-content" id="kanban-view">
+          <div class="kanban-board">
+            <!-- Backlog Column -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <h3 class="kanban-title">Backlog</h3>
+                <span class="kanban-count">3</span>
+              </div>
+              <div class="kanban-cards" id="kanban-backlog">
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">AI Training Program</div>
+                      <div class="project-owner">Sarah Johnson</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 15%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      90 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                      Mar 15 - Jun 15
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                      5 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #10B981;">SJ</div>
+                    <div class="avatar" style="background: #3B82F6;">MK</div>
+                    <div class="avatar" style="background: #F59E0B;">TL</div>
+                    <div class="avatar avatar-more">+2</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Customer Portal v2</div>
+                      <div class="project-owner">Mike Chen</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 8%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      120 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      8 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #EF4444;">MC</div>
+                    <div class="avatar" style="background: #8B5CF6;">AW</div>
+                    <div class="avatar" style="background: #EC4899;">RS</div>
+                    <div class="avatar avatar-more">+5</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Data Analytics Dashboard</div>
+                      <div class="project-owner">Lisa Park</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 12%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      60 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      4 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #F59E0B;">LP</div>
+                    <div class="avatar" style="background: #10B981;">DM</div>
+                    <div class="avatar" style="background: #3B82F6;">KS</div>
+                    <div class="avatar avatar-more">+1</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Planning Column -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <h3 class="kanban-title">Planning</h3>
+                <span class="kanban-count">4</span>
+              </div>
+              <div class="kanban-cards" id="kanban-planning">
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Cloud Migration Phase 2</div>
+                      <div class="project-owner">David Miller</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 28%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      180 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      12 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #6366F1;">DM</div>
+                    <div class="avatar" style="background: #10B981;">JL</div>
+                    <div class="avatar" style="background: #F59E0B;">SK</div>
+                    <div class="avatar avatar-more">+9</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Mobile App Redesign</div>
+                      <div class="project-owner">Emily Wong</div>
+                    </div>
+                    <span class="status-badge status-at-risk">At Risk</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill medium" style="width: 35%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      90 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      6 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #EC4899;">EW</div>
+                    <div class="avatar" style="background: #8B5CF6;">BT</div>
+                    <div class="avatar" style="background: #F59E0B;">NH</div>
+                    <div class="avatar avatar-more">+3</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Security Compliance Audit</div>
+                      <div class="project-owner">James Taylor</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 42%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      45 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      3 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #10B981;">JT</div>
+                    <div class="avatar" style="background: #3B82F6;">MR</div>
+                    <div class="avatar" style="background: #F59E0B;">AL</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Office Expansion Project</div>
+                      <div class="project-owner">Rachel Green</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 38%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      150 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      7 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #6366F1;">RG</div>
+                    <div class="avatar" style="background: #10B981;">TC</div>
+                    <div class="avatar" style="background: #F59E0B;">PW</div>
+                    <div class="avatar avatar-more">+4</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- In Progress Column -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <h3 class="kanban-title">In Progress</h3>
+                <span class="kanban-count">5</span>
+              </div>
+              <div class="kanban-cards" id="kanban-in-progress">
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">ERP System Implementation</div>
+                      <div class="project-owner">Tom Anderson</div>
+                    </div>
+                    <span class="status-badge status-at-risk">At Risk</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill medium" style="width: 58%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      240 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      15 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #EF4444;">TA</div>
+                    <div class="avatar" style="background: #10B981;">VK</div>
+                    <div class="avatar" style="background: #3B82F6;">HB</div>
+                    <div class="avatar avatar-more">+12</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Marketing Automation</div>
+                      <div class="project-owner">Nina Patel</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 62%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      75 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      5 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #EC4899;">NP</div>
+                    <div class="avatar" style="background: #8B5CF6;">GL</div>
+                    <div class="avatar" style="background: #F59E0B;">CM</div>
+                    <div class="avatar avatar-more">+2</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Product Localization</div>
+                      <div class="project-owner">Carlos Rivera</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 71%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      90 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      6 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #F59E0B;">CR</div>
+                    <div class="avatar" style="background: #10B981;">YL</div>
+                    <div class="avatar" style="background: #3B82F6;">FB</div>
+                    <div class="avatar avatar-more">+3</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">API Platform Upgrade</div>
+                      <div class="project-owner">Kevin Liu</div>
+                    </div>
+                    <span class="status-badge status-at-risk">At Risk</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill medium" style="width: 54%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      120 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      8 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #6366F1;">KL</div>
+                    <div class="avatar" style="background: #10B981;">OD</div>
+                    <div class="avatar" style="background: #F59E0B;">WX</div>
+                    <div class="avatar avatar-more">+5</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Training Portal Launch</div>
+                      <div class="project-owner">Amanda Scott</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 65%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      60 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      4 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #EC4899;">AS</div>
+                    <div class="avatar" style="background: #8B5CF6;">IK</div>
+                    <div class="avatar" style="background: #F59E0B;">ZH</div>
+                    <div class="avatar avatar-more">+1</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Review Column -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <h3 class="kanban-title">Review</h3>
+                <span class="kanban-count">2</span>
+              </div>
+              <div class="kanban-cards" id="kanban-review">
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Infrastructure Monitoring</div>
+                      <div class="project-owner">Ben Harper</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill high" style="width: 88%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      30 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      3 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #10B981;">BH</div>
+                    <div class="avatar" style="background: #3B82F6;">QJ</div>
+                    <div class="avatar" style="background: #F59E0B;">UM</div>
+                  </div>
+                </div>
+
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Vendor Management System</div>
+                      <div class="project-owner">Patricia Lee</div>
+                    </div>
+                    <span class="status-badge status-delayed">Delayed</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill low" style="width: 79%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      105 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      6 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #6366F1;">PL</div>
+                    <div class="avatar" style="background: #10B981;">XN</div>
+                    <div class="avatar" style="background: #F59E0B;">JV</div>
+                    <div class="avatar avatar-more">+3</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Completed Column -->
+            <div class="kanban-column">
+              <div class="kanban-header">
+                <h3 class="kanban-title">Completed</h3>
+                <span class="kanban-count">1</span>
+              </div>
+              <div class="kanban-cards" id="kanban-completed">
+                <div class="project-card" draggable="true">
+                  <div class="project-card-header">
+                    <div>
+                      <div class="project-name">Q4 Budget Planning</div>
+                      <div class="project-owner">Robert Kim</div>
+                    </div>
+                    <span class="status-badge status-on-track">On Track</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill high" style="width: 100%;"></div>
+                  </div>
+                  <div class="project-meta">
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      45 days
+                    </div>
+                    <div class="meta-item">
+                      <svg class="icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      5 members
+                    </div>
+                  </div>
+                  <div class="team-avatars">
+                    <div class="avatar" style="background: #EF4444;">RK</div>
+                    <div class="avatar" style="background: #10B981;">SF</div>
+                    <div class="avatar" style="background: #3B82F6;">MG</div>
+                    <div class="avatar avatar-more">+2</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="view-content" id="table-view">
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Owner</th>
+                  <th>Status</th>
+                  <th>Portfolio</th>
+                  <th>Priority</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Duration</th>
+                  <th>Progress</th>
+                  <th>Budget</th>
+                  <th>Spent</th>
+                  <th>Team Size</th>
+                  <th>Tasks</th>
+                  <th>Health</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr onclick="openDetailPanel('cloud-migration')">
+                  <td class="table-project-name">Cloud Migration Phase 2</td>
+                  <td>David Miller</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Technology</td>
+                  <td>High</td>
+                  <td>Jan 15, 2025</td>
+                  <td>Jul 15, 2025</td>
+                  <td>180 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 28%;"></div>
+                    </div>
+                  </td>
+                  <td>$450,000</td>
+                  <td>$126,000</td>
+                  <td>12</td>
+                  <td>47/180</td>
+                  <td>85%</td>
+                </tr>
+                <tr onclick="openDetailPanel('erp-implementation')">
+                  <td class="table-project-name">ERP System Implementation</td>
+                  <td>Tom Anderson</td>
+                  <td><span class="status-badge status-at-risk">At Risk</span></td>
+                  <td>Operations</td>
+                  <td>High</td>
+                  <td>Oct 1, 2024</td>
+                  <td>May 30, 2025</td>
+                  <td>240 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill medium" style="width: 58%;"></div>
+                    </div>
+                  </td>
+                  <td>$500,000</td>
+                  <td>$312,000</td>
+                  <td>15</td>
+                  <td>89/156</td>
+                  <td>68%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Mobile App Redesign</td>
+                  <td>Emily Wong</td>
+                  <td><span class="status-badge status-at-risk">At Risk</span></td>
+                  <td>Technology</td>
+                  <td>High</td>
+                  <td>Dec 1, 2024</td>
+                  <td>Mar 1, 2025</td>
+                  <td>90 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill medium" style="width: 35%;"></div>
+                    </div>
+                  </td>
+                  <td>$180,000</td>
+                  <td>$71,000</td>
+                  <td>6</td>
+                  <td>31/92</td>
+                  <td>72%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Marketing Automation</td>
+                  <td>Nina Patel</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Sales</td>
+                  <td>Medium</td>
+                  <td>Nov 15, 2024</td>
+                  <td>Jan 30, 2025</td>
+                  <td>75 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 62%;"></div>
+                    </div>
+                  </td>
+                  <td>$95,000</td>
+                  <td>$58,900</td>
+                  <td>5</td>
+                  <td>42/68</td>
+                  <td>91%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Security Compliance Audit</td>
+                  <td>James Taylor</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Operations</td>
+                  <td>High</td>
+                  <td>Dec 20, 2024</td>
+                  <td>Feb 3, 2025</td>
+                  <td>45 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 42%;"></div>
+                    </div>
+                  </td>
+                  <td>$75,000</td>
+                  <td>$31,500</td>
+                  <td>3</td>
+                  <td>18/43</td>
+                  <td>88%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Product Localization</td>
+                  <td>Carlos Rivera</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Technology</td>
+                  <td>Medium</td>
+                  <td>Nov 1, 2024</td>
+                  <td>Jan 30, 2025</td>
+                  <td>90 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 71%;"></div>
+                    </div>
+                  </td>
+                  <td>$120,000</td>
+                  <td>$85,200</td>
+                  <td>6</td>
+                  <td>54/76</td>
+                  <td>93%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">API Platform Upgrade</td>
+                  <td>Kevin Liu</td>
+                  <td><span class="status-badge status-at-risk">At Risk</span></td>
+                  <td>Technology</td>
+                  <td>High</td>
+                  <td>Oct 15, 2024</td>
+                  <td>Feb 15, 2025</td>
+                  <td>120 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill medium" style="width: 54%;"></div>
+                    </div>
+                  </td>
+                  <td>$220,000</td>
+                  <td>$138,600</td>
+                  <td>8</td>
+                  <td>62/115</td>
+                  <td>71%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Office Expansion Project</td>
+                  <td>Rachel Green</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Operations</td>
+                  <td>Medium</td>
+                  <td>Nov 1, 2024</td>
+                  <td>Mar 30, 2025</td>
+                  <td>150 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 38%;"></div>
+                    </div>
+                  </td>
+                  <td>$350,000</td>
+                  <td>$133,000</td>
+                  <td>7</td>
+                  <td>38/102</td>
+                  <td>86%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Training Portal Launch</td>
+                  <td>Amanda Scott</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>HR</td>
+                  <td>Medium</td>
+                  <td>Dec 10, 2024</td>
+                  <td>Feb 8, 2025</td>
+                  <td>60 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 65%;"></div>
+                    </div>
+                  </td>
+                  <td>$85,000</td>
+                  <td>$55,250</td>
+                  <td>4</td>
+                  <td>29/45</td>
+                  <td>90%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Infrastructure Monitoring</td>
+                  <td>Ben Harper</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Technology</td>
+                  <td>Low</td>
+                  <td>Dec 20, 2024</td>
+                  <td>Jan 19, 2025</td>
+                  <td>30 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill high" style="width: 88%;"></div>
+                    </div>
+                  </td>
+                  <td>$50,000</td>
+                  <td>$44,000</td>
+                  <td>3</td>
+                  <td>22/25</td>
+                  <td>95%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Vendor Management System</td>
+                  <td>Patricia Lee</td>
+                  <td><span class="status-badge status-delayed">Delayed</span></td>
+                  <td>Operations</td>
+                  <td>Medium</td>
+                  <td>Sep 15, 2024</td>
+                  <td>Dec 29, 2024</td>
+                  <td>105 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill low" style="width: 79%;"></div>
+                    </div>
+                  </td>
+                  <td>$155,000</td>
+                  <td>$135,850</td>
+                  <td>6</td>
+                  <td>64/81</td>
+                  <td>62%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Customer Portal v2</td>
+                  <td>Mike Chen</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Technology</td>
+                  <td>High</td>
+                  <td>Jan 10, 2025</td>
+                  <td>May 10, 2025</td>
+                  <td>120 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 8%;"></div>
+                    </div>
+                  </td>
+                  <td>$275,000</td>
+                  <td>$22,000</td>
+                  <td>8</td>
+                  <td>6/87</td>
+                  <td>82%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">AI Training Program</td>
+                  <td>Sarah Johnson</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>HR</td>
+                  <td>Medium</td>
+                  <td>Mar 15, 2025</td>
+                  <td>Jun 15, 2025</td>
+                  <td>90 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 15%;"></div>
+                    </div>
+                  </td>
+                  <td>$110,000</td>
+                  <td>$16,500</td>
+                  <td>5</td>
+                  <td>8/56</td>
+                  <td>78%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Data Analytics Dashboard</td>
+                  <td>Lisa Park</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Technology</td>
+                  <td>Medium</td>
+                  <td>Feb 1, 2025</td>
+                  <td>Apr 2, 2025</td>
+                  <td>60 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill" style="width: 12%;"></div>
+                    </div>
+                  </td>
+                  <td>$92,000</td>
+                  <td>$11,040</td>
+                  <td>4</td>
+                  <td>5/42</td>
+                  <td>84%</td>
+                </tr>
+                <tr>
+                  <td class="table-project-name">Q4 Budget Planning</td>
+                  <td>Robert Kim</td>
+                  <td><span class="status-badge status-on-track">On Track</span></td>
+                  <td>Operations</td>
+                  <td>Low</td>
+                  <td>Nov 1, 2024</td>
+                  <td>Dec 16, 2024</td>
+                  <td>45 days</td>
+                  <td>
+                    <div class="progress-bar" style="width: 100px;">
+                      <div class="progress-fill high" style="width: 100%;"></div>
+                    </div>
+                  </td>
+                  <td>$65,000</td>
+                  <td>$65,000</td>
+                  <td>5</td>
+                  <td>36/36</td>
+                  <td>100%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Timeline View -->
+        <div class="view-content" id="timeline-view">
+          <div class="timeline-container">
+            <div class="timeline-quarter">
+              <h3 class="quarter-header">Q1 2025 (Jan - Mar)</h3>
+              <div class="timeline-items">
+                <div class="timeline-item">
+                  <div class="timeline-date">Jan 10 - May 10</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Customer Portal v2</div>
+                    <div class="timeline-description">Complete redesign and implementation of customer-facing portal with enhanced features</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">8 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Jan 15 - Jul 15</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Cloud Migration Phase 2</div>
+                    <div class="timeline-description">Migrate remaining workloads to cloud infrastructure with zero downtime</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">12 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Feb 1 - Apr 2</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Data Analytics Dashboard</div>
+                    <div class="timeline-description">Build comprehensive analytics platform for real-time business insights</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">4 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Mar 15 - Jun 15</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">AI Training Program</div>
+                    <div class="timeline-description">Comprehensive AI skills development program for all employees</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">5 team members</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-quarter">
+              <h3 class="quarter-header">Q4 2024 - Q1 2025 (Ongoing)</h3>
+              <div class="timeline-items">
+                <div class="timeline-item">
+                  <div class="timeline-date">Oct 1 - May 30</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">ERP System Implementation</div>
+                    <div class="timeline-description">Enterprise resource planning system rollout across all departments</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-at-risk">At Risk</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">15 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Oct 15 - Feb 15</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">API Platform Upgrade</div>
+                    <div class="timeline-description">Modernize API infrastructure for improved performance and scalability</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-at-risk">At Risk</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">8 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Nov 1 - Jan 30</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Product Localization</div>
+                    <div class="timeline-description">Adapt product for international markets with full translation support</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">6 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Nov 1 - Mar 30</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Office Expansion Project</div>
+                    <div class="timeline-description">New office space design, construction, and move coordination</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">7 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Nov 15 - Jan 30</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Marketing Automation</div>
+                    <div class="timeline-description">Implement automated marketing workflows and customer engagement tools</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">5 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Dec 1 - Mar 1</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Mobile App Redesign</div>
+                    <div class="timeline-description">Complete UI/UX overhaul of mobile applications for iOS and Android</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-at-risk">At Risk</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">6 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Dec 10 - Feb 8</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Training Portal Launch</div>
+                    <div class="timeline-description">Deploy new employee training and development platform</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">4 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Dec 20 - Feb 3</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Security Compliance Audit</div>
+                    <div class="timeline-description">Comprehensive security review and compliance certification</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">3 team members</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-date">Dec 20 - Jan 19</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Infrastructure Monitoring</div>
+                    <div class="timeline-description">Deploy monitoring solution for infrastructure health and performance</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">On Track</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">3 team members</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-quarter">
+              <h3 class="quarter-header">Completed Projects</h3>
+              <div class="timeline-items">
+                <div class="timeline-item" style="opacity: 0.7;">
+                  <div class="timeline-date">Nov 1 - Dec 16</div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Q4 Budget Planning</div>
+                    <div class="timeline-description">Annual budget planning and resource allocation for next fiscal year</div>
+                    <div style="margin-top: var(--space-2);">
+                      <span class="status-badge status-on-track">Completed</span>
+                      <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-tertiary);">100% Complete</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Project Detail Panel -->
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-header">
+      <div>
+        <h2 style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--text-primary); margin-bottom: var(--space-1);">Cloud Migration Phase 2</h2>
+        <p style="font-size: var(--text-sm); color: var(--text-secondary);">Technology Portfolio</p>
+      </div>
+      <button class="detail-close" onclick="closeDetailPanel()">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-stats">
+        <div class="stat-card">
+          <div class="stat-label">Progress</div>
+          <div class="stat-value">28%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Budget</div>
+          <div class="stat-value">$450k</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Team</div>
+          <div class="stat-value">12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Tasks</div>
+          <div class="stat-value">47/180</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-section-title">Overview</h3>
+        <p style="font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--leading-relaxed);">
+          This project involves migrating remaining on-premise workloads to cloud infrastructure. Key objectives include zero downtime migration, cost optimization, and improved scalability. The project is divided into 5 phases covering database migration, application modernization, and infrastructure setup.
+        </p>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-section-title">Timeline</h3>
+        <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
+          <div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">Start Date</div>
+            <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">Jan 15, 2025</div>
+          </div>
+          <div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">End Date</div>
+            <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">Jul 15, 2025</div>
+          </div>
+          <div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">Duration</div>
+            <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">180 days</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 28%;"></div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-section-title">Team Members</h3>
+        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <div class="avatar" style="width: 40px; height: 40px; font-size: var(--text-base); background: #6366F1;">DM</div>
+            <div style="flex: 1;">
+              <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">David Miller</div>
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary);">Project Manager</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <div class="avatar" style="width: 40px; height: 40px; font-size: var(--text-base); background: #10B981;">JL</div>
+            <div style="flex: 1;">
+              <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">Jennifer Lee</div>
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary);">Cloud Architect</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <div class="avatar" style="width: 40px; height: 40px; font-size: var(--text-base); background: #F59E0B;">SK</div>
+            <div style="flex: 1;">
+              <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">Sam Kumar</div>
+              <div style="font-size: var(--text-xs); color: var(--text-tertiary);">DevOps Engineer</div>
+            </div>
+          </div>
+          <button class="btn btn-secondary" style="width: 100%; justify-content: center;">
+            + View All 12 Members
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-section-title">Budget Breakdown</h3>
+        <div style="margin-bottom: var(--space-4);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
+            <span style="font-size: var(--text-sm); color: var(--text-secondary);">Total Budget</span>
+            <span style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">$450,000</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
+            <span style="font-size: var(--text-sm); color: var(--text-secondary);">Spent</span>
+            <span style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--success-700);">$126,000</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: var(--text-sm); color: var(--text-secondary);">Remaining</span>
+            <span style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary);">$324,000</span>
+          </div>
+        </div>
+        <canvas id="budgetChart" style="max-height: 200px;"></canvas>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-section-title">Recent Activity</h3>
+        <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+          <div style="padding: var(--space-3); background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary); margin-bottom: var(--space-1);">Database migration completed</div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">2 hours ago by Jennifer Lee</div>
+          </div>
+          <div style="padding: var(--space-3); background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary); margin-bottom: var(--space-1);">Security review approved</div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">5 hours ago by Sam Kumar</div>
+          </div>
+          <div style="padding: var(--space-3); background: var(--bg-secondary); border-radius: var(--radius-md);">
+            <div style="font-size: var(--text-sm); font-weight: var(--font-medium); color: var(--text-primary); margin-bottom: var(--space-1);">Sprint 3 planning completed</div>
+            <div style="font-size: var(--text-xs); color: var(--text-tertiary);">1 day ago by David Miller</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-section-title">Actions</h3>
+        <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+          <button class="btn btn-primary" style="width: 100%; justify-content: center;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Edit Project
+          </button>
+          <button class="btn btn-secondary" style="width: 100%; justify-content: center;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Report
+          </button>
+          <button class="btn btn-secondary" style="width: 100%; justify-content: center;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+            View Gantt Chart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // View Switching
+    const viewBtns = document.querySelectorAll('.view-btn');
+    const viewContents = document.querySelectorAll('.view-content');
+
+    viewBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const viewName = btn.dataset.view;
+
+        // Update active button
+        viewBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Show corresponding view
+        viewContents.forEach(view => {
+          view.classList.remove('active');
+          if (view.id === `${viewName}-view`) {
+            view.classList.add('active');
+          }
+        });
+
+        // Initialize view if needed
+        if (viewName === 'gantt' && !window.ganttInitialized) {
+          initGantt();
+        }
+      });
+    });
+
+    // Initialize Gantt Chart
+    let ganttInitialized = false;
+
+    function initGantt() {
+      if (ganttInitialized) return;
+      ganttInitialized = true;
+
+      gantt.config.date_format = "%Y-%m-%d";
+      gantt.config.columns = [
+        {name: "text", label: "Project", tree: true, width: 250},
+        {name: "start_date", label: "Start", align: "center", width: 100},
+        {name: "duration", label: "Duration", align: "center", width: 70},
+        {name: "owner", label: "Owner", align: "center", width: 120}
+      ];
+
+      const tasks = {
+        data: [
+          {
+            id: 1, text: "Cloud Migration Phase 2", start_date: "2025-01-15", duration: 180, progress: 0.28, owner: "David Miller",
+            open: true
+          },
+          {id: 11, text: "Phase 1: Assessment", start_date: "2025-01-15", duration: 30, progress: 1.0, parent: 1, owner: "Jennifer Lee"},
+          {id: 12, text: "Phase 2: Database Migration", start_date: "2025-02-15", duration: 45, progress: 0.8, parent: 1, owner: "Sam Kumar"},
+          {id: 13, text: "Phase 3: Application Migration", start_date: "2025-04-01", duration: 60, progress: 0.2, parent: 1, owner: "David Miller"},
+          {id: 14, text: "Phase 4: Testing & Validation", start_date: "2025-06-01", duration: 30, progress: 0.0, parent: 1, owner: "Jennifer Lee"},
+          {id: 15, text: "Phase 5: Cutover", start_date: "2025-07-01", duration: 15, progress: 0.0, parent: 1, owner: "David Miller"},
+
+          {
+            id: 2, text: "ERP System Implementation", start_date: "2024-10-01", duration: 240, progress: 0.58, owner: "Tom Anderson",
+            open: true
+          },
+          {id: 21, text: "Requirements Gathering", start_date: "2024-10-01", duration: 30, progress: 1.0, parent: 2, owner: "Tom Anderson"},
+          {id: 22, text: "System Configuration", start_date: "2024-11-01", duration: 60, progress: 1.0, parent: 2, owner: "Vivek Kumar"},
+          {id: 23, text: "Data Migration", start_date: "2024-12-30", duration: 45, progress: 0.5, parent: 2, owner: "Hannah Brown"},
+          {id: 24, text: "User Training", start_date: "2025-02-15", duration: 45, progress: 0.2, parent: 2, owner: "Tom Anderson"},
+          {id: 25, text: "Go-Live", start_date: "2025-04-01", duration: 60, progress: 0.0, parent: 2, owner: "Tom Anderson"},
+
+          {
+            id: 3, text: "Mobile App Redesign", start_date: "2024-12-01", duration: 90, progress: 0.35, owner: "Emily Wong"
+          },
+          {
+            id: 4, text: "Marketing Automation", start_date: "2024-11-15", duration: 75, progress: 0.62, owner: "Nina Patel"
+          },
+          {
+            id: 5, text: "Security Compliance Audit", start_date: "2024-12-20", duration: 45, progress: 0.42, owner: "James Taylor"
+          },
+          {
+            id: 6, text: "Product Localization", start_date: "2024-11-01", duration: 90, progress: 0.71, owner: "Carlos Rivera"
+          },
+          {
+            id: 7, text: "API Platform Upgrade", start_date: "2024-10-15", duration: 120, progress: 0.54, owner: "Kevin Liu"
+          },
+          {
+            id: 8, text: "Office Expansion Project", start_date: "2024-11-01", duration: 150, progress: 0.38, owner: "Rachel Green"
+          },
+          {
+            id: 9, text: "Training Portal Launch", start_date: "2024-12-10", duration: 60, progress: 0.65, owner: "Amanda Scott"
+          },
+          {
+            id: 10, text: "Infrastructure Monitoring", start_date: "2024-12-20", duration: 30, progress: 0.88, owner: "Ben Harper"
+          },
+          {
+            id: 16, text: "Customer Portal v2", start_date: "2025-01-10", duration: 120, progress: 0.08, owner: "Mike Chen"
+          },
+          {
+            id: 17, text: "AI Training Program", start_date: "2025-03-15", duration: 90, progress: 0.15, owner: "Sarah Johnson"
+          },
+          {
+            id: 18, text: "Data Analytics Dashboard", start_date: "2025-02-01", duration: 60, progress: 0.12, owner: "Lisa Park"
+          }
+        ],
+        links: [
+          {id: 1, source: 11, target: 12, type: "0"},
+          {id: 2, source: 12, target: 13, type: "0"},
+          {id: 3, source: 13, target: 14, type: "0"},
+          {id: 4, source: 14, target: 15, type: "0"},
+          {id: 5, source: 21, target: 22, type: "0"},
+          {id: 6, source: 22, target: 23, type: "0"},
+          {id: 7, source: 23, target: 24, type: "0"},
+          {id: 8, source: 24, target: 25, type: "0"}
+        ]
+      };
+
+      gantt.init("gantt-chart");
+      gantt.parse(tasks);
+    }
+
+    // Initialize Gantt on page load
+    initGantt();
+
+    // Kanban Drag and Drop
+    const kanbanColumns = ['kanban-backlog', 'kanban-planning', 'kanban-in-progress', 'kanban-review', 'kanban-completed'];
+
+    kanbanColumns.forEach(columnId => {
+      const column = document.getElementById(columnId);
+      if (column) {
+        new Sortable(column, {
+          group: 'kanban',
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          dragClass: 'sortable-drag',
+          onEnd: function(evt) {
+            // Update kanban counts
+            updateKanbanCounts();
+          }
+        });
+      }
+    });
+
+    function updateKanbanCounts() {
+      kanbanColumns.forEach(columnId => {
+        const column = document.getElementById(columnId);
+        if (column) {
+          const count = column.querySelectorAll('.project-card').length;
+          const countBadge = column.closest('.kanban-column').querySelector('.kanban-count');
+          if (countBadge) {
+            countBadge.textContent = count;
+          }
+        }
+      });
+    }
+
+    // Project Detail Panel
+    function openDetailPanel(projectId) {
+      document.getElementById('detail-panel').classList.add('open');
+
+      // Initialize budget chart if not already done
+      if (!window.budgetChartInitialized) {
+        initBudgetChart();
+        window.budgetChartInitialized = true;
+      }
+    }
+
+    function closeDetailPanel() {
+      document.getElementById('detail-panel').classList.remove('open');
+    }
+
+    function initBudgetChart() {
+      const ctx = document.getElementById('budgetChart');
+      if (!ctx) return;
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Spent', 'Remaining'],
+          datasets: [{
+            data: [126000, 324000],
+            backgroundColor: ['#3B82F6', '#E5E7EB'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    // Close detail panel when clicking outside
+    document.addEventListener('click', (e) => {
+      const detailPanel = document.getElementById('detail-panel');
+      if (detailPanel.classList.contains('open') && !detailPanel.contains(e.target) && !e.target.closest('tr')) {
+        closeDetailPanel();
+      }
+    });
+
+    // Table row click handler
+    const tableRows = document.querySelectorAll('.data-table tbody tr');
+    tableRows.forEach(row => {
+      row.style.cursor = 'pointer';
+    });
+  </script>
+</body>
+</html>

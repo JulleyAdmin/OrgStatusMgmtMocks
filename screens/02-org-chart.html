@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Org Chart Canvas - AI Org Platform</title>
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        /* Toolbar Styles */
+        .toolbar {
+            height: 64px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-6);
+            gap: var(--space-4);
+            z-index: 100;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 32px;
+            background-color: var(--border-color);
+            margin: 0 var(--space-2);
+        }
+
+        .toolbar-button {
+            height: 36px;
+            padding: 0 var(--space-3);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all 0.2s;
+        }
+
+        .toolbar-button:hover {
+            background-color: var(--neutral-100);
+            border-color: var(--neutral-400);
+        }
+
+        .toolbar-button.active {
+            background-color: var(--primary-500);
+            color: white;
+            border-color: var(--primary-600);
+        }
+
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            justify-content: center;
+        }
+
+        .zoom-indicator {
+            min-width: 60px;
+            text-align: center;
+            font-weight: var(--font-semibold);
+            color: var(--text-secondary);
+        }
+
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            height: 36px;
+            padding: 0 var(--space-3) 0 var(--space-10);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: var(--space-2);
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: var(--space-2) var(--space-4);
+            cursor: pointer;
+            font-size: var(--text-sm);
+            color: var(--text-primary);
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .dropdown-item:first-child {
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .dropdown-item:last-child {
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            position: relative;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+            background-color: var(--bg-secondary);
+        }
+
+        #orgChartCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        #orgChartCanvas:active {
+            cursor: grabbing;
+        }
+
+        /* Position Node Styles */
+        .position-node {
+            cursor: pointer;
+        }
+
+        .node-card {
+            width: 200px;
+            height: 120px;
+            fill: var(--bg-primary);
+            stroke-width: 2;
+            rx: 8;
+            transition: all 0.3s;
+        }
+
+        .node-card:hover {
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+        }
+
+        .node-card.selected {
+            stroke: var(--primary-500);
+            stroke-width: 3;
+        }
+
+        .node-card.vacant {
+            fill: var(--neutral-100);
+            stroke-dasharray: 5, 5;
+        }
+
+        .node-avatar {
+            fill: var(--neutral-200);
+        }
+
+        .node-initials {
+            font-size: 14px;
+            font-weight: var(--font-semibold);
+            fill: var(--text-primary);
+            text-anchor: middle;
+        }
+
+        .node-title {
+            font-size: 14px;
+            font-weight: var(--font-semibold);
+            fill: var(--text-primary);
+        }
+
+        .node-name {
+            font-size: 12px;
+            fill: var(--text-secondary);
+        }
+
+        .node-department {
+            font-size: 11px;
+            fill: var(--text-tertiary);
+        }
+
+        .node-reports {
+            font-size: 11px;
+            fill: var(--text-tertiary);
+        }
+
+        .node-actions {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .position-node:hover .node-actions {
+            opacity: 1;
+        }
+
+        /* Connection Lines */
+        .link {
+            fill: none;
+            stroke: var(--neutral-300);
+            stroke-width: 2;
+        }
+
+        .link.matrix {
+            stroke-dasharray: 5, 5;
+        }
+
+        .link.selected {
+            stroke: var(--primary-500);
+            stroke-width: 3;
+        }
+
+        /* Department Colors */
+        .dept-engineering { stroke: var(--primary-500); }
+        .dept-sales { stroke: var(--success-500); }
+        .dept-marketing { stroke: var(--warning-500); }
+        .dept-operations { stroke: var(--info-500); }
+        .dept-finance { stroke: var(--error-500); }
+
+        /* Side Panel */
+        .side-panel {
+            position: absolute;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background-color: var(--bg-primary);
+            border-left: 1px solid var(--border-color);
+            box-shadow: var(--shadow-xl);
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 200;
+        }
+
+        .side-panel.open {
+            right: 0;
+        }
+
+        .panel-header {
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .panel-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .panel-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            font-size: 20px;
+        }
+
+        .panel-section {
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: var(--text-base);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-3);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+            font-size: var(--text-sm);
+        }
+
+        .info-label {
+            color: var(--text-tertiary);
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: var(--font-medium);
+        }
+
+        .assignee-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+        }
+
+        .assignee-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            background-color: var(--primary-500);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-semibold);
+        }
+
+        .assignee-info {
+            flex: 1;
+        }
+
+        .assignee-name {
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .assignee-email {
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        .responsibilities-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .responsibilities-list li {
+            padding: var(--space-2) 0;
+            padding-left: var(--space-4);
+            position: relative;
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .responsibilities-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary-500);
+        }
+
+        .skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+        }
+
+        .skill-tag {
+            padding: var(--space-1) var(--space-3);
+            background-color: var(--primary-100);
+            color: var(--primary-700);
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+        }
+
+        .panel-actions {
+            padding: var(--space-6);
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .btn {
+            flex: 1;
+            padding: var(--space-3);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-500);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-600);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--neutral-100);
+        }
+
+        /* Minimap */
+        .minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background-color: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .minimap svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .viewport-indicator {
+            fill: var(--primary-200);
+            stroke: var(--primary-500);
+            stroke-width: 2;
+            opacity: 0.3;
+        }
+
+        /* Department Badge */
+        .dept-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 10px;
+            font-weight: var(--font-semibold);
+        }
+
+        .dept-badge.engineering {
+            background-color: var(--primary-100);
+            color: var(--primary-700);
+        }
+
+        .dept-badge.sales {
+            background-color: var(--success-100);
+            color: var(--success-700);
+        }
+
+        .dept-badge.marketing {
+            background-color: var(--warning-100);
+            color: var(--warning-700);
+        }
+
+        .dept-badge.operations {
+            background-color: var(--info-100);
+            color: var(--info-700);
+        }
+
+        .dept-badge.finance {
+            background-color: var(--error-100);
+            color: var(--error-700);
+        }
+
+        /* Expand/Collapse Button */
+        .expand-button {
+            fill: var(--bg-primary);
+            stroke: var(--primary-500);
+            stroke-width: 2;
+            cursor: pointer;
+        }
+
+        .expand-button:hover {
+            fill: var(--primary-100);
+        }
+
+        .expand-icon {
+            fill: var(--primary-500);
+            font-size: 16px;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+
+        /* Autocomplete */
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-results.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: var(--space-3) var(--space-4);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .autocomplete-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .autocomplete-name {
+            font-weight: var(--font-medium);
+            color: var(--text-primary);
+        }
+
+        .autocomplete-position {
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        /* Reporting Chain */
+        .reporting-chain {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .chain-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-size: var(--text-sm);
+        }
+
+        .chain-arrow {
+            color: var(--text-tertiary);
+        }
+
+        .direct-reports-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .direct-reports-list li {
+            padding: var(--space-2);
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--text-sm);
+        }
+
+        .direct-reports-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Status Indicator */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: var(--radius-full);
+            display: inline-block;
+            margin-left: var(--space-2);
+        }
+
+        .status-dot.filled {
+            background-color: var(--success-500);
+        }
+
+        .status-dot.vacant {
+            background-color: var(--error-500);
+        }
+    </style>
+</head>
+<body>
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <!-- Search -->
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search positions or people (⌘K)" />
+            <div class="autocomplete-results" id="autocompleteResults"></div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Zoom Controls -->
+        <div class="toolbar-group">
+            <button class="toolbar-button icon-button" id="zoomOut" title="Zoom out">-</button>
+            <div class="zoom-indicator" id="zoomLevel">100%</div>
+            <button class="toolbar-button icon-button" id="zoomIn" title="Zoom in">+</button>
+            <button class="toolbar-button icon-button" id="fitScreen" title="Fit to screen">⊡</button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Layout Options -->
+        <div class="dropdown" id="layoutDropdown">
+            <button class="toolbar-button">
+                Layout: <span id="currentLayout">Top-down</span> ▼
+            </button>
+            <div class="dropdown-menu" id="layoutMenu">
+                <div class="dropdown-item" data-layout="top-down">Top-down</div>
+                <div class="dropdown-item" data-layout="left-right">Left-to-right</div>
+                <div class="dropdown-item" data-layout="radial">Radial</div>
+                <div class="dropdown-item" data-layout="compact">Compact</div>
+            </div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Export Options -->
+        <div class="dropdown" id="exportDropdown">
+            <button class="toolbar-button">
+                Export ▼
+            </button>
+            <div class="dropdown-menu" id="exportMenu">
+                <div class="dropdown-item" data-export="png">PNG Image</div>
+                <div class="dropdown-item" data-export="svg">SVG Vector</div>
+                <div class="dropdown-item" data-export="pdf">PDF Document</div>
+                <div class="dropdown-item" data-export="excel">Excel Spreadsheet</div>
+                <div class="dropdown-item" data-export="json">JSON Data</div>
+            </div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Edit Mode Toggle -->
+        <button class="toolbar-button" id="editModeToggle">
+            <span>📝</span> Edit Mode
+        </button>
+    </div>
+
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+        <svg id="orgChartCanvas"></svg>
+
+        <!-- Minimap -->
+        <div class="minimap">
+            <svg id="minimapCanvas"></svg>
+        </div>
+    </div>
+
+    <!-- Side Panel -->
+    <div class="side-panel" id="sidePanel">
+        <div class="panel-header">
+            <div>
+                <div class="panel-title" id="panelTitle">Select a position</div>
+                <span class="dept-badge engineering" id="panelDeptBadge">Engineering</span>
+                <span class="status-dot filled" id="panelStatus"></span>
+            </div>
+            <button class="panel-close" id="panelClose">✕</button>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Current Assignee</div>
+            <div class="assignee-card" id="assigneeCard">
+                <div class="assignee-avatar" id="assigneeAvatar">JS</div>
+                <div class="assignee-info">
+                    <div class="assignee-name" id="assigneeName">John Smith</div>
+                    <div class="assignee-email" id="assigneeEmail">john.smith@company.com</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Position Information</div>
+            <div class="info-row">
+                <span class="info-label">Position ID:</span>
+                <span class="info-value" id="positionId">POS-001</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Level:</span>
+                <span class="info-value" id="positionLevel">Executive</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Location:</span>
+                <span class="info-value" id="positionLocation">San Francisco, CA</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Employment Type:</span>
+                <span class="info-value" id="employmentType">Full-time</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Direct Reports:</span>
+                <span class="info-value" id="directReportsCount">5</span>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Reporting Chain</div>
+            <div class="reporting-chain" id="reportingChain">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Direct Reports</div>
+            <ul class="direct-reports-list" id="directReportsList">
+                <!-- Dynamically populated -->
+            </ul>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Key Responsibilities</div>
+            <ul class="responsibilities-list" id="responsibilitiesList">
+                <!-- Dynamically populated -->
+            </ul>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Required Skills</div>
+            <div class="skills-tags" id="skillsTags">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <div class="panel-actions">
+            <button class="btn btn-primary" id="editPositionBtn">Edit Position</button>
+            <button class="btn btn-secondary" id="assignPersonBtn">Assign Person</button>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data: 50 positions across 5 departments
+        const orgData = {
+            id: "pos-1",
+            title: "Chief Executive Officer",
+            name: "John Smith",
+            department: "Executive",
+            location: "San Francisco, CA",
+            level: "C-Suite",
+            directReports: 5,
+            email: "john.smith@company.com",
+            employmentType: "Full-time",
+            vacant: false,
+            responsibilities: [
+                "Set overall company vision and strategy",
+                "Lead executive team and board of directors",
+                "Drive business growth and profitability",
+                "Represent company to stakeholders"
+            ],
+            skills: ["Leadership", "Strategy", "Finance", "Operations"],
+            children: [
+                {
+                    id: "pos-2",
+                    title: "VP of Engineering",
+                    name: "Sarah Johnson",
+                    department: "Engineering",
+                    location: "San Francisco, CA",
+                    level: "VP",
+                    directReports: 12,
+                    email: "sarah.johnson@company.com",
+                    employmentType: "Full-time",
+                    vacant: false,
+                    responsibilities: [
+                        "Lead engineering organization and technical strategy",
+                        "Manage product development lifecycle",
+                        "Build and mentor engineering teams",
+                        "Ensure technical excellence and innovation"
+                    ],
+                    skills: ["Software Development", "Architecture", "Team Leadership", "Agile"],
+                    children: [
+                        {
+                            id: "pos-6",
+                            title: "Director of Backend",
+                            name: "Michael Chen",
+                            department: "Engineering",
+                            location: "San Francisco, CA",
+                            level: "Director",
+                            directReports: 6,
+                            email: "michael.chen@company.com",
+                            employmentType: "Full-time",
+                            vacant: false,
+                            responsibilities: ["Lead backend architecture", "Manage backend team", "Ensure scalability"],
+                            skills: ["Python", "Node.js", "Microservices", "AWS"],
+                            children: [
+                                {
+                                    id: "pos-11",
+                                    title: "Engineering Manager - API",
+                                    name: "David Park",
+                                    department: "Engineering",
+                                    location: "San Francisco, CA",
+                                    level: "Manager",
+                                    directReports: 5,
+                                    email: "david.park@company.com",
+                                    employmentType: "Full-time",
+                                    vacant: false,
+                                    responsibilities: ["Manage API team", "Design RESTful APIs", "Code reviews"],
+                                    skills: ["REST", "GraphQL", "Node.js", "Docker"],
+                                    children: [
+                                        { id: "pos-21", title: "Senior Software Engineer", name: "Alex Kim", department: "Engineering", location: "San Francisco, CA", level: "Senior IC", directReports: 0, email: "alex.kim@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["Develop APIs", "Mentor juniors"], skills: ["Node.js", "TypeScript"] },
+                                        { id: "pos-22", title: "Software Engineer", name: "Emily Chen", department: "Engineering", location: "San Francisco, CA", level: "IC", directReports: 0, email: "emily.chen@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["Implement features", "Write tests"], skills: ["JavaScript", "Jest"] },
+                                        { id: "pos-23", title: "Software Engineer", name: "James Wilson", department: "Engineering", location: "Remote", level: "IC", directReports: 0, email: "james.wilson@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["API development", "Documentation"], skills: ["Python", "FastAPI"] }
+                                    ]
+                                },
+                                {
+                                    id: "pos-12",
+                                    title: "Engineering Manager - Data",
+                                    name: "Lisa Wang",
+                                    department: "Engineering",
+                                    location: "New York, NY",
+                                    level: "Manager",
+                                    directReports: 4,
+                                    email: "lisa.wang@company.com",
+                                    employmentType: "Full-time",
+                                    vacant: false,
+                                    responsibilities: ["Lead data engineering", "Build data pipelines", "Data governance"],
+                                    skills: ["SQL", "Spark", "Airflow", "Python"],
+                                    children: [
+                                        { id: "pos-24", title: "Data Engineer", name: "Robert Lee", department: "Engineering", location: "New York, NY", level: "IC", directReports: 0, email: "robert.lee@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["Build ETL pipelines"], skills: ["Python", "SQL", "Spark"] },
+                                        { id: "pos-25", title: "Data Engineer", name: "", department: "Engineering", location: "New York, NY", level: "IC", directReports: 0, email: "", employmentType: "Full-time", vacant: true, responsibilities: ["Data pipeline development"], skills: ["Python", "Airflow"] }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: "pos-7",
+                            title: "Director of Frontend",
+                            name: "Jessica Liu",
+                            department: "Engineering",
+                            location: "San Francisco, CA",
+                            level: "Director",
+                            directReports: 5,
+                            email: "jessica.liu@company.com",
+                            employmentType: "Full-time",
+                            vacant: false,
+                            responsibilities: ["Lead frontend development", "UI/UX strategy", "Performance optimization"],
+                            skills: ["React", "TypeScript", "CSS", "Accessibility"],
+                            children: [
+                                {
+                                    id: "pos-13",
+                                    title: "Engineering Manager - Web",
+                                    name: "Tom Anderson",
+                                    department: "Engineering",
+                                    location: "San Francisco, CA",
+                                    level: "Manager",
+                                    directReports: 4,
+                                    email: "tom.anderson@company.com",
+                                    employmentType: "Full-time",
+                                    vacant: false,
+                                    responsibilities: ["Manage web team", "Sprint planning", "Technical decisions"],
+                                    skills: ["React", "Next.js", "Management"],
+                                    children: [
+                                        { id: "pos-26", title: "Senior Frontend Engineer", name: "Maria Garcia", department: "Engineering", location: "San Francisco, CA", level: "Senior IC", directReports: 0, email: "maria.garcia@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["Frontend architecture"], skills: ["React", "TypeScript"] },
+                                        { id: "pos-27", title: "Frontend Engineer", name: "Kevin Ng", department: "Engineering", location: "Remote", level: "IC", directReports: 0, email: "kevin.ng@company.com", employmentType: "Contract", vacant: false, responsibilities: ["Component development"], skills: ["React", "CSS"] }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "pos-3",
+                    title: "VP of Sales",
+                    name: "Robert Martinez",
+                    department: "Sales",
+                    location: "New York, NY",
+                    level: "VP",
+                    directReports: 8,
+                    email: "robert.martinez@company.com",
+                    employmentType: "Full-time",
+                    vacant: false,
+                    responsibilities: [
+                        "Drive revenue growth and sales strategy",
+                        "Build and lead sales organization",
+                        "Key customer relationships",
+                        "Sales operations and forecasting"
+                    ],
+                    skills: ["Sales Strategy", "Negotiation", "CRM", "B2B Sales"],
+                    children: [
+                        {
+                            id: "pos-8",
+                            title: "Director of Enterprise Sales",
+                            name: "Amanda White",
+                            department: "Sales",
+                            location: "New York, NY",
+                            level: "Director",
+                            directReports: 6,
+                            email: "amanda.white@company.com",
+                            employmentType: "Full-time",
+                            vacant: false,
+                            responsibilities: ["Enterprise accounts", "Strategic deals", "Team leadership"],
+                            skills: ["Enterprise Sales", "Salesforce", "Negotiation"],
+                            children: [
+                                {
+                                    id: "pos-14",
+                                    title: "Sales Manager - East",
+                                    name: "Chris Brown",
+                                    department: "Sales",
+                                    location: "New York, NY",
+                                    level: "Manager",
+                                    directReports: 4,
+                                    email: "chris.brown@company.com",
+                                    employmentType: "Full-time",
+                                    vacant: false,
+                                    responsibilities: ["East region sales", "Team coaching", "Pipeline management"],
+                                    skills: ["Sales Management", "Coaching", "Salesforce"],
+                                    children: [
+                                        { id: "pos-28", title: "Account Executive", name: "Jennifer Davis", department: "Sales", location: "Boston, MA", level: "IC", directReports: 0, email: "jennifer.davis@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["Close deals", "Account management"], skills: ["B2B Sales", "Salesforce"] },
+                                        { id: "pos-29", title: "Account Executive", name: "Mark Taylor", department: "Sales", location: "New York, NY", level: "IC", directReports: 0, email: "mark.taylor@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["New business development"], skills: ["Cold calling", "Demos"] },
+                                        { id: "pos-30", title: "Account Executive", name: "", department: "Sales", location: "New York, NY", level: "IC", directReports: 0, email: "", employmentType: "Full-time", vacant: true, responsibilities: ["Enterprise sales"], skills: ["Sales"] }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "pos-4",
+                    title: "VP of Marketing",
+                    name: "Emily Thompson",
+                    department: "Marketing",
+                    location: "Austin, TX",
+                    level: "VP",
+                    directReports: 7,
+                    email: "emily.thompson@company.com",
+                    employmentType: "Full-time",
+                    vacant: false,
+                    responsibilities: [
+                        "Lead marketing strategy and brand",
+                        "Demand generation and lead nurturing",
+                        "Product marketing and positioning",
+                        "Marketing analytics and ROI"
+                    ],
+                    skills: ["Marketing Strategy", "Digital Marketing", "Analytics", "Content"],
+                    children: [
+                        {
+                            id: "pos-9",
+                            title: "Director of Growth",
+                            name: "Daniel Kim",
+                            department: "Marketing",
+                            location: "Austin, TX",
+                            level: "Director",
+                            directReports: 5,
+                            email: "daniel.kim@company.com",
+                            employmentType: "Full-time",
+                            vacant: false,
+                            responsibilities: ["Growth strategy", "Performance marketing", "Conversion optimization"],
+                            skills: ["Growth Hacking", "Analytics", "SEO", "Paid Ads"],
+                            children: [
+                                {
+                                    id: "pos-15",
+                                    title: "Marketing Manager - Digital",
+                                    name: "Sophie Martinez",
+                                    department: "Marketing",
+                                    location: "Austin, TX",
+                                    level: "Manager",
+                                    directReports: 3,
+                                    email: "sophie.martinez@company.com",
+                                    employmentType: "Full-time",
+                                    vacant: false,
+                                    responsibilities: ["Digital campaigns", "SEO/SEM", "Analytics"],
+                                    skills: ["Google Ads", "SEO", "Analytics"],
+                                    children: [
+                                        { id: "pos-31", title: "Digital Marketing Specialist", name: "Rachel Green", department: "Marketing", location: "Austin, TX", level: "IC", directReports: 0, email: "rachel.green@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["Paid ads management"], skills: ["Google Ads", "Facebook Ads"] },
+                                        { id: "pos-32", title: "SEO Specialist", name: "Tyler Johnson", department: "Marketing", location: "Remote", level: "IC", directReports: 0, email: "tyler.johnson@company.com", employmentType: "Contract", vacant: false, responsibilities: ["SEO optimization"], skills: ["SEO", "Content"] }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "pos-5",
+                    title: "VP of Operations",
+                    name: "William Davis",
+                    department: "Operations",
+                    location: "Chicago, IL",
+                    level: "VP",
+                    directReports: 6,
+                    email: "william.davis@company.com",
+                    employmentType: "Full-time",
+                    vacant: false,
+                    responsibilities: [
+                        "Oversee operational efficiency",
+                        "Process improvement and automation",
+                        "Vendor and partner management",
+                        "Facilities and administration"
+                    ],
+                    skills: ["Operations Management", "Process Improvement", "Vendor Management"],
+                    children: [
+                        {
+                            id: "pos-10",
+                            title: "Director of IT",
+                            name: "Angela Moore",
+                            department: "Operations",
+                            location: "Chicago, IL",
+                            level: "Director",
+                            directReports: 4,
+                            email: "angela.moore@company.com",
+                            employmentType: "Full-time",
+                            vacant: false,
+                            responsibilities: ["IT infrastructure", "Security", "Support"],
+                            skills: ["IT Management", "Cloud", "Security", "ITIL"],
+                            children: [
+                                {
+                                    id: "pos-16",
+                                    title: "IT Manager",
+                                    name: "Brian Scott",
+                                    department: "Operations",
+                                    location: "Chicago, IL",
+                                    level: "Manager",
+                                    directReports: 3,
+                                    email: "brian.scott@company.com",
+                                    employmentType: "Full-time",
+                                    vacant: false,
+                                    responsibilities: ["IT operations", "Help desk", "Asset management"],
+                                    skills: ["Windows", "Mac", "Networking"],
+                                    children: [
+                                        { id: "pos-33", title: "IT Support Specialist", name: "Laura Adams", department: "Operations", location: "Chicago, IL", level: "IC", directReports: 0, email: "laura.adams@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["User support", "Troubleshooting"], skills: ["Help Desk", "IT Support"] },
+                                        { id: "pos-34", title: "IT Support Specialist", name: "", department: "Operations", location: "Chicago, IL", level: "IC", directReports: 0, email: "", employmentType: "Full-time", vacant: true, responsibilities: ["Technical support"], skills: ["IT"] }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: "pos-35",
+                    title: "CFO",
+                    name: "Patricia Anderson",
+                    department: "Finance",
+                    location: "San Francisco, CA",
+                    level: "C-Suite",
+                    directReports: 5,
+                    email: "patricia.anderson@company.com",
+                    employmentType: "Full-time",
+                    vacant: false,
+                    responsibilities: [
+                        "Financial strategy and planning",
+                        "Investor relations",
+                        "Accounting and compliance",
+                        "Risk management"
+                    ],
+                    skills: ["Finance", "Accounting", "FP&A", "Compliance"],
+                    children: [
+                        {
+                            id: "pos-36",
+                            title: "Director of Finance",
+                            name: "Thomas Wright",
+                            department: "Finance",
+                            location: "San Francisco, CA",
+                            level: "Director",
+                            directReports: 4,
+                            email: "thomas.wright@company.com",
+                            employmentType: "Full-time",
+                            vacant: false,
+                            responsibilities: ["Financial reporting", "Budget management", "Audit coordination"],
+                            skills: ["Financial Analysis", "Excel", "NetSuite"],
+                            children: [
+                                {
+                                    id: "pos-37",
+                                    title: "Finance Manager",
+                                    name: "Nicole Harris",
+                                    department: "Finance",
+                                    location: "San Francisco, CA",
+                                    level: "Manager",
+                                    directReports: 3,
+                                    email: "nicole.harris@company.com",
+                                    employmentType: "Full-time",
+                                    vacant: false,
+                                    responsibilities: ["Monthly close", "Financial analysis", "Team supervision"],
+                                    skills: ["Accounting", "Financial Modeling", "Excel"],
+                                    children: [
+                                        { id: "pos-38", title: "Senior Accountant", name: "Jason Lee", department: "Finance", location: "San Francisco, CA", level: "Senior IC", directReports: 0, email: "jason.lee@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["GL accounting", "Reconciliations"], skills: ["Accounting", "GAAP"] },
+                                        { id: "pos-39", title: "Accountant", name: "Michelle Patel", department: "Finance", location: "San Francisco, CA", level: "IC", directReports: 0, email: "michelle.patel@company.com", employmentType: "Full-time", vacant: false, responsibilities: ["AP/AR", "Journal entries"], skills: ["Accounting", "QuickBooks"] },
+                                        { id: "pos-40", title: "Accountant", name: "", department: "Finance", location: "San Francisco, CA", level: "IC", directReports: 0, email: "", employmentType: "Full-time", vacant: true, responsibilities: ["Financial reporting support"], skills: ["Accounting"] }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // D3.js Setup
+        const width = window.innerWidth;
+        const height = window.innerHeight - 64;
+        const nodeWidth = 200;
+        const nodeHeight = 120;
+
+        let currentZoom = 1;
+        let currentLayout = 'top-down';
+        let selectedNode = null;
+
+        const svg = d3.select("#orgChartCanvas")
+            .attr("width", width)
+            .attr("height", height);
+
+        const g = svg.append("g");
+
+        // Zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 3])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+                currentZoom = event.transform.k;
+                updateZoomLevel();
+            });
+
+        svg.call(zoom);
+
+        // Tree layout
+        const treeLayout = d3.tree()
+            .size([width - 200, height - 200])
+            .separation((a, b) => (a.parent === b.parent ? 1 : 1.5));
+
+        function flattenData(node) {
+            let nodes = [node];
+            if (node.children) {
+                node.children.forEach(child => {
+                    nodes = nodes.concat(flattenData(child));
+                });
+            }
+            return nodes;
+        }
+
+        const allNodes = flattenData(orgData);
+
+        function renderOrgChart(data) {
+            const root = d3.hierarchy(data);
+            const treeData = treeLayout(root);
+
+            // Links
+            const links = g.selectAll(".link")
+                .data(treeData.links())
+                .join("path")
+                .attr("class", "link")
+                .attr("d", d3.linkVertical()
+                    .x(d => d.x)
+                    .y(d => d.y + nodeHeight / 2));
+
+            // Nodes
+            const nodes = g.selectAll(".position-node")
+                .data(treeData.descendants())
+                .join("g")
+                .attr("class", "position-node")
+                .attr("transform", d => `translate(${d.x - nodeWidth / 2}, ${d.y})`)
+                .on("click", (event, d) => showNodeDetail(d.data));
+
+            // Node card
+            nodes.append("rect")
+                .attr("class", d => `node-card dept-${d.data.department.toLowerCase()} ${d.data.vacant ? 'vacant' : ''}`)
+                .attr("width", nodeWidth)
+                .attr("height", nodeHeight);
+
+            // Avatar
+            nodes.append("circle")
+                .attr("class", "node-avatar")
+                .attr("cx", 30)
+                .attr("cy", 30)
+                .attr("r", 20);
+
+            // Initials
+            nodes.append("text")
+                .attr("class", "node-initials")
+                .attr("x", 30)
+                .attr("y", 35)
+                .text(d => {
+                    if (d.data.vacant || !d.data.name) return "?";
+                    const names = d.data.name.split(" ");
+                    return names.map(n => n[0]).join("");
+                });
+
+            // Position title
+            nodes.append("text")
+                .attr("class", "node-title")
+                .attr("x", 60)
+                .attr("y", 20)
+                .text(d => {
+                    const title = d.data.title;
+                    return title.length > 20 ? title.substring(0, 20) + "..." : title;
+                });
+
+            // Person name
+            nodes.append("text")
+                .attr("class", "node-name")
+                .attr("x", 60)
+                .attr("y", 38)
+                .text(d => d.data.vacant ? "(Vacant)" : d.data.name);
+
+            // Department
+            nodes.append("text")
+                .attr("class", "node-department")
+                .attr("x", 10)
+                .attr("y", 70)
+                .text(d => d.data.department);
+
+            // Direct reports
+            nodes.append("text")
+                .attr("class", "node-reports")
+                .attr("x", 10)
+                .attr("y", 90)
+                .text(d => {
+                    if (d.data.children && d.data.children.length > 0) {
+                        return `👥 ${d.data.directReports} direct reports`;
+                    }
+                    return "";
+                });
+
+            // Actions menu (show on hover)
+            const actions = nodes.append("g")
+                .attr("class", "node-actions")
+                .attr("transform", `translate(${nodeWidth - 30}, 10)`);
+
+            actions.append("circle")
+                .attr("r", 12)
+                .attr("fill", "var(--bg-secondary)")
+                .attr("stroke", "var(--border-color)");
+
+            actions.append("text")
+                .attr("text-anchor", "middle")
+                .attr("dy", 4)
+                .attr("fill", "var(--text-primary)")
+                .attr("font-size", "14px")
+                .text("⋮");
+
+            // Expand/collapse button for nodes with children
+            nodes.filter(d => d.data.children && d.data.children.length > 0)
+                .append("g")
+                .attr("class", "expand-collapse")
+                .attr("transform", `translate(${nodeWidth / 2}, ${nodeHeight + 10})`)
+                .on("click", (event, d) => {
+                    event.stopPropagation();
+                    toggleNode(d);
+                });
+        }
+
+        function toggleNode(node) {
+            // Collapse/expand functionality
+            console.log("Toggle node:", node.data.title);
+        }
+
+        function showNodeDetail(nodeData) {
+            selectedNode = nodeData;
+            const panel = document.getElementById("sidePanel");
+            panel.classList.add("open");
+
+            // Update panel content
+            document.getElementById("panelTitle").textContent = nodeData.title;
+            document.getElementById("panelDeptBadge").textContent = nodeData.department;
+            document.getElementById("panelDeptBadge").className = `dept-badge ${nodeData.department.toLowerCase()}`;
+
+            const statusDot = document.getElementById("panelStatus");
+            statusDot.className = `status-dot ${nodeData.vacant ? 'vacant' : 'filled'}`;
+
+            if (!nodeData.vacant && nodeData.name) {
+                document.getElementById("assigneeAvatar").textContent = nodeData.name.split(" ").map(n => n[0]).join("");
+                document.getElementById("assigneeName").textContent = nodeData.name;
+                document.getElementById("assigneeEmail").textContent = nodeData.email || "";
+                document.getElementById("assigneeCard").style.display = "flex";
+            } else {
+                document.getElementById("assigneeCard").style.display = "none";
+            }
+
+            document.getElementById("positionId").textContent = nodeData.id;
+            document.getElementById("positionLevel").textContent = nodeData.level;
+            document.getElementById("positionLocation").textContent = nodeData.location;
+            document.getElementById("employmentType").textContent = nodeData.employmentType;
+            document.getElementById("directReportsCount").textContent = nodeData.directReports;
+
+            // Reporting chain
+            const reportingChain = document.getElementById("reportingChain");
+            reportingChain.innerHTML = `
+                <div class="chain-item">
+                    <span>CEO</span>
+                    <span class="chain-arrow">→</span>
+                    <span>${nodeData.title}</span>
+                </div>
+            `;
+
+            // Direct reports
+            const reportsList = document.getElementById("directReportsList");
+            if (nodeData.children && nodeData.children.length > 0) {
+                reportsList.innerHTML = nodeData.children.map(child =>
+                    `<li>${child.title} - ${child.name || '(Vacant)'}</li>`
+                ).join("");
+            } else {
+                reportsList.innerHTML = "<li>No direct reports</li>";
+            }
+
+            // Responsibilities
+            const respList = document.getElementById("responsibilitiesList");
+            if (nodeData.responsibilities) {
+                respList.innerHTML = nodeData.responsibilities.map(r => `<li>${r}</li>`).join("");
+            }
+
+            // Skills
+            const skillsTags = document.getElementById("skillsTags");
+            if (nodeData.skills) {
+                skillsTags.innerHTML = nodeData.skills.map(s => `<span class="skill-tag">${s}</span>`).join("");
+            }
+        }
+
+        function updateZoomLevel() {
+            document.getElementById("zoomLevel").textContent = Math.round(currentZoom * 100) + "%";
+        }
+
+        // Initial render
+        renderOrgChart(orgData);
+
+        // Center the view
+        const initialTransform = d3.zoomIdentity.translate(width / 2, 100);
+        svg.call(zoom.transform, initialTransform);
+
+        // Event Listeners
+        document.getElementById("zoomIn").addEventListener("click", () => {
+            svg.transition().call(zoom.scaleBy, 1.3);
+        });
+
+        document.getElementById("zoomOut").addEventListener("click", () => {
+            svg.transition().call(zoom.scaleBy, 0.7);
+        });
+
+        document.getElementById("fitScreen").addEventListener("click", () => {
+            const bounds = g.node().getBBox();
+            const fullWidth = width;
+            const fullHeight = height;
+            const widthScale = fullWidth / bounds.width;
+            const heightScale = fullHeight / bounds.height;
+            const scale = Math.min(widthScale, heightScale) * 0.9;
+            const transform = d3.zoomIdentity
+                .translate(fullWidth / 2, fullHeight / 2)
+                .scale(scale)
+                .translate(-bounds.x - bounds.width / 2, -bounds.y - bounds.height / 2);
+            svg.transition().duration(750).call(zoom.transform, transform);
+        });
+
+        document.getElementById("panelClose").addEventListener("click", () => {
+            document.getElementById("sidePanel").classList.remove("open");
+        });
+
+        // Layout dropdown
+        const layoutDropdown = document.getElementById("layoutDropdown");
+        const layoutMenu = document.getElementById("layoutMenu");
+        layoutDropdown.addEventListener("click", (e) => {
+            if (e.target.closest(".toolbar-button")) {
+                layoutMenu.classList.toggle("show");
+            }
+        });
+
+        document.querySelectorAll("#layoutMenu .dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                const layout = e.target.dataset.layout;
+                currentLayout = layout;
+                document.getElementById("currentLayout").textContent = e.target.textContent;
+                layoutMenu.classList.remove("show");
+                console.log("Layout changed to:", layout);
+            });
+        });
+
+        // Export dropdown
+        const exportDropdown = document.getElementById("exportDropdown");
+        const exportMenu = document.getElementById("exportMenu");
+        exportDropdown.addEventListener("click", (e) => {
+            if (e.target.closest(".toolbar-button")) {
+                exportMenu.classList.toggle("show");
+            }
+        });
+
+        document.querySelectorAll("#exportMenu .dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                const exportType = e.target.dataset.export;
+                exportMenu.classList.remove("show");
+                console.log("Export as:", exportType);
+                alert(`Exporting as ${exportType.toUpperCase()}...`);
+            });
+        });
+
+        // Edit mode toggle
+        const editModeBtn = document.getElementById("editModeToggle");
+        editModeBtn.addEventListener("click", () => {
+            editModeBtn.classList.toggle("active");
+            const isActive = editModeBtn.classList.contains("active");
+            console.log("Edit mode:", isActive ? "ON" : "OFF");
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById("searchInput");
+        const autocompleteResults = document.getElementById("autocompleteResults");
+
+        searchInput.addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query.length < 2) {
+                autocompleteResults.classList.remove("show");
+                return;
+            }
+
+            const matches = allNodes.filter(node =>
+                (node.name && node.name.toLowerCase().includes(query)) ||
+                node.title.toLowerCase().includes(query) ||
+                node.department.toLowerCase().includes(query)
+            ).slice(0, 8);
+
+            if (matches.length > 0) {
+                autocompleteResults.innerHTML = matches.map(node => `
+                    <div class="autocomplete-item" data-id="${node.id}">
+                        <div>
+                            <div class="autocomplete-name">${node.name || '(Vacant)'}</div>
+                            <div class="autocomplete-position">${node.title} - ${node.department}</div>
+                        </div>
+                    </div>
+                `).join("");
+                autocompleteResults.classList.add("show");
+
+                // Add click handlers
+                document.querySelectorAll(".autocomplete-item").forEach(item => {
+                    item.addEventListener("click", () => {
+                        const nodeId = item.dataset.id;
+                        const node = allNodes.find(n => n.id === nodeId);
+                        if (node) {
+                            showNodeDetail(node);
+                            autocompleteResults.classList.remove("show");
+                            searchInput.value = "";
+                        }
+                    });
+                });
+            } else {
+                autocompleteResults.innerHTML = '<div class="autocomplete-item">No results found</div>';
+                autocompleteResults.classList.add("show");
+            }
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!layoutDropdown.contains(e.target)) {
+                layoutMenu.classList.remove("show");
+            }
+            if (!exportDropdown.contains(e.target)) {
+                exportMenu.classList.remove("show");
+            }
+            if (!searchInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
+                autocompleteResults.classList.remove("show");
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener("keydown", (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+                e.preventDefault();
+                searchInput.focus();
+            }
+            if (e.key === "Escape") {
+                document.getElementById("sidePanel").classList.remove("open");
+                autocompleteResults.classList.remove("show");
+            }
+        });
+
+        // Button actions
+        document.getElementById("editPositionBtn").addEventListener("click", () => {
+            if (selectedNode) {
+                alert(`Edit position: ${selectedNode.title}`);
+            }
+        });
+
+        document.getElementById("assignPersonBtn").addEventListener("click", () => {
+            if (selectedNode) {
+                alert(`Assign person to: ${selectedNode.title}`);
+            }
+        });
+
+        // Minimap
+        const minimapSvg = d3.select("#minimapCanvas");
+        const minimapScale = 0.15;
+
+        function updateMinimap() {
+            minimapSvg.selectAll("*").remove();
+            const minimapG = minimapSvg.append("g")
+                .attr("transform", `scale(${minimapScale})`);
+
+            const root = d3.hierarchy(orgData);
+            const miniTree = d3.tree().size([width - 200, height - 200])(root);
+
+            // Draw miniature nodes
+            minimapG.selectAll(".mini-node")
+                .data(miniTree.descendants())
+                .join("rect")
+                .attr("class", "mini-node")
+                .attr("x", d => d.x - 5)
+                .attr("y", d => d.y - 5)
+                .attr("width", 10)
+                .attr("height", 10)
+                .attr("fill", "var(--primary-500)");
+        }
+
+        updateMinimap();
+    </script>
+</body>
+</html>

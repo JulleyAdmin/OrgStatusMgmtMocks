@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Search & Command Palette - Task Management Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #1a202c;
+        }
+
+        .page-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .trigger-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .kbd {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Command Palette Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10vh;
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .command-palette {
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Search Input Section */
+        .search-section {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-icon {
+            font-size: 1.5rem;
+            color: #cbd5e0;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1.2rem;
+            color: #2d3748;
+            background: transparent;
+        }
+
+        .search-input::placeholder {
+            color: #a0aec0;
+        }
+
+        .search-mode-indicator {
+            display: none;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .search-mode-indicator.active {
+            display: inline-block;
+        }
+
+        .char-counter {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        /* Results Section */
+        .results-section {
+            overflow-y: auto;
+            max-height: calc(80vh - 100px);
+            padding: 10px;
+        }
+
+        .results-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-section::-webkit-scrollbar-track {
+            background: #f7fafc;
+        }
+
+        .results-section::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #718096;
+            padding: 8px 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .result-item, .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .result-item:hover, .quick-action:hover, .result-item.selected, .quick-action.selected {
+            background: #edf2f7;
+            transform: translateX(4px);
+        }
+
+        .result-item.selected, .quick-action.selected {
+            background: #e6f2ff;
+            border-left: 3px solid #667eea;
+        }
+
+        .result-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .icon-task { background: #e6f2ff; color: #3182ce; }
+        .icon-document { background: #fef5e7; color: #d69e2e; }
+        .icon-person { background: #f0fff4; color: #38a169; }
+        .icon-workflow { background: #faf5ff; color: #805ad5; }
+        .icon-project { background: #fff5f5; color: #e53e3e; }
+        .icon-command { background: #e6f2ff; color: #667eea; }
+
+        .result-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .result-title .highlight {
+            background: #fef08a;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .result-meta {
+            font-size: 0.85rem;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #a0aec0;
+            font-size: 0.8rem;
+        }
+
+        .priority-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-high { background: #fed7d7; color: #c53030; }
+        .priority-medium { background: #feebc8; color: #c05621; }
+        .priority-low { background: #e6f2ff; color: #2c5282; }
+
+        .shortcut-hint {
+            padding: 4px 8px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #718096;
+            font-family: 'Courier New', monospace;
+            margin-left: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-text {
+            font-size: 0.95rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+        }
+
+        .category-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .category-count {
+            background: #edf2f7;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .syntax-help {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 10px;
+        }
+
+        .syntax-help-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .syntax-examples {
+            display: grid;
+            gap: 8px;
+        }
+
+        .syntax-example {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        .syntax-code {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .syntax-desc {
+            color: #718096;
+        }
+
+        /* Keyboard Shortcuts Hub */
+        .shortcuts-modal {
+            background: white;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s ease;
+        }
+
+        .shortcuts-header {
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shortcuts-header h2 {
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: #f7fafc;
+            color: #718096;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .shortcuts-content {
+            padding: 24px;
+        }
+
+        .shortcuts-section {
+            margin-bottom: 24px;
+        }
+
+        .shortcuts-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .shortcut-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .shortcut-desc {
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+
+        .shortcut-keys {
+            display: flex;
+            gap: 6px;
+        }
+
+        .key {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #2d3748;
+            font-weight: 600;
+            box-shadow: 0 2px 0 #e2e8f0;
+        }
+
+        .shortcuts-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .recent-item:hover {
+            background: #f7fafc;
+        }
+
+        .recent-icon {
+            color: #a0aec0;
+            font-size: 1rem;
+        }
+
+        .recent-text {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .info-banner {
+            background: #e6f2ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-icon {
+            color: #3182ce;
+            font-size: 1.2rem;
+        }
+
+        .info-text {
+            color: #2c5282;
+            font-size: 0.9rem;
+        }
+
+        .command-category {
+            margin-bottom: 16px;
+        }
+
+        .command-category-title {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 0.95rem;
+            padding: 8px 12px;
+            background: #f7fafc;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .command-palette, .shortcuts-modal {
+                width: 95%;
+                max-width: none;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .search-input {
+                font-size: 1rem;
+            }
+
+            .trigger-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>Global Search & Command Palette</h1>
+        <p>Universal search and quick actions - Press <span class="kbd">Cmd+K</span> or click below</p>
+    </div>
+
+    <div class="trigger-buttons">
+        <button class="btn btn-primary" onclick="openCommandPalette()">
+            <span>🔍</span>
+            Open Command Palette <span class="kbd">Cmd+K</span>
+        </button>
+        <button class="btn btn-secondary" onclick="openShortcutsHub()">
+            <span>⌨️</span>
+            Keyboard Shortcuts <span class="kbd">?</span>
+        </button>
+    </div>
+
+    <!-- Command Palette Modal -->
+    <div id="commandPaletteOverlay" class="modal-overlay" onclick="closeModals(event)">
+        <div class="command-palette" onclick="event.stopPropagation()">
+            <div class="search-section">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="search-input"
+                        placeholder="Search or type a command..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <span id="searchModeIndicator" class="search-mode-indicator"></span>
+                    <span id="charCounter" class="char-counter"></span>
+                </div>
+            </div>
+            <div id="resultsSection" class="results-section">
+                <!-- Content dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Hub Modal -->
+    <div id="shortcutsHubOverlay" class="modal-overlay" onclick="closeModals(event)">
+        <div class="shortcuts-modal" onclick="event.stopPropagation()">
+            <div class="shortcuts-header">
+                <h2>⌨️ Keyboard Shortcuts</h2>
+                <button class="close-btn" onclick="closeModals()">✕</button>
+            </div>
+            <div class="shortcuts-content">
+                <div class="shortcuts-section">
+                    <div class="shortcuts-section-title">General</div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Open command palette</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Cmd</span>
+                            <span class="key">K</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Show keyboard shortcuts</div>
+                        <div class="shortcut-keys">
+                            <span class="key">?</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Close modal / Cancel</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Esc</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <div class="shortcuts-section-title">Navigation</div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Go to Dashboard</div>
+                        <div class="shortcut-keys">
+                            <span class="key">G</span>
+                            <span>then</span>
+                            <span class="key">D</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Go to Tasks</div>
+                        <div class="shortcut-keys">
+                            <span class="key">G</span>
+                            <span>then</span>
+                            <span class="key">T</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Go to Calendar</div>
+                        <div class="shortcut-keys">
+                            <span class="key">G</span>
+                            <span>then</span>
+                            <span class="key">C</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Go to Documents</div>
+                        <div class="shortcut-keys">
+                            <span class="key">G</span>
+                            <span>then</span>
+                            <span class="key">O</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Go to Org Chart</div>
+                        <div class="shortcut-keys">
+                            <span class="key">G</span>
+                            <span>then</span>
+                            <span class="key">R</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <div class="shortcuts-section-title">Tasks</div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Create new task</div>
+                        <div class="shortcut-keys">
+                            <span class="key">C</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Edit selected task</div>
+                        <div class="shortcut-keys">
+                            <span class="key">E</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Navigate task list down</div>
+                        <div class="shortcut-keys">
+                            <span class="key">J</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Navigate task list up</div>
+                        <div class="shortcut-keys">
+                            <span class="key">K</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shortcuts-section">
+                    <div class="shortcuts-section-title">Search</div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Navigate results</div>
+                        <div class="shortcut-keys">
+                            <span class="key">↑</span>
+                            <span class="key">↓</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Select result</div>
+                        <div class="shortcut-keys">
+                            <span class="key">Enter</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Search tasks only</div>
+                        <div class="shortcut-keys">
+                            <span class="key">/tasks</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Search documents only</div>
+                        <div class="shortcut-keys">
+                            <span class="key">/docs</span>
+                        </div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-desc">Command mode</div>
+                        <div class="shortcut-keys">
+                            <span class="key">></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="shortcuts-footer">
+                <button class="btn btn-secondary" onclick="window.print()">
+                    📄 Print
+                </button>
+                <button class="btn btn-primary" onclick="closeModals()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock searchable data (1000+ items)
+        const mockData = {
+            tasks: [
+                { id: 1, title: 'Review Q1 Budget Proposal', priority: 'high', status: 'open', assignee: 'John Smith', project: 'Finance', dueDate: 'in 2 days', path: 'Projects > Finance > Q1 Budget' },
+                { id: 2, title: 'Approve SOP Document v3', priority: 'high', status: 'pending', assignee: 'Jane Doe', project: 'Compliance', dueDate: 'today', path: 'Compliance > SOPs > Review' },
+                { id: 3, title: 'Update budget spreadsheet for marketing', priority: 'medium', status: 'in progress', assignee: 'Bob Johnson', project: 'Marketing', dueDate: 'in 3 days', path: 'Marketing > Budget > Q1' },
+                { id: 4, title: 'Schedule team meeting for budget review', priority: 'low', status: 'open', assignee: 'Alice Brown', project: 'Admin', dueDate: 'in 5 days', path: 'Admin > Meetings > Schedule' },
+                { id: 5, title: 'Create budget template for departments', priority: 'medium', status: 'open', assignee: 'John Smith', project: 'Finance', dueDate: 'in 1 week', path: 'Finance > Templates > Create' },
+                { id: 6, title: 'Fix authentication bug in login flow', priority: 'high', status: 'in progress', assignee: 'Tom Developer', project: 'Engineering', dueDate: 'tomorrow', path: 'Engineering > Bugs > Auth' },
+                { id: 7, title: 'Design new dashboard layout', priority: 'medium', status: 'open', assignee: 'Sarah Designer', project: 'Product', dueDate: 'in 1 week', path: 'Product > Design > Dashboard' },
+                { id: 8, title: 'Write API documentation', priority: 'low', status: 'open', assignee: 'Mike Writer', project: 'Documentation', dueDate: 'in 2 weeks', path: 'Docs > API > Write' },
+                { id: 9, title: 'Conduct user research interviews', priority: 'medium', status: 'in progress', assignee: 'Emma Research', project: 'Product', dueDate: 'in 3 days', path: 'Product > Research > Interviews' },
+                { id: 10, title: 'Optimize database queries', priority: 'high', status: 'open', assignee: 'Tom Developer', project: 'Engineering', dueDate: 'in 4 days', path: 'Engineering > Performance > DB' },
+            ],
+            documents: [
+                { id: 1, name: 'Budget_2025.pdf', type: 'pdf', modified: '2 days ago', owner: 'John Smith', size: '2.4 MB', path: 'Finance > Budgets > 2025' },
+                { id: 2, name: 'Q1_Report.xlsx', type: 'xlsx', modified: '1 week ago', owner: 'Jane Doe', size: '856 KB', path: 'Reports > Quarterly > Q1' },
+                { id: 3, name: 'SOP_Process_v3.docx', type: 'docx', modified: '3 days ago', owner: 'Bob Johnson', size: '1.2 MB', path: 'Compliance > SOPs > Latest' },
+                { id: 4, name: 'Marketing_Budget_Plan.xlsx', type: 'xlsx', modified: '5 days ago', owner: 'Alice Brown', size: '645 KB', path: 'Marketing > Budget > Plans' },
+                { id: 5, name: 'Employee_Handbook.pdf', type: 'pdf', modified: '1 month ago', owner: 'HR Team', size: '3.8 MB', path: 'HR > Handbooks > General' },
+                { id: 6, name: 'API_Documentation.md', type: 'md', modified: '1 day ago', owner: 'Tom Developer', size: '124 KB', path: 'Engineering > Docs > API' },
+                { id: 7, name: 'Design_System.sketch', type: 'sketch', modified: '4 days ago', owner: 'Sarah Designer', size: '15.2 MB', path: 'Design > Systems > UI' },
+            ],
+            people: [
+                { id: 1, name: 'John Smith', role: 'Engineering Manager', department: 'Engineering', email: 'john.smith@company.com', status: 'online' },
+                { id: 2, name: 'Jane Doe', role: 'Compliance Officer', department: 'Compliance', email: 'jane.doe@company.com', status: 'online' },
+                { id: 3, name: 'Bob Johnson', role: 'Senior Developer', department: 'Engineering', email: 'bob.johnson@company.com', status: 'away' },
+                { id: 4, name: 'Alice Brown', role: 'Marketing Manager', department: 'Marketing', email: 'alice.brown@company.com', status: 'offline' },
+                { id: 5, name: 'Tom Developer', role: 'Software Engineer', department: 'Engineering', email: 'tom.dev@company.com', status: 'online' },
+                { id: 6, name: 'Sarah Designer', role: 'Product Designer', department: 'Product', email: 'sarah.designer@company.com', status: 'online' },
+            ],
+            workflows: [
+                { id: 1, name: 'Employee Onboarding', category: 'HR', steps: 12, active: true },
+                { id: 2, name: 'Budget Approval Process', category: 'Finance', steps: 6, active: true },
+                { id: 3, name: 'Document Review Workflow', category: 'Compliance', steps: 4, active: true },
+                { id: 4, name: 'Task Escalation', category: 'Operations', steps: 3, active: true },
+            ],
+            projects: [
+                { id: 1, name: 'Q1 Initiative', status: 'active', team: 'Finance', progress: 65 },
+                { id: 2, name: 'Product Redesign', status: 'active', team: 'Product', progress: 42 },
+                { id: 3, name: 'API Migration', status: 'active', team: 'Engineering', progress: 78 },
+                { id: 4, name: 'Marketing Campaign', status: 'planning', team: 'Marketing', progress: 15 },
+            ]
+        };
+
+        // Generate more mock data to reach 1000+ items
+        function generateMockData() {
+            const categories = ['Finance', 'Engineering', 'Marketing', 'HR', 'Operations', 'Sales', 'Product', 'Compliance'];
+            const priorities = ['high', 'medium', 'low'];
+            const statuses = ['open', 'in progress', 'pending', 'completed'];
+
+            for (let i = 11; i <= 500; i++) {
+                mockData.tasks.push({
+                    id: i,
+                    title: `Task ${i}: ${categories[i % categories.length]} related work item`,
+                    priority: priorities[i % priorities.length],
+                    status: statuses[i % statuses.length],
+                    assignee: `User ${i % 20}`,
+                    project: categories[i % categories.length],
+                    dueDate: `in ${i % 30} days`,
+                    path: `${categories[i % categories.length]} > Project ${i % 10} > Item ${i}`
+                });
+            }
+
+            for (let i = 8; i <= 300; i++) {
+                mockData.documents.push({
+                    id: i,
+                    name: `Document_${i}.pdf`,
+                    type: i % 2 === 0 ? 'pdf' : 'docx',
+                    modified: `${i % 30} days ago`,
+                    owner: `User ${i % 20}`,
+                    size: `${(i % 10) + 1}.${i % 10} MB`,
+                    path: `${categories[i % categories.length]} > Docs > File ${i}`
+                });
+            }
+
+            for (let i = 7; i <= 200; i++) {
+                mockData.people.push({
+                    id: i,
+                    name: `Person ${i}`,
+                    role: `Role ${i % 10}`,
+                    department: categories[i % categories.length],
+                    email: `person${i}@company.com`,
+                    status: i % 3 === 0 ? 'online' : 'offline'
+                });
+            }
+
+            for (let i = 5; i <= 50; i++) {
+                mockData.workflows.push({
+                    id: i,
+                    name: `Workflow ${i}`,
+                    category: categories[i % categories.length],
+                    steps: (i % 15) + 3,
+                    active: i % 2 === 0
+                });
+            }
+
+            for (let i = 5; i <= 30; i++) {
+                mockData.projects.push({
+                    id: i,
+                    name: `Project ${i}`,
+                    status: i % 2 === 0 ? 'active' : 'planning',
+                    team: categories[i % categories.length],
+                    progress: (i % 100)
+                });
+            }
+        }
+
+        generateMockData();
+
+        const recentSearches = [
+            'budget approval',
+            'john smith',
+            'compliance documents',
+            'Q1 reports',
+            'team meetings',
+            'SOP process',
+            'marketing campaign',
+            'API documentation',
+            'employee onboarding',
+            'dashboard design'
+        ];
+
+        const quickActions = [
+            { icon: '📋', title: 'Create Task', shortcut: 'Ctrl+T', command: 'create-task' },
+            { icon: '📄', title: 'New Document', shortcut: 'Ctrl+D', command: 'new-document' },
+            { icon: '📅', title: 'Open Calendar', shortcut: 'Ctrl+C', command: 'open-calendar' },
+            { icon: '🔔', title: 'View Notifications', shortcut: '', command: 'notifications' },
+            { icon: '👥', title: 'View Team', shortcut: '', command: 'team' },
+            { icon: '⚙️', title: 'Settings', shortcut: '', command: 'settings' },
+        ];
+
+        const commands = {
+            create: [
+                { title: 'Create Task', icon: '📋' },
+                { title: 'Create Document', icon: '📄' },
+                { title: 'Create Workflow', icon: '🔄' },
+                { title: 'Create Project', icon: '📁' },
+                { title: 'Create Template', icon: '📝' },
+            ],
+            navigate: [
+                { title: 'Go to Dashboard', icon: '🏠' },
+                { title: 'Go to Calendar', icon: '📅' },
+                { title: 'Go to Tasks', icon: '📋' },
+                { title: 'Go to Documents', icon: '📄' },
+                { title: 'Go to Org Chart', icon: '🏢' },
+                { title: 'Go to Reports', icon: '📊' },
+            ],
+            view: [
+                { title: 'View Notifications', icon: '🔔' },
+                { title: 'View Profile', icon: '👤' },
+                { title: 'View Reports', icon: '📊' },
+                { title: 'View Analytics', icon: '📈' },
+            ],
+            settings: [
+                { title: 'Open Preferences', icon: '⚙️' },
+                { title: 'Manage Integrations', icon: '🔗' },
+                { title: 'Change Theme', icon: '🎨' },
+                { title: 'Keyboard Shortcuts', icon: '⌨️' },
+            ],
+            help: [
+                { title: 'Open Help Center', icon: '❓' },
+                { title: 'Contact Support', icon: '💬' },
+                { title: "What's New", icon: '✨' },
+                { title: 'Keyboard Shortcuts', icon: '⌨️' },
+            ]
+        };
+
+        let selectedIndex = 0;
+        let currentResults = [];
+
+        function openCommandPalette() {
+            const overlay = document.getElementById('commandPaletteOverlay');
+            const input = document.getElementById('searchInput');
+            overlay.classList.add('active');
+            input.value = '';
+            input.focus();
+            showDefaultView();
+        }
+
+        function openShortcutsHub() {
+            document.getElementById('shortcutsHubOverlay').classList.add('active');
+        }
+
+        function closeModals(event) {
+            if (!event || event.target.classList.contains('modal-overlay')) {
+                document.getElementById('commandPaletteOverlay').classList.remove('active');
+                document.getElementById('shortcutsHubOverlay').classList.remove('active');
+            }
+        }
+
+        function showDefaultView() {
+            const resultsSection = document.getElementById('resultsSection');
+            document.getElementById('searchModeIndicator').classList.remove('active');
+
+            resultsSection.innerHTML = `
+                <div class="info-banner">
+                    <span class="info-icon">💡</span>
+                    <span class="info-text">Try typing to search, or use prefixes: <strong>/tasks</strong>, <strong>/docs</strong>, <strong>/people</strong>, or <strong>></strong> for commands</span>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Recent Searches</div>
+                    ${recentSearches.map(search => `
+                        <div class="recent-item" onclick="searchFromRecent('${search}')">
+                            <span class="recent-icon">🔍</span>
+                            <span class="recent-text">${search}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Quick Actions</div>
+                    ${quickActions.map((action, index) => `
+                        <div class="quick-action ${index === 0 ? 'selected' : ''}" data-index="${index}">
+                            <div class="result-icon icon-command">${action.icon}</div>
+                            <div class="result-content">
+                                <div class="result-title">${action.title}</div>
+                            </div>
+                            ${action.shortcut ? `<span class="shortcut-hint">${action.shortcut}</span>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Keyboard Shortcuts</div>
+                    <div class="recent-item" onclick="openShortcutsHub(); closeModals();">
+                        <span class="recent-icon">⌨️</span>
+                        <span class="recent-text">Show all shortcuts</span>
+                        <span class="shortcut-hint" style="margin-left: auto;">?</span>
+                    </div>
+                </div>
+            `;
+
+            currentResults = quickActions;
+            selectedIndex = 0;
+        }
+
+        function searchFromRecent(query) {
+            document.getElementById('searchInput').value = query;
+            handleSearch(query);
+        }
+
+        function handleSearch(query) {
+            query = query.trim();
+            const modeIndicator = document.getElementById('searchModeIndicator');
+            const charCounter = document.getElementById('charCounter');
+
+            charCounter.textContent = query.length > 20 ? `${query.length} characters` : '';
+
+            if (!query) {
+                showDefaultView();
+                return;
+            }
+
+            // Check for command mode
+            if (query.startsWith('>')) {
+                showCommandMode(query.slice(1).trim());
+                modeIndicator.textContent = 'Command Mode';
+                modeIndicator.classList.add('active');
+                return;
+            }
+
+            // Check for specific search modes
+            let searchMode = 'all';
+            let searchTerm = query;
+
+            if (query.startsWith('/tasks ')) {
+                searchMode = 'tasks';
+                searchTerm = query.slice(7);
+                modeIndicator.textContent = 'Tasks Only';
+                modeIndicator.classList.add('active');
+            } else if (query.startsWith('/docs ')) {
+                searchMode = 'documents';
+                searchTerm = query.slice(6);
+                modeIndicator.textContent = 'Documents Only';
+                modeIndicator.classList.add('active');
+            } else if (query.startsWith('/people ')) {
+                searchMode = 'people';
+                searchTerm = query.slice(8);
+                modeIndicator.textContent = 'People Only';
+                modeIndicator.classList.add('active');
+            } else {
+                modeIndicator.classList.remove('active');
+            }
+
+            performSearch(searchTerm, searchMode);
+        }
+
+        function performSearch(term, mode = 'all') {
+            const results = {
+                tasks: [],
+                documents: [],
+                people: [],
+                workflows: [],
+                projects: []
+            };
+
+            const lowerTerm = term.toLowerCase();
+
+            // Fuzzy search implementation
+            if (mode === 'all' || mode === 'tasks') {
+                results.tasks = mockData.tasks.filter(task =>
+                    task.title.toLowerCase().includes(lowerTerm) ||
+                    task.project.toLowerCase().includes(lowerTerm) ||
+                    task.assignee.toLowerCase().includes(lowerTerm)
+                ).slice(0, 5);
+            }
+
+            if (mode === 'all' || mode === 'documents') {
+                results.documents = mockData.documents.filter(doc =>
+                    doc.name.toLowerCase().includes(lowerTerm) ||
+                    doc.owner.toLowerCase().includes(lowerTerm)
+                ).slice(0, 3);
+            }
+
+            if (mode === 'all' || mode === 'people') {
+                results.people = mockData.people.filter(person =>
+                    person.name.toLowerCase().includes(lowerTerm) ||
+                    person.role.toLowerCase().includes(lowerTerm) ||
+                    person.department.toLowerCase().includes(lowerTerm)
+                ).slice(0, 2);
+            }
+
+            if (mode === 'all') {
+                results.workflows = mockData.workflows.filter(workflow =>
+                    workflow.name.toLowerCase().includes(lowerTerm) ||
+                    workflow.category.toLowerCase().includes(lowerTerm)
+                ).slice(0, 1);
+
+                results.projects = mockData.projects.filter(project =>
+                    project.name.toLowerCase().includes(lowerTerm) ||
+                    project.team.toLowerCase().includes(lowerTerm)
+                ).slice(0, 1);
+            }
+
+            displaySearchResults(results, term);
+        }
+
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return text;
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function displaySearchResults(results, searchTerm) {
+            const resultsSection = document.getElementById('resultsSection');
+            let html = '';
+
+            const totalResults = Object.values(results).reduce((sum, arr) => sum + arr.length, 0);
+
+            if (totalResults === 0) {
+                html = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div class="empty-state-title">No results found</div>
+                        <div class="empty-state-text">Try adjusting your search or using different keywords</div>
+                    </div>
+                    <div class="syntax-help">
+                        <div class="syntax-help-title">Advanced Search Syntax</div>
+                        <div class="syntax-examples">
+                            <div class="syntax-example">
+                                <span class="syntax-code">task:budget status:open</span>
+                                <span class="syntax-desc">Open tasks with "budget"</span>
+                            </div>
+                            <div class="syntax-example">
+                                <span class="syntax-code">doc:SOP owner:john</span>
+                                <span class="syntax-desc">John's SOP documents</span>
+                            </div>
+                            <div class="syntax-example">
+                                <span class="syntax-code">tag:urgent created:>2025-01-10</span>
+                                <span class="syntax-desc">Urgent items from Jan 10+</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsSection.innerHTML = html;
+                return;
+            }
+
+            currentResults = [];
+
+            // Tasks
+            if (results.tasks.length > 0) {
+                html += `
+                    <div class="section">
+                        <div class="category-header">
+                            <div class="category-title">Tasks</div>
+                            <div class="category-count">${results.tasks.length}</div>
+                        </div>
+                        ${results.tasks.map((task, index) => {
+                            currentResults.push(task);
+                            return `
+                                <div class="result-item ${index === 0 ? 'selected' : ''}" data-index="${currentResults.length - 1}">
+                                    <div class="result-icon icon-task">📋</div>
+                                    <div class="result-content">
+                                        <div class="result-title">${highlightText(task.title, searchTerm)}</div>
+                                        <div class="result-meta">
+                                            <span class="priority-badge priority-${task.priority}">${task.priority}</span>
+                                            <span>Due ${task.dueDate}</span>
+                                            <span>•</span>
+                                            <span>${task.assignee}</span>
+                                        </div>
+                                        <div class="breadcrumb">${task.path}</div>
+                                    </div>
+                                    <span class="shortcut-hint">↵</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // Documents
+            if (results.documents.length > 0) {
+                html += `
+                    <div class="section">
+                        <div class="category-header">
+                            <div class="category-title">Documents</div>
+                            <div class="category-count">${results.documents.length}</div>
+                        </div>
+                        ${results.documents.map(doc => {
+                            currentResults.push(doc);
+                            return `
+                                <div class="result-item" data-index="${currentResults.length - 1}">
+                                    <div class="result-icon icon-document">📄</div>
+                                    <div class="result-content">
+                                        <div class="result-title">${highlightText(doc.name, searchTerm)}</div>
+                                        <div class="result-meta">
+                                            <span>Modified ${doc.modified}</span>
+                                            <span>•</span>
+                                            <span>${doc.owner}</span>
+                                            <span>•</span>
+                                            <span>${doc.size}</span>
+                                        </div>
+                                        <div class="breadcrumb">${doc.path}</div>
+                                    </div>
+                                    <span class="shortcut-hint">↵</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // People
+            if (results.people.length > 0) {
+                html += `
+                    <div class="section">
+                        <div class="category-header">
+                            <div class="category-title">People</div>
+                            <div class="category-count">${results.people.length}</div>
+                        </div>
+                        ${results.people.map(person => {
+                            currentResults.push(person);
+                            return `
+                                <div class="result-item" data-index="${currentResults.length - 1}">
+                                    <div class="result-icon icon-person">👤</div>
+                                    <div class="result-content">
+                                        <div class="result-title">${highlightText(person.name, searchTerm)}</div>
+                                        <div class="result-meta">
+                                            <span>${person.role}</span>
+                                            <span>•</span>
+                                            <span>${person.department}</span>
+                                            <span>•</span>
+                                            <span>${person.status === 'online' ? '🟢' : '⚫'} ${person.status}</span>
+                                        </div>
+                                    </div>
+                                    <span class="shortcut-hint">↵</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // Workflows
+            if (results.workflows.length > 0) {
+                html += `
+                    <div class="section">
+                        <div class="category-header">
+                            <div class="category-title">Workflows</div>
+                            <div class="category-count">${results.workflows.length}</div>
+                        </div>
+                        ${results.workflows.map(workflow => {
+                            currentResults.push(workflow);
+                            return `
+                                <div class="result-item" data-index="${currentResults.length - 1}">
+                                    <div class="result-icon icon-workflow">🔄</div>
+                                    <div class="result-content">
+                                        <div class="result-title">${highlightText(workflow.name, searchTerm)}</div>
+                                        <div class="result-meta">
+                                            <span>${workflow.category}</span>
+                                            <span>•</span>
+                                            <span>${workflow.steps} steps</span>
+                                            <span>•</span>
+                                            <span>${workflow.active ? '✅ Active' : '⚠️ Inactive'}</span>
+                                        </div>
+                                    </div>
+                                    <span class="shortcut-hint">↵</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // Projects
+            if (results.projects.length > 0) {
+                html += `
+                    <div class="section">
+                        <div class="category-header">
+                            <div class="category-title">Projects</div>
+                            <div class="category-count">${results.projects.length}</div>
+                        </div>
+                        ${results.projects.map(project => {
+                            currentResults.push(project);
+                            return `
+                                <div class="result-item" data-index="${currentResults.length - 1}">
+                                    <div class="result-icon icon-project">📁</div>
+                                    <div class="result-content">
+                                        <div class="result-title">${highlightText(project.name, searchTerm)}</div>
+                                        <div class="result-meta">
+                                            <span>${project.team}</span>
+                                            <span>•</span>
+                                            <span>${project.status}</span>
+                                            <span>•</span>
+                                            <span>${project.progress}% complete</span>
+                                        </div>
+                                    </div>
+                                    <span class="shortcut-hint">↵</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            resultsSection.innerHTML = html;
+            selectedIndex = 0;
+        }
+
+        function showCommandMode(query) {
+            const resultsSection = document.getElementById('resultsSection');
+            let html = '';
+
+            currentResults = [];
+
+            Object.entries(commands).forEach(([category, commandList]) => {
+                const filteredCommands = query ?
+                    commandList.filter(cmd => cmd.title.toLowerCase().includes(query.toLowerCase())) :
+                    commandList;
+
+                if (filteredCommands.length > 0) {
+                    html += `
+                        <div class="section">
+                            <div class="command-category-title">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                            ${filteredCommands.map((cmd, index) => {
+                                currentResults.push(cmd);
+                                return `
+                                    <div class="quick-action ${currentResults.length === 1 ? 'selected' : ''}" data-index="${currentResults.length - 1}">
+                                        <div class="result-icon icon-command">${cmd.icon}</div>
+                                        <div class="result-content">
+                                            <div class="result-title">${cmd.title}</div>
+                                        </div>
+                                        <span class="shortcut-hint">↵</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+            });
+
+            if (currentResults.length === 0) {
+                html = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚡</div>
+                        <div class="empty-state-title">No commands found</div>
+                        <div class="empty-state-text">Try a different search term</div>
+                    </div>
+                `;
+            }
+
+            resultsSection.innerHTML = html;
+            selectedIndex = 0;
+        }
+
+        function navigateResults(direction) {
+            const items = document.querySelectorAll('.result-item, .quick-action');
+            if (items.length === 0) return;
+
+            items[selectedIndex].classList.remove('selected');
+
+            if (direction === 'down') {
+                selectedIndex = (selectedIndex + 1) % items.length;
+            } else if (direction === 'up') {
+                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            }
+
+            items[selectedIndex].classList.add('selected');
+            items[selectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function selectResult() {
+            const items = document.querySelectorAll('.result-item, .quick-action');
+            if (items.length > 0 && selectedIndex < items.length) {
+                const selectedItem = items[selectedIndex];
+                alert(`Selected: ${selectedItem.querySelector('.result-title').textContent}\n\nIn a real application, this would navigate to the selected item or execute the command.`);
+                closeModals();
+            }
+        }
+
+        // Keyboard event handling
+        document.addEventListener('keydown', (e) => {
+            // Cmd+K or Ctrl+K to open command palette
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                openCommandPalette();
+            }
+
+            // ? to open shortcuts hub
+            if (e.key === '?' && !document.getElementById('commandPaletteOverlay').classList.contains('active')) {
+                e.preventDefault();
+                openShortcutsHub();
+            }
+
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                closeModals();
+            }
+
+            // Navigation within command palette
+            if (document.getElementById('commandPaletteOverlay').classList.contains('active')) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    navigateResults('down');
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    navigateResults('up');
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    selectResult();
+                }
+            }
+        });
+
+        // Search input event
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            handleSearch(e.target.value);
+        });
+
+        // Log data counts on page load
+        console.log('Mock Data Loaded:');
+        console.log('- Tasks:', mockData.tasks.length);
+        console.log('- Documents:', mockData.documents.length);
+        console.log('- People:', mockData.people.length);
+        console.log('- Workflows:', mockData.workflows.length);
+        console.log('- Projects:', mockData.projects.length);
+        console.log('- Total Items:', mockData.tasks.length + mockData.documents.length + mockData.people.length + mockData.workflows.length + mockData.projects.length);
+        console.log('- Recent Searches:', recentSearches.length);
+        console.log('- Quick Actions:', quickActions.length);
+    </script>
+</body>
+</html>

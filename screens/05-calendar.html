@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar & Scheduling Hub - AI Org Platform</title>
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+    <style>
+        body {
+            margin: 0;
+            background-color: var(--bg-secondary);
+        }
+
+        .calendar-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Sidebar */
+        .calendar-sidebar {
+            width: 280px;
+            background-color: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: var(--space-6);
+        }
+
+        .mini-calendar {
+            margin-bottom: var(--space-6);
+        }
+
+        .mini-calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+
+        .mini-calendar-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .mini-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: var(--space-1);
+            font-size: var(--text-xs);
+        }
+
+        .mini-calendar-day-header {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-weight: var(--font-medium);
+            padding: var(--space-1);
+            font-size: 10px;
+        }
+
+        .mini-calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .mini-calendar-day:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .mini-calendar-day.today {
+            background-color: var(--primary-500);
+            color: white;
+            font-weight: var(--font-bold);
+        }
+
+        .mini-calendar-day.has-events::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--primary-500);
+        }
+
+        .mini-calendar-day.today.has-events::after {
+            background-color: white;
+        }
+
+        .mini-calendar-day.other-month {
+            color: var(--text-disabled);
+        }
+
+        .calendar-sources {
+            margin-bottom: var(--space-6);
+        }
+
+        .sources-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-3);
+        }
+
+        .sources-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            padding: var(--space-2);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-bottom: var(--space-1);
+        }
+
+        .source-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .source-checkbox {
+            margin-right: var(--space-2);
+            width: 16px;
+            height: 16px;
+        }
+
+        .source-color {
+            width: 12px;
+            height: 12px;
+            border-radius: var(--radius-sm);
+            margin-right: var(--space-2);
+        }
+
+        .source-label {
+            flex: 1;
+            font-size: var(--text-sm);
+            color: var(--text-primary);
+        }
+
+        .source-count {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            background-color: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+        }
+
+        .add-calendar-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            width: 100%;
+            background: none;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            margin-top: var(--space-2);
+        }
+
+        .add-calendar-btn:hover {
+            background-color: var(--bg-tertiary);
+            border-color: var(--primary-500);
+            color: var(--primary-500);
+        }
+
+        .resource-availability {
+            margin-top: var(--space-6);
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-bottom: var(--space-1);
+        }
+
+        .resource-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .resource-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-full);
+            background-color: var(--primary-100);
+            color: var(--primary-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+        }
+
+        .resource-info {
+            flex: 1;
+        }
+
+        .resource-name {
+            font-size: var(--text-sm);
+            color: var(--text-primary);
+        }
+
+        .resource-status {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-available { background-color: var(--success-500); }
+        .status-busy { background-color: var(--error-500); }
+        .status-away { background-color: var(--warning-500); }
+        .status-focus { background-color: var(--primary-500); }
+
+        /* Main Content */
+        .calendar-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Calendar Header */
+        .calendar-header {
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--space-6);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .current-period {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .nav-btn {
+            padding: var(--space-2) var(--space-3);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .nav-btn:hover {
+            background-color: var(--bg-tertiary);
+            border-color: var(--primary-500);
+        }
+
+        .today-btn {
+            padding: var(--space-2) var(--space-4);
+            background-color: var(--primary-500);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+        }
+
+        .today-btn:hover {
+            background-color: var(--primary-600);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .view-selector {
+            display: flex;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: var(--space-2) var(--space-4);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .view-btn:last-child {
+            border-right: none;
+        }
+
+        .view-btn:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .view-btn.active {
+            background-color: var(--primary-500);
+            color: white;
+            font-weight: var(--font-medium);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .action-btn {
+            padding: var(--space-2) var(--space-4);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .action-btn:hover {
+            background-color: var(--bg-tertiary);
+            border-color: var(--primary-500);
+        }
+
+        .create-btn {
+            background-color: var(--primary-500);
+            color: white;
+            border: none;
+            font-weight: var(--font-medium);
+        }
+
+        .create-btn:hover {
+            background-color: var(--primary-600);
+        }
+
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: var(--space-2) var(--space-4);
+            padding-left: var(--space-10);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        /* FullCalendar Customization */
+        .calendar-wrapper {
+            flex: 1;
+            overflow: auto;
+            padding: var(--space-6);
+            background-color: var(--bg-secondary);
+        }
+
+        .fc {
+            background-color: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: var(--border-color);
+        }
+
+        .fc-col-header-cell {
+            background-color: var(--bg-secondary);
+            padding: var(--space-3) !important;
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .fc-daygrid-day-number {
+            color: var(--text-primary);
+            font-size: var(--text-sm);
+            padding: var(--space-2);
+        }
+
+        .fc-day-today {
+            background-color: rgba(37, 99, 235, 0.1) !important;
+        }
+
+        .fc-day-today .fc-daygrid-day-number {
+            background-color: var(--primary-500);
+            color: white;
+            border-radius: var(--radius-full);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fc-daygrid-day.fc-day-other {
+            background-color: var(--bg-tertiary);
+            opacity: 0.5;
+        }
+
+        .fc-daygrid-day-frame {
+            min-height: 100px;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            padding: 2px 4px;
+            font-size: var(--text-xs);
+            margin-bottom: 2px;
+            border-left-width: 3px;
+        }
+
+        .fc-event:hover {
+            opacity: 0.8;
+        }
+
+        .fc-event-title {
+            font-weight: var(--font-medium);
+        }
+
+        .fc-daygrid-more-link {
+            color: var(--primary-500);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+            margin-top: var(--space-1);
+        }
+
+        /* Event Detail Panel */
+        .event-detail-panel {
+            position: fixed;
+            right: -500px;
+            top: 0;
+            width: 500px;
+            height: 100vh;
+            background-color: var(--bg-primary);
+            box-shadow: -2px 0 12px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .event-detail-panel.open {
+            right: 0;
+        }
+
+        .panel-header {
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-primary);
+            z-index: 1;
+        }
+
+        .panel-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+
+        .panel-title-section {
+            flex: 1;
+        }
+
+        .panel-title {
+            font-size: var(--text-xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .calendar-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: 4px 8px;
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+        }
+
+        .close-panel-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            border: none;
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .close-panel-btn:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .panel-content {
+            padding: var(--space-6);
+        }
+
+        .form-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .form-section-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-3);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-4);
+        }
+
+        .form-label {
+            display: block;
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .datetime-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 24px;
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .toggle-switch.active {
+            background-color: var(--primary-500);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: left 0.2s;
+        }
+
+        .toggle-switch.active::after {
+            left: 18px;
+        }
+
+        .recurrence-pattern {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-3);
+        }
+
+        .pattern-btn {
+            padding: var(--space-2) var(--space-3);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .pattern-btn.active {
+            background-color: var(--primary-100);
+            border-color: var(--primary-500);
+            color: var(--primary-700);
+        }
+
+        .reminder-list {
+            list-style: none;
+        }
+
+        .reminder-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+        }
+
+        .add-reminder-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            background: none;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .add-reminder-btn:hover {
+            background-color: var(--bg-tertiary);
+            border-color: var(--primary-500);
+        }
+
+        .panel-footer {
+            padding: var(--space-6);
+            border-top: 1px solid var(--border-color);
+            position: sticky;
+            bottom: 0;
+            background-color: var(--bg-primary);
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .btn {
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-500);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-600);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .btn-danger {
+            background-color: var(--error-500);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--error-600);
+        }
+
+        /* Event Colors */
+        .event-tasks { background-color: var(--primary-100); border-color: var(--primary-500); color: var(--primary-700); }
+        .event-team { background-color: var(--success-100); border-color: var(--success-500); color: var(--success-700); }
+        .event-deadlines { background-color: var(--error-100); border-color: var(--error-500); color: var(--error-700); }
+        .event-pto { background-color: #ddd6fe; border-color: #7c3aed; color: #5b21b6; }
+        .event-meetings { background-color: var(--warning-100); border-color: var(--warning-500); color: var(--warning-700); }
+        .event-recurring { background-color: #ccfbf1; border-color: #14b8a6; color: #0f766e; }
+        .event-compliance { background-color: #fed7aa; border-color: #f97316; color: #c2410c; }
+
+        /* Backdrop */
+        .backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .backdrop.open {
+            display: block;
+        }
+
+        /* Icons */
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        .icon-lg {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <!-- Left Sidebar -->
+        <div class="calendar-sidebar">
+            <!-- Mini Calendar -->
+            <div class="mini-calendar">
+                <div class="mini-calendar-header">
+                    <span class="mini-calendar-title">January 2025</span>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="nav-btn" style="padding: 4px 8px;" onclick="prevMiniMonth()">◀</button>
+                        <button class="nav-btn" style="padding: 4px 8px;" onclick="nextMiniMonth()">▶</button>
+                    </div>
+                </div>
+                <div class="mini-calendar-grid" id="miniCalendarGrid">
+                    <!-- Generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Calendar Sources -->
+            <div class="calendar-sources">
+                <div class="sources-header">
+                    <span class="sources-title">Calendars</span>
+                </div>
+                <div class="source-item" onclick="toggleCalendar('tasks')">
+                    <input type="checkbox" class="source-checkbox" id="cal-tasks" checked>
+                    <div class="source-color" style="background-color: var(--primary-500);"></div>
+                    <span class="source-label">My Tasks</span>
+                    <span class="source-count">24</span>
+                </div>
+                <div class="source-item" onclick="toggleCalendar('team')">
+                    <input type="checkbox" class="source-checkbox" id="cal-team" checked>
+                    <div class="source-color" style="background-color: var(--success-500);"></div>
+                    <span class="source-label">Team Calendar</span>
+                    <span class="source-count">12</span>
+                </div>
+                <div class="source-item" onclick="toggleCalendar('deadlines')">
+                    <input type="checkbox" class="source-checkbox" id="cal-deadlines" checked>
+                    <div class="source-color" style="background-color: var(--error-500);"></div>
+                    <span class="source-label">Deadlines</span>
+                    <span class="source-count">8</span>
+                </div>
+                <div class="source-item" onclick="toggleCalendar('pto')">
+                    <input type="checkbox" class="source-checkbox" id="cal-pto">
+                    <div class="source-color" style="background-color: #7c3aed;"></div>
+                    <span class="source-label">PTO/Leave</span>
+                    <span class="source-count">5</span>
+                </div>
+                <div class="source-item" onclick="toggleCalendar('meetings')">
+                    <input type="checkbox" class="source-checkbox" id="cal-meetings" checked>
+                    <div class="source-color" style="background-color: var(--warning-500);"></div>
+                    <span class="source-label">Meetings</span>
+                    <span class="source-count">18</span>
+                </div>
+                <div class="source-item" onclick="toggleCalendar('recurring')">
+                    <input type="checkbox" class="source-checkbox" id="cal-recurring" checked>
+                    <div class="source-color" style="background-color: #14b8a6;"></div>
+                    <span class="source-label">Recurring Tasks</span>
+                    <span class="source-count">45</span>
+                </div>
+                <div class="source-item" onclick="toggleCalendar('compliance')">
+                    <input type="checkbox" class="source-checkbox" id="cal-compliance">
+                    <div class="source-color" style="background-color: #f97316;"></div>
+                    <span class="source-label">Compliance</span>
+                    <span class="source-count">6</span>
+                </div>
+                <button class="add-calendar-btn">
+                    <span style="font-size: 18px;">+</span>
+                    <span>Create Calendar</span>
+                </button>
+            </div>
+
+            <!-- Resource Availability -->
+            <div class="resource-availability">
+                <div class="sources-header">
+                    <span class="sources-title">Team Availability</span>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-avatar">JS</div>
+                    <div class="resource-info">
+                        <div class="resource-name">John Smith</div>
+                        <div class="resource-status">Available</div>
+                    </div>
+                    <div class="status-indicator status-available"></div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-avatar">SK</div>
+                    <div class="resource-info">
+                        <div class="resource-name">Sarah Kim</div>
+                        <div class="resource-status">In Meeting</div>
+                    </div>
+                    <div class="status-indicator status-busy"></div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-avatar">MP</div>
+                    <div class="resource-info">
+                        <div class="resource-name">Mike Patel</div>
+                        <div class="resource-status">Focus Time</div>
+                    </div>
+                    <div class="status-indicator status-focus"></div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-avatar">EC</div>
+                    <div class="resource-info">
+                        <div class="resource-name">Emily Chen</div>
+                        <div class="resource-status">Away</div>
+                    </div>
+                    <div class="status-indicator status-away"></div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-avatar">DJ</div>
+                    <div class="resource-info">
+                        <div class="resource-name">David Jones</div>
+                        <div class="resource-status">Available</div>
+                    </div>
+                    <div class="status-indicator status-available"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Calendar Area -->
+        <div class="calendar-main">
+            <!-- Calendar Header -->
+            <div class="calendar-header">
+                <div class="header-top">
+                    <div class="header-left">
+                        <h1 class="current-period" id="currentPeriod">January 2025</h1>
+                        <div class="nav-buttons">
+                            <button class="nav-btn" onclick="prevMonth()">◀ Previous</button>
+                            <button class="today-btn" onclick="goToToday()">Today</button>
+                            <button class="nav-btn" onclick="nextMonth()">Next ▶</button>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div class="view-selector">
+                            <button class="view-btn" onclick="changeView('dayGridDay')">Day</button>
+                            <button class="view-btn" onclick="changeView('timeGridWeek')">Week</button>
+                            <button class="view-btn active" onclick="changeView('dayGridMonth')">Month</button>
+                            <button class="view-btn" onclick="changeView('listWeek')">Agenda</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search events and tasks...">
+                    </div>
+                    <button class="action-btn">
+                        <span>⚙️</span>
+                        <span>Filters</span>
+                    </button>
+                    <button class="action-btn">
+                        <span>⚙️</span>
+                        <span>Settings</span>
+                    </button>
+                    <button class="action-btn create-btn" onclick="openCreateEvent()">
+                        <span style="font-size: 18px;">+</span>
+                        <span>Create</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- FullCalendar -->
+            <div class="calendar-wrapper">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Detail Panel -->
+    <div class="backdrop" id="backdrop" onclick="closeEventPanel()"></div>
+    <div class="event-detail-panel" id="eventPanel">
+        <div class="panel-header">
+            <div class="panel-header-top">
+                <div class="panel-title-section">
+                    <h2 class="panel-title" id="panelTitle">Event Title</h2>
+                    <span class="calendar-badge" id="panelBadge">
+                        <span>●</span>
+                        <span id="panelCalendarType">My Tasks</span>
+                    </span>
+                </div>
+                <button class="close-panel-btn" onclick="closeEventPanel()">×</button>
+            </div>
+        </div>
+
+        <div class="panel-content">
+            <!-- Date & Time Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Date & Time</h3>
+                <div class="datetime-group">
+                    <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-input" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" class="form-input" id="startTime">
+                    </div>
+                </div>
+                <div class="datetime-group">
+                    <div class="form-group">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-input" id="endDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Time</label>
+                        <input type="time" class="form-input" id="endTime">
+                    </div>
+                </div>
+                <div class="toggle-group">
+                    <div class="toggle-switch" id="allDayToggle" onclick="toggleAllDay()">
+                    </div>
+                    <label class="form-label" style="margin: 0;">All-day event</label>
+                </div>
+            </div>
+
+            <!-- Assignment Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Assignment</h3>
+                <div class="form-group">
+                    <label class="form-label">Assigned To</label>
+                    <input type="text" class="form-input" id="assignedTo" placeholder="Select person...">
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Details</h3>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" id="location" placeholder="Add location or video link...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input form-textarea" id="description" placeholder="Add description..."></textarea>
+                </div>
+            </div>
+
+            <!-- Recurrence Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Recurrence</h3>
+                <div class="toggle-group">
+                    <div class="toggle-switch" id="recurringToggle" onclick="toggleRecurring()">
+                    </div>
+                    <label class="form-label" style="margin: 0;">Recurring event</label>
+                </div>
+                <div id="recurrenceSettings" style="display: none; margin-top: var(--space-4);">
+                    <div class="recurrence-pattern">
+                        <button class="pattern-btn active">Daily</button>
+                        <button class="pattern-btn">Weekly</button>
+                        <button class="pattern-btn">Monthly</button>
+                        <button class="pattern-btn">Yearly</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Repeat every</label>
+                        <div style="display: flex; gap: var(--space-2);">
+                            <input type="number" class="form-input" value="1" style="width: 80px;">
+                            <select class="form-input">
+                                <option>days</option>
+                                <option>weeks</option>
+                                <option>months</option>
+                                <option>years</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ends</label>
+                        <select class="form-input">
+                            <option>Never</option>
+                            <option>After N occurrences</option>
+                            <option>On date</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reminders Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">Reminders</h3>
+                <ul class="reminder-list">
+                    <li class="reminder-item">
+                        <span>🔔</span>
+                        <span style="flex: 1; font-size: var(--text-sm); color: var(--text-secondary);">15 minutes before</span>
+                        <button style="background: none; border: none; color: var(--text-tertiary); cursor: pointer;">×</button>
+                    </li>
+                </ul>
+                <button class="add-reminder-btn">
+                    <span>+</span>
+                    <span>Add reminder</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn btn-primary" onclick="saveEvent()">
+                <span>💾</span>
+                <span>Save</span>
+            </button>
+            <button class="btn btn-secondary" onclick="duplicateEvent()">
+                <span>📋</span>
+                <span>Duplicate</span>
+            </button>
+            <button class="btn btn-danger" onclick="deleteEvent()">
+                <span>🗑️</span>
+                <span>Delete</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Calendar state
+        let calendar;
+        let currentMiniMonth = new Date(2025, 0, 1); // January 2025
+        const today = new Date(2025, 0, 11); // Jan 11, 2025
+
+        // Generate 100+ sample events
+        function generateEvents() {
+            const events = [];
+            const eventTypes = [
+                { type: 'tasks', title: 'Complete project proposal', color: 'var(--primary-500)', className: 'event-tasks' },
+                { type: 'tasks', title: 'Review documentation', color: 'var(--primary-500)', className: 'event-tasks' },
+                { type: 'tasks', title: 'Update system requirements', color: 'var(--primary-500)', className: 'event-tasks' },
+                { type: 'tasks', title: 'Code review session', color: 'var(--primary-500)', className: 'event-tasks' },
+                { type: 'tasks', title: 'Database optimization', color: 'var(--primary-500)', className: 'event-tasks' },
+                { type: 'meetings', title: 'Team standup', color: 'var(--warning-500)', className: 'event-meetings', duration: 0.5 },
+                { type: 'meetings', title: 'Client presentation', color: 'var(--warning-500)', className: 'event-meetings', duration: 1 },
+                { type: 'meetings', title: 'Sprint planning', color: 'var(--warning-500)', className: 'event-meetings', duration: 2 },
+                { type: 'meetings', title: 'Design review', color: 'var(--warning-500)', className: 'event-meetings', duration: 1 },
+                { type: 'meetings', title: '1:1 with manager', color: 'var(--warning-500)', className: 'event-meetings', duration: 0.5 },
+                { type: 'deadlines', title: 'Q1 report due', color: 'var(--error-500)', className: 'event-deadlines', allDay: true },
+                { type: 'deadlines', title: 'Budget approval deadline', color: 'var(--error-500)', className: 'event-deadlines', allDay: true },
+                { type: 'deadlines', title: 'Contract renewal', color: 'var(--error-500)', className: 'event-deadlines', allDay: true },
+                { type: 'team', title: 'Team lunch', color: 'var(--success-500)', className: 'event-team', duration: 1 },
+                { type: 'team', title: 'All-hands meeting', color: 'var(--success-500)', className: 'event-team', duration: 1.5 },
+                { type: 'team', title: 'Team building event', color: 'var(--success-500)', className: 'event-team', allDay: true },
+                { type: 'recurring', title: 'Weekly sync', color: '#14b8a6', className: 'event-recurring', duration: 1 },
+                { type: 'recurring', title: 'Daily check-in', color: '#14b8a6', className: 'event-recurring', duration: 0.25 },
+                { type: 'recurring', title: 'Bi-weekly retro', color: '#14b8a6', className: 'event-recurring', duration: 1 },
+                { type: 'compliance', title: 'Security audit', color: '#f97316', className: 'event-compliance', duration: 2 },
+                { type: 'compliance', title: 'Compliance training', color: '#f97316', className: 'event-compliance', duration: 1 },
+                { type: 'pto', title: 'Sarah Kim - PTO', color: '#7c3aed', className: 'event-pto', allDay: true },
+                { type: 'pto', title: 'Mike Patel - Vacation', color: '#7c3aed', className: 'event-pto', allDay: true }
+            ];
+
+            // Generate events over 90 days (-30 to +60 from today)
+            const startDate = new Date(2024, 11, 12); // Dec 12, 2024
+            const endDate = new Date(2025, 2, 11); // Mar 11, 2025
+
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                // 2-4 events per day
+                const numEvents = Math.floor(Math.random() * 3) + 2;
+
+                for (let i = 0; i < numEvents; i++) {
+                    const template = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+                    const eventDate = new Date(d);
+
+                    const event = {
+                        title: template.title,
+                        start: new Date(eventDate),
+                        backgroundColor: template.color,
+                        borderColor: template.color,
+                        classNames: [template.className],
+                        extendedProps: {
+                            type: template.type,
+                            description: `This is a ${template.type} event`,
+                            location: template.type === 'meetings' ? 'Conference Room A' : '',
+                            assignedTo: 'John Smith'
+                        }
+                    };
+
+                    if (template.allDay) {
+                        event.allDay = true;
+                    } else if (template.duration) {
+                        const startHour = 9 + Math.floor(Math.random() * 8); // 9am - 5pm
+                        event.start.setHours(startHour, 0, 0);
+                        event.end = new Date(event.start);
+                        event.end.setHours(event.end.getHours() + template.duration);
+                    } else {
+                        const startHour = 9 + Math.floor(Math.random() * 8);
+                        event.start.setHours(startHour, 0, 0);
+                    }
+
+                    // Multi-day events (5% chance)
+                    if (Math.random() < 0.05) {
+                        event.end = new Date(event.start);
+                        event.end.setDate(event.end.getDate() + Math.floor(Math.random() * 3) + 2);
+                        event.allDay = true;
+                        event.title = template.title + ' (Multi-day)';
+                    }
+
+                    events.push(event);
+                }
+            }
+
+            return events;
+        }
+
+        // Initialize FullCalendar
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                initialDate: '2025-01-11',
+                headerToolbar: false,
+                editable: true,
+                droppable: true,
+                dayMaxEvents: 3,
+                height: 'auto',
+                events: generateEvents(),
+                eventClick: function(info) {
+                    openEventPanel(info.event);
+                },
+                dateClick: function(info) {
+                    openCreateEvent(info.date);
+                },
+                eventDrop: function(info) {
+                    console.log('Event moved to:', info.event.start);
+                },
+                eventResize: function(info) {
+                    console.log('Event resized:', info.event.start, info.event.end);
+                },
+                datesSet: function(info) {
+                    updateCurrentPeriod();
+                }
+            });
+
+            calendar.render();
+            renderMiniCalendar();
+        });
+
+        // Mini Calendar
+        function renderMiniCalendar() {
+            const grid = document.getElementById('miniCalendarGrid');
+            grid.innerHTML = '';
+
+            // Day headers
+            const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+            days.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'mini-calendar-day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+
+            const year = currentMiniMonth.getFullYear();
+            const month = currentMiniMonth.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            const prevLastDate = new Date(year, month, 0).getDate();
+
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = document.createElement('div');
+                day.className = 'mini-calendar-day other-month';
+                day.textContent = prevLastDate - i;
+                grid.appendChild(day);
+            }
+
+            // Current month days
+            for (let date = 1; date <= lastDate; date++) {
+                const day = document.createElement('div');
+                day.className = 'mini-calendar-day';
+                day.textContent = date;
+
+                // Check if today
+                if (year === today.getFullYear() && month === today.getMonth() && date === today.getDate()) {
+                    day.classList.add('today');
+                }
+
+                // Add has-events class (random for demo)
+                if (Math.random() > 0.5) {
+                    day.classList.add('has-events');
+                }
+
+                day.onclick = () => goToDate(year, month, date);
+                grid.appendChild(day);
+            }
+
+            // Next month days
+            const totalCells = grid.children.length - 7; // Subtract headers
+            const remainingCells = 42 - totalCells; // 6 weeks * 7 days
+            for (let date = 1; date <= remainingCells; date++) {
+                const day = document.createElement('div');
+                day.className = 'mini-calendar-day other-month';
+                day.textContent = date;
+                grid.appendChild(day);
+            }
+
+            // Update mini calendar title
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.querySelector('.mini-calendar-title').textContent = `${monthNames[month]} ${year}`;
+        }
+
+        function prevMiniMonth() {
+            currentMiniMonth.setMonth(currentMiniMonth.getMonth() - 1);
+            renderMiniCalendar();
+        }
+
+        function nextMiniMonth() {
+            currentMiniMonth.setMonth(currentMiniMonth.getMonth() + 1);
+            renderMiniCalendar();
+        }
+
+        function goToDate(year, month, date) {
+            calendar.gotoDate(new Date(year, month, date));
+        }
+
+        // Calendar Navigation
+        function prevMonth() {
+            calendar.prev();
+            updateCurrentPeriod();
+        }
+
+        function nextMonth() {
+            calendar.next();
+            updateCurrentPeriod();
+        }
+
+        function goToToday() {
+            calendar.today();
+            updateCurrentPeriod();
+        }
+
+        function changeView(viewType) {
+            calendar.changeView(viewType);
+            updateCurrentPeriod();
+
+            // Update active button
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function updateCurrentPeriod() {
+            const date = calendar.getDate();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('currentPeriod').textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        // Calendar Toggle
+        function toggleCalendar(calType) {
+            const checkbox = document.getElementById(`cal-${calType}`);
+            checkbox.checked = !checkbox.checked;
+
+            // Filter events
+            const events = calendar.getEvents();
+            events.forEach(event => {
+                if (event.extendedProps.type === calType) {
+                    event.setProp('display', checkbox.checked ? 'auto' : 'none');
+                }
+            });
+        }
+
+        // Event Panel
+        function openEventPanel(event) {
+            document.getElementById('eventPanel').classList.add('open');
+            document.getElementById('backdrop').classList.add('open');
+
+            // Populate panel
+            document.getElementById('panelTitle').textContent = event.title;
+            document.getElementById('panelCalendarType').textContent = capitalizeFirst(event.extendedProps.type);
+
+            const badge = document.getElementById('panelBadge');
+            badge.style.backgroundColor = event.backgroundColor + '20';
+            badge.style.color = event.backgroundColor;
+
+            // Populate form fields
+            if (event.start) {
+                document.getElementById('startDate').value = event.start.toISOString().split('T')[0];
+                document.getElementById('startTime').value = event.start.toTimeString().slice(0, 5);
+            }
+            if (event.end) {
+                document.getElementById('endDate').value = event.end.toISOString().split('T')[0];
+                document.getElementById('endTime').value = event.end.toTimeString().slice(0, 5);
+            }
+
+            document.getElementById('assignedTo').value = event.extendedProps.assignedTo || '';
+            document.getElementById('location').value = event.extendedProps.location || '';
+            document.getElementById('description').value = event.extendedProps.description || '';
+        }
+
+        function openCreateEvent(date) {
+            document.getElementById('eventPanel').classList.add('open');
+            document.getElementById('backdrop').classList.add('open');
+
+            // Reset form
+            document.getElementById('panelTitle').textContent = 'New Event';
+            document.getElementById('panelCalendarType').textContent = 'My Tasks';
+
+            if (date) {
+                document.getElementById('startDate').value = date.toISOString().split('T')[0];
+            }
+        }
+
+        function closeEventPanel() {
+            document.getElementById('eventPanel').classList.remove('open');
+            document.getElementById('backdrop').classList.remove('open');
+        }
+
+        function toggleAllDay() {
+            const toggle = document.getElementById('allDayToggle');
+            toggle.classList.toggle('active');
+        }
+
+        function toggleRecurring() {
+            const toggle = document.getElementById('recurringToggle');
+            const settings = document.getElementById('recurrenceSettings');
+            toggle.classList.toggle('active');
+            settings.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+        }
+
+        function saveEvent() {
+            alert('Event saved successfully!');
+            closeEventPanel();
+        }
+
+        function duplicateEvent() {
+            alert('Event duplicated!');
+        }
+
+        function deleteEvent() {
+            if (confirm('Are you sure you want to delete this event?')) {
+                closeEventPanel();
+                alert('Event deleted!');
+            }
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>

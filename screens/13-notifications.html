@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications Center - AI-Powered Org Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #f5f7fa;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            width: 400px;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            font-size: 0.875rem;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .icon-btn.active {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.625rem;
+            font-weight: 700;
+            padding: 0.125rem 0.375rem;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-settings {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .btn-settings:hover {
+            background: #dbeafe;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            background: none;
+            color: #64748b;
+        }
+
+        .tab:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .tab.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .tab-badge {
+            background: rgba(255,255,255,0.3);
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .tab.active .tab-badge {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tab:not(.active) .tab-badge {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        /* Search Bar */
+        .notification-search {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .notification-search input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .notification-search input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        /* Notification List */
+        .notifications-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .notification-group {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .notification-group:last-child {
+            border-bottom: none;
+        }
+
+        .group-header {
+            padding: 1rem 2rem;
+            background: #f8fafc;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .group-header.new {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .notification-item {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            gap: 1rem;
+            transition: background 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-item.unread {
+            background: #eff6ff;
+        }
+
+        .notification-item.unread:hover {
+            background: #dbeafe;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .icon-mention { background: #dbeafe; }
+        .icon-task { background: #fef3c7; }
+        .icon-approval { background: #d1fae5; }
+        .icon-status { background: #e0e7ff; }
+        .icon-comment { background: #fce7f3; }
+        .icon-deadline { background: #fee2e2; }
+        .icon-document { background: #e0e7ff; }
+        .icon-calendar { background: #e0f2fe; }
+        .icon-announcement { background: #fef3c7; }
+        .icon-integration { background: #f3e8ff; }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .notification-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .action-btn {
+            padding: 0.375rem 0.875rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .action-btn.primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .action-btn.primary:hover {
+            background: #1d4ed8;
+        }
+
+        .action-btn.success {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .action-btn.success:hover {
+            background: #059669;
+        }
+
+        .action-btn.danger {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .action-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .notification-menu {
+            position: relative;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            color: #94a3b8;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .notification-item:hover .menu-btn {
+            opacity: 1;
+        }
+
+        .menu-btn:hover {
+            color: #64748b;
+        }
+
+        .unread-indicator {
+            width: 8px;
+            height: 8px;
+            background: #2563eb;
+            border-radius: 50%;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Load More */
+        .load-more {
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .load-more button {
+            padding: 0.75rem 2rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .load-more button:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Preferences Table */
+        .preferences-section {
+            margin-bottom: 2rem;
+        }
+
+        .preferences-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preferences-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .preferences-table th {
+            background: #f8fafc;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .preferences-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.875rem;
+        }
+
+        .preferences-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .preferences-table td:first-child {
+            font-weight: 500;
+            color: #334155;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.3s;
+            border-radius: 22px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #2563eb;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Digest Settings */
+        .digest-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .setting-label {
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .setting-control select,
+        .setting-control input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .setting-control select:focus,
+        .setting-control input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        .time-picker {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .search-box {
+                width: 200px;
+            }
+
+            .filter-tabs {
+                padding: 0.75rem 1rem;
+            }
+
+            .notification-item {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .preferences-table {
+                font-size: 0.75rem;
+            }
+
+            .preferences-table th,
+            .preferences-table td {
+                padding: 0.5rem;
+            }
+
+            .modal {
+                max-width: 100%;
+                margin: 1rem;
+            }
+
+            .modal-body {
+                padding: 1rem;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-description {
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <div class="logo">
+                <span>🏢</span>
+                <span>OrgPlatform</span>
+            </div>
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Search or press Cmd+K...">
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="icon-btn active">
+                <span>🔔</span>
+                <span class="badge">24</span>
+            </button>
+            <button class="icon-btn">
+                <span>⚙️</span>
+            </button>
+            <div class="user-avatar">JS</div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Notifications</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="markAllRead()">
+                    ✓ Mark all as read
+                </button>
+                <button class="btn btn-settings" onclick="openPreferences()">
+                    ⚙️ Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="tab active" onclick="filterNotifications('all')">
+                All
+            </button>
+            <button class="tab" onclick="filterNotifications('unread')">
+                Unread <span class="tab-badge">24</span>
+            </button>
+            <button class="tab" onclick="filterNotifications('mentions')">
+                💬 Mentions
+            </button>
+            <button class="tab" onclick="filterNotifications('tasks')">
+                📋 Tasks
+            </button>
+            <button class="tab" onclick="filterNotifications('approvals')">
+                ✅ Approvals
+            </button>
+            <button class="tab" onclick="filterNotifications('updates')">
+                🔄 Updates
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="notification-search">
+            <input type="text" placeholder="Search notifications...">
+        </div>
+
+        <!-- Notifications List -->
+        <div class="notifications-container">
+
+            <!-- NEW NOTIFICATIONS -->
+            <div class="notification-group">
+                <div class="group-header new">🔴 New</div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-mention">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">John Smith mentioned you in "Q1 Budget Planning"</div>
+                        <div class="notification-description">
+                            @JaneDoe can you review the final numbers before we submit to finance? I think we need your approval on the marketing allocation.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 5 minutes ago</span>
+                            <span>•</span>
+                            <span>Task #2845</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn primary">Reply</button>
+                            <button class="action-btn">View Task</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-task">📋</div>
+                    <div class="notification-content">
+                        <div class="notification-title">New task assigned: "Review SOP Document v3"</div>
+                        <div class="notification-description">
+                            Sarah Johnson assigned you a high-priority task. The updated Standard Operating Procedure document needs review and approval by end of week.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 12 minutes ago</span>
+                            <span>•</span>
+                            <span>⚠️ High Priority</span>
+                            <span>•</span>
+                            <span>📅 Due: Jan 18, 2025</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn success">Accept</button>
+                            <button class="action-btn">Delegate</button>
+                            <button class="action-btn">View Details</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-approval">✅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Approval needed for "Employee Onboarding Workflow"</div>
+                        <div class="notification-description">
+                            Mike Chen is requesting your approval for the updated employee onboarding workflow. This includes 15 automated steps and email templates.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 28 minutes ago</span>
+                            <span>•</span>
+                            <span>Workflow Update</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn success">Approve</button>
+                            <button class="action-btn danger">Reject</button>
+                            <button class="action-btn">Review</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-deadline">⏰</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Deadline approaching: "Quarterly Report Submission"</div>
+                        <div class="notification-description">
+                            Your task is due in 2 hours. The quarterly performance report needs to be submitted to the executive team by 5:00 PM today.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 45 minutes ago</span>
+                            <span>•</span>
+                            <span>🔴 Urgent</span>
+                            <span>•</span>
+                            <span>📅 Due: Today at 5:00 PM</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn primary">Complete Task</button>
+                            <button class="action-btn">Request Extension</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TODAY -->
+            <div class="notification-group">
+                <div class="group-header">Today</div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-status">🔄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Task status changed: "Design System Update"</div>
+                        <div class="notification-description">
+                            Alex Rivera moved "Design System Update" from In Progress → Completed. All new component tokens have been documented and reviewed.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 1 hour ago</span>
+                            <span>•</span>
+                            <span>Design Team</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-comment">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Emma Thompson commented on "API Integration Project"</div>
+                        <div class="notification-description">
+                            "I've completed the Slack integration testing. Found a minor issue with rate limiting that we should discuss. Can we schedule a quick call?"
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 2 hours ago</span>
+                            <span>•</span>
+                            <span>Task #2831</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn primary">Reply</button>
+                            <button class="action-btn">View Comment</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-document">📄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Document uploaded: "Security_Policy_2025.pdf"</div>
+                        <div class="notification-description">
+                            David Park uploaded a new document to Compliance > Security folder. This is the updated security policy for 2025 that requires all staff review.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 3 hours ago</span>
+                            <span>•</span>
+                            <span>📁 Compliance/Security</span>
+                            <span>•</span>
+                            <span>2.4 MB</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn primary">View Document</button>
+                            <button class="action-btn">Download</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-calendar">📅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Meeting starting soon: "Sprint Planning Session"</div>
+                        <div class="notification-description">
+                            Your meeting with Engineering Team starts in 30 minutes. Location: Conference Room B. Join link is available in the calendar event.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 3 hours ago</span>
+                            <span>•</span>
+                            <span>📅 Today at 2:30 PM</span>
+                            <span>•</span>
+                            <span>👥 8 attendees</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn success">Join Meeting</button>
+                            <button class="action-btn">View Details</button>
+                            <button class="action-btn">Snooze</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-mention">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Lisa Wang mentioned you in "Customer Success Metrics"</div>
+                        <div class="notification-description">
+                            @JaneDoe have you seen the latest NPS scores? They're trending up significantly since the new onboarding flow was implemented.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 4 hours ago</span>
+                            <span>•</span>
+                            <span>Analytics Dashboard</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-task">📋</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Task delegated to you: "Update Marketing Materials"</div>
+                        <div class="notification-description">
+                            Robert Chen delegated "Update Marketing Materials" to you. Previous assignee moved to different department. Task includes updating all Q1 2025 materials.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 5 hours ago</span>
+                            <span>•</span>
+                            <span>Medium Priority</span>
+                            <span>•</span>
+                            <span>📅 Due: Jan 20, 2025</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-integration">🔗</div>
+                    <div class="notification-content">
+                        <div class="notification-title">New data from Salesforce integration</div>
+                        <div class="notification-description">
+                            15 new leads imported from Salesforce. 3 require immediate follow-up. Data sync completed successfully at 9:00 AM.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 6 hours ago</span>
+                            <span>•</span>
+                            <span>Salesforce Sync</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn primary">View Leads</button>
+                            <button class="action-btn">Sync Settings</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item unread">
+                    <div class="unread-indicator"></div>
+                    <div class="notification-icon icon-announcement">📢</div>
+                    <div class="notification-content">
+                        <div class="notification-title">System Announcement: Platform Maintenance Scheduled</div>
+                        <div class="notification-description">
+                            Scheduled maintenance window: Sunday, Jan 21, 2025 from 2:00 AM - 6:00 AM EST. The platform will be unavailable during this time for critical security updates.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ 7 hours ago</span>
+                            <span>•</span>
+                            <span>System Admin</span>
+                            <span>•</span>
+                            <span>🔴 Important</span>
+                        </div>
+                        <div class="notification-actions">
+                            <button class="action-btn">View Details</button>
+                            <button class="action-btn">Add to Calendar</button>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YESTERDAY -->
+            <div class="notification-group">
+                <div class="group-header">Yesterday</div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-approval">✅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Your approval was processed for "Budget_2025_Final.xlsx"</div>
+                        <div class="notification-description">
+                            Document has been approved and published. All stakeholders have been notified. The finance team can now proceed with Q1 allocations.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Yesterday at 4:15 PM</span>
+                            <span>•</span>
+                            <span>Document Workflow</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-status">🔄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Workflow completed: "New Employee Onboarding - Rachel Martinez"</div>
+                        <div class="notification-description">
+                            All 12 onboarding steps completed successfully. New employee has been provisioned with accounts, equipment, and access. Welcome email sent.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Yesterday at 2:30 PM</span>
+                            <span>•</span>
+                            <span>HR Workflow</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-comment">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Kevin Moore replied to your comment</div>
+                        <div class="notification-description">
+                            "That's a great point about the user flow. I've updated the mockups to reflect your feedback. Let me know if this addresses your concerns."
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Yesterday at 11:45 AM</span>
+                            <span>•</span>
+                            <span>Design Review</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-task">📋</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Task completed: "Code Review - Auth Module"</div>
+                        <div class="notification-description">
+                            You marked "Code Review - Auth Module" as completed. The pull request has been merged into main branch. 156 lines changed, 3 files modified.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Yesterday at 10:20 AM</span>
+                            <span>•</span>
+                            <span>Engineering</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-document">📄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Document shared with you: "Q4_Performance_Review.docx"</div>
+                        <div class="notification-description">
+                            Jessica Lee shared a document with you. You have Editor access. This document contains your Q4 performance review and goals for Q1 2025.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Yesterday at 9:00 AM</span>
+                            <span>•</span>
+                            <span>HR Department</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-calendar">📅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Meeting rescheduled: "Product Roadmap Review"</div>
+                        <div class="notification-description">
+                            Tom Wilson rescheduled "Product Roadmap Review" from Jan 15 to Jan 17 at 10:00 AM. Updated calendar invite has been sent to all 6 attendees.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Yesterday at 8:30 AM</span>
+                            <span>•</span>
+                            <span>📅 New time: Jan 17 at 10:00 AM</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THIS WEEK -->
+            <div class="notification-group">
+                <div class="group-header">This Week</div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-mention">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Brian Foster mentioned you in "Integration Testing Plan"</div>
+                        <div class="notification-description">
+                            @JaneDoe your input would be valuable on the API testing strategy. Especially around error handling scenarios.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 13 at 3:45 PM</span>
+                            <span>•</span>
+                            <span>QA Testing</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-task">📋</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Subtask created: "Write unit tests for user module"</div>
+                        <div class="notification-description">
+                            Jennifer Kim created a subtask under "Backend Refactoring Project". This subtask covers comprehensive unit testing for the user authentication module.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 13 at 1:20 PM</span>
+                            <span>•</span>
+                            <span>Backend Team</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-approval">✅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Approval granted for "Marketing Campaign Launch"</div>
+                        <div class="notification-description">
+                            Susan Taylor approved your request to launch the Q1 marketing campaign. Budget of $50,000 has been allocated. Campaign can begin on Jan 22.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 13 at 11:00 AM</span>
+                            <span>•</span>
+                            <span>Marketing</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-status">🔄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Task reassigned from you to Mark Stevens</div>
+                        <div class="notification-description">
+                            Amanda White reassigned "Database Migration Project" to Mark Stevens due to workload rebalancing. All notes and progress have been transferred.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 12 at 4:50 PM</span>
+                            <span>•</span>
+                            <span>DevOps Team</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-comment">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">3 new comments on "Website Redesign Mockups"</div>
+                        <div class="notification-description">
+                            Multiple team members commented on your design mockups. Latest comment from Chris Anderson: "Love the new navigation structure!"
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 12 at 2:15 PM</span>
+                            <span>•</span>
+                            <span>Design Project</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-document">📄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Document version updated: "Product_Requirements_v4.pdf"</div>
+                        <div class="notification-description">
+                            Patricia Green uploaded version 4 of the product requirements document. Changes include updated timeline and revised feature prioritization.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 12 at 10:30 AM</span>
+                            <span>•</span>
+                            <span>v3 → v4</span>
+                            <span>•</span>
+                            <span>3.1 MB</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-deadline">⏰</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Task overdue: "Submit Expense Reports"</div>
+                        <div class="notification-description">
+                            Your task is now 2 days overdue. Please submit December expense reports to finance department for processing. Original deadline was Jan 10.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 12 at 9:00 AM</span>
+                            <span>•</span>
+                            <span>🔴 Overdue</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-integration">🔗</div>
+                    <div class="notification-content">
+                        <div class="notification-title">GitHub integration: 5 new pull requests</div>
+                        <div class="notification-description">
+                            5 new pull requests require review in the main repository. 3 are marked as high priority. Auto-sync completed successfully.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 11 at 5:30 PM</span>
+                            <span>•</span>
+                            <span>GitHub Sync</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-announcement">📢</div>
+                    <div class="notification-content">
+                        <div class="notification-title">New feature available: Custom Report Builder</div>
+                        <div class="notification-description">
+                            We've launched the Custom Report Builder! Create personalized reports with drag-and-drop interface. Check out the tutorial video in the Help Center.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 11 at 2:00 PM</span>
+                            <span>•</span>
+                            <span>Product Updates</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-calendar">📅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Calendar event created: "All Hands Meeting"</div>
+                        <div class="notification-description">
+                            CEO Office created "Monthly All Hands Meeting" scheduled for Jan 25 at 3:00 PM. This is a company-wide meeting with Q1 updates and announcements.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 11 at 11:00 AM</span>
+                            <span>•</span>
+                            <span>📅 Jan 25 at 3:00 PM</span>
+                            <span>•</span>
+                            <span>👥 All employees</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-task">📋</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Task dependency resolved: "Backend API Complete"</div>
+                        <div class="notification-description">
+                            A task you're waiting on has been completed. "Backend API Development" is now done, so you can proceed with "Frontend Integration Testing".
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 10 at 6:20 PM</span>
+                            <span>•</span>
+                            <span>Development Pipeline</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-mention">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Ryan Cooper mentioned you in "Security Audit Findings"</div>
+                        <div class="notification-description">
+                            @JaneDoe the compliance team needs your sign-off on the remediation plan. Can you review sections 3-5 specifically?
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 10 at 3:45 PM</span>
+                            <span>•</span>
+                            <span>Compliance</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OLDER -->
+            <div class="notification-group">
+                <div class="group-header">Older</div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-status">🔄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Project milestone completed: "Phase 1 Development"</div>
+                        <div class="notification-description">
+                            All 28 tasks in Phase 1 have been completed. The project is on schedule and ready to move to Phase 2: Testing & QA.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 8 at 4:00 PM</span>
+                            <span>•</span>
+                            <span>Project Management</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-document">📄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Bulk document upload completed</div>
+                        <div class="notification-description">
+                            15 documents successfully uploaded to "Legal/Contracts" folder. Total size: 42.8 MB. All documents indexed and searchable.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 7 at 2:15 PM</span>
+                            <span>•</span>
+                            <span>📁 Legal/Contracts</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-approval">✅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Timesheet approved for week of Jan 1-7</div>
+                        <div class="notification-description">
+                            Your manager approved your timesheet. Total hours: 42.5 (40 regular, 2.5 overtime). Payment will be processed in next payroll cycle.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 6 at 5:30 PM</span>
+                            <span>•</span>
+                            <span>Payroll</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-comment">💬</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Nicole Adams tagged you in a comment</div>
+                        <div class="notification-description">
+                            "@JaneDoe can you help review the accessibility requirements? Your expertise would be really valuable here."
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 5 at 1:40 PM</span>
+                            <span>•</span>
+                            <span>Accessibility Review</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-task">📋</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Recurring task created: "Weekly Team Sync"</div>
+                        <div class="notification-description">
+                            A new recurring task has been created. This task will repeat every Monday at 10:00 AM for team standup meetings.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 5 at 9:00 AM</span>
+                            <span>•</span>
+                            <span>🔁 Weekly recurrence</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-integration">🔗</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Jira integration sync completed</div>
+                        <div class="notification-description">
+                            Successfully synced 23 issues from Jira. 5 new tasks created, 18 existing tasks updated. Next sync scheduled for tomorrow at 9:00 AM.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 4 at 6:45 PM</span>
+                            <span>•</span>
+                            <span>Jira Sync</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-announcement">📢</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Policy update: Remote Work Guidelines</div>
+                        <div class="notification-description">
+                            Updated remote work policy has been published. Key changes include flexible hours and equipment allowance. Please review by Jan 15.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 3 at 10:00 AM</span>
+                            <span>•</span>
+                            <span>HR Policy</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-calendar">📅</div>
+                    <div class="notification-content">
+                        <div class="notification-title">You were added to "Design Team" calendar</div>
+                        <div class="notification-description">
+                            Sarah Johnson added you to the Design Team shared calendar. You can now view all design team events and meetings.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 2 at 11:30 AM</span>
+                            <span>•</span>
+                            <span>Calendar Management</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-deadline">⏰</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Deadline reminder: "Annual Goals Submission"</div>
+                        <div class="notification-description">
+                            Reminder to submit your annual goals for 2025. Deadline is Jan 31. Use the goals template provided in the HR portal.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Jan 1 at 9:00 AM</span>
+                            <span>•</span>
+                            <span>📅 Due: Jan 31, 2025</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-icon icon-status">🔄</div>
+                    <div class="notification-content">
+                        <div class="notification-title">Workflow automation activated: "Invoice Processing"</div>
+                        <div class="notification-description">
+                            Your automated invoice processing workflow is now active. Invoices will be automatically routed for approval based on amount thresholds.
+                        </div>
+                        <div class="notification-meta">
+                            <span>⏰ Dec 30, 2024 at 3:20 PM</span>
+                            <span>•</span>
+                            <span>Finance Automation</span>
+                        </div>
+                    </div>
+                    <div class="notification-menu">
+                        <button class="menu-btn">⋮</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Load More -->
+            <div class="load-more">
+                <button>Load More Notifications</button>
+                <p style="margin-top: 0.75rem; color: #94a3b8; font-size: 0.875rem;">
+                    Showing 50 of 127 notifications
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Preferences Modal -->
+    <div class="modal-overlay" id="preferencesModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Notification Preferences</h2>
+                <button class="modal-close" onclick="closePreferences()">✕</button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Task Notifications -->
+                <div class="preferences-section">
+                    <h3 class="section-title">📋 Task Notifications</h3>
+                    <table class="preferences-table">
+                        <thead>
+                            <tr>
+                                <th>Notification Type</th>
+                                <th>Email</th>
+                                <th>In-App</th>
+                                <th>SMS</th>
+                                <th>Push</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Task assigned to me</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Task due soon</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Task status changed</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Task overdue</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Communication -->
+                <div class="preferences-section">
+                    <h3 class="section-title">💬 Communication</h3>
+                    <table class="preferences-table">
+                        <thead>
+                            <tr>
+                                <th>Notification Type</th>
+                                <th>Email</th>
+                                <th>In-App</th>
+                                <th>SMS</th>
+                                <th>Push</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Mentions</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Comments on my tasks</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Replies to my comments</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Approvals -->
+                <div class="preferences-section">
+                    <h3 class="section-title">✅ Approvals</h3>
+                    <table class="preferences-table">
+                        <thead>
+                            <tr>
+                                <th>Notification Type</th>
+                                <th>Email</th>
+                                <th>In-App</th>
+                                <th>SMS</th>
+                                <th>Push</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Approval requested</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>My approval was processed</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Documents -->
+                <div class="preferences-section">
+                    <h3 class="section-title">📄 Documents</h3>
+                    <table class="preferences-table">
+                        <thead>
+                            <tr>
+                                <th>Notification Type</th>
+                                <th>Email</th>
+                                <th>In-App</th>
+                                <th>SMS</th>
+                                <th>Push</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Document shared with me</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Document updated</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Digest Settings -->
+                <div class="preferences-section">
+                    <h3 class="section-title">📨 Digest & Schedule</h3>
+                    <div class="digest-settings">
+                        <div class="setting-row">
+                            <span class="setting-label">Digest Mode</span>
+                            <div class="setting-control">
+                                <select>
+                                    <option value="instant" selected>Instant</option>
+                                    <option value="hourly">Hourly Summary</option>
+                                    <option value="daily">Daily Digest</option>
+                                    <option value="weekly">Weekly Digest</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <span class="setting-label">Quiet Hours</span>
+                            <div class="setting-control time-picker">
+                                <input type="time" value="22:00">
+                                <span>to</span>
+                                <input type="time" value="08:00">
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <span class="setting-label">Do Not Disturb</span>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePreferences()">Cancel</button>
+                <button class="btn" style="background: #2563eb; color: white;" onclick="savePreferences()">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter Notifications
+        function filterNotifications(filter) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // In a real app, this would filter the notifications
+            console.log('Filtering by:', filter);
+        }
+
+        // Mark All as Read
+        function markAllRead() {
+            const unreadItems = document.querySelectorAll('.notification-item.unread');
+            unreadItems.forEach(item => {
+                item.classList.remove('unread');
+                const indicator = item.querySelector('.unread-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            });
+
+            // Update badge
+            const badge = document.querySelector('.badge');
+            if (badge) {
+                badge.textContent = '0';
+            }
+
+            // Update tab badge
+            const tabBadge = document.querySelector('.tab-badge');
+            if (tabBadge) {
+                tabBadge.textContent = '0';
+            }
+        }
+
+        // Open Preferences Modal
+        function openPreferences() {
+            document.getElementById('preferencesModal').classList.add('active');
+        }
+
+        // Close Preferences Modal
+        function closePreferences() {
+            document.getElementById('preferencesModal').classList.remove('active');
+        }
+
+        // Save Preferences
+        function savePreferences() {
+            // In a real app, this would save to backend
+            alert('Notification preferences saved successfully!');
+            closePreferences();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('preferencesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePreferences();
+            }
+        });
+
+        // Escape key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePreferences();
+            }
+        });
+    </script>
+
+</body>
+</html>

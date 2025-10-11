@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrations Marketplace - AI Org Platform</title>
+  <link rel="stylesheet" href="../assets/css/design-system.css">
+  <style>
+    /* Layout */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-primary);
+      background-color: var(--bg-secondary);
+    }
+
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 4rem;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4rem;
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-6);
+      z-index: 1000;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+
+    .logo-icon {
+      width: 2rem;
+      height: 2rem;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 16rem;
+      padding: var(--space-8);
+      max-width: 1600px;
+    }
+
+    /* Left Sidebar */
+    .left-sidebar {
+      position: fixed;
+      left: 0;
+      top: 4rem;
+      width: 16rem;
+      height: calc(100vh - 4rem);
+      background-color: var(--bg-primary);
+      border-right: 1px solid var(--border-color);
+      padding: var(--space-6);
+      overflow-y: auto;
+    }
+
+    /* Header */
+    .page-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .page-title {
+      font-size: var(--text-4xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .page-subtitle {
+      font-size: var(--text-lg);
+      color: var(--text-secondary);
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 300px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4) var(--space-3) var(--space-12);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-base);
+      transition: all var(--transition-base);
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-100);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: var(--space-4);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-tertiary);
+    }
+
+    .filter-dropdown {
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      background-color: var(--bg-primary);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+
+    .filter-dropdown:hover {
+      border-color: var(--primary-500);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .tab {
+      padding: var(--space-3) var(--space-6);
+      font-size: var(--text-base);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all var(--transition-base);
+    }
+
+    .tab:hover {
+      color: var(--primary-600);
+    }
+
+    .tab.active {
+      color: var(--primary-600);
+      border-bottom-color: var(--primary-600);
+    }
+
+    /* Integration Grid */
+    .integration-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-6);
+    }
+
+    .integration-card {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+
+    .integration-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+      border-color: var(--primary-300);
+    }
+
+    .integration-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+    }
+
+    .integration-name {
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .integration-rating {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+    }
+
+    .stars {
+      color: var(--warning-500);
+    }
+
+    .integration-description {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+      margin-bottom: var(--space-4);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .integration-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .integration-status {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+    }
+
+    .status-connected {
+      background-color: var(--success-50);
+      color: var(--success-700);
+    }
+
+    .status-available {
+      background-color: var(--neutral-100);
+      color: var(--neutral-700);
+    }
+
+    .status-coming-soon {
+      background-color: var(--neutral-100);
+      color: var(--neutral-500);
+    }
+
+    .btn-primary {
+      padding: var(--space-2) var(--space-4);
+      background-color: var(--primary-500);
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-600);
+    }
+
+    .btn-secondary {
+      padding: var(--space-2) var(--space-4);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary-500);
+      color: var(--primary-600);
+    }
+
+    /* Category Filter */
+    .category-list {
+      margin-bottom: var(--space-6);
+    }
+
+    .category-title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-3);
+    }
+
+    .category-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      margin-bottom: var(--space-1);
+    }
+
+    .category-item:hover {
+      background-color: var(--bg-secondary);
+    }
+
+    .category-item.active {
+      background-color: var(--primary-50);
+      color: var(--primary-700);
+      font-weight: var(--font-medium);
+    }
+
+    .category-count {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      padding: var(--space-1) var(--space-2);
+      background-color: var(--neutral-100);
+      border-radius: var(--radius-full);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+
+    .modal {
+      background-color: var(--bg-primary);
+      border-radius: var(--radius-2xl);
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-2xl);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .modal-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+
+    .modal-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-3xl);
+      font-weight: var(--font-bold);
+      flex-shrink: 0;
+    }
+
+    .modal-header-content {
+      flex: 1;
+    }
+
+    .modal-close {
+      margin-left: auto;
+      cursor: pointer;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      transition: background-color var(--transition-base);
+    }
+
+    .modal-close:hover {
+      background-color: var(--neutral-100);
+    }
+
+    .modal-body {
+      padding: var(--space-6);
+    }
+
+    .modal-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .modal-section-title {
+      font-size: var(--text-xl);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-4);
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+    }
+
+    .feature-icon {
+      color: var(--success-500);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .review-card {
+      background-color: var(--bg-secondary);
+      padding: var(--space-4);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-4);
+    }
+
+    .review-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .review-author {
+      font-weight: var(--font-medium);
+      color: var(--text-primary);
+    }
+
+    .review-text {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      background-color: var(--bg-primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background-color: var(--bg-secondary);
+      padding: var(--space-4);
+      text-align: left;
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border-color);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background-color: var(--bg-secondary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+    }
+
+    .badge-success {
+      background-color: var(--success-50);
+      color: var(--success-700);
+    }
+
+    .badge-warning {
+      background-color: var(--warning-50);
+      color: var(--warning-700);
+    }
+
+    .badge-info {
+      background-color: var(--info-50);
+      color: var(--info-700);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .left-sidebar {
+        display: none;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .integration-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .integration-grid {
+        grid-template-columns: 1fr;
+      }
+      .toolbar {
+        flex-direction: column;
+      }
+      .search-box {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <span>AI Org Platform</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="btn-secondary" style="display: flex; align-items: center; gap: 0.5rem;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        </svg>
+        Settings
+      </button>
+    </div>
+  </nav>
+
+  <div class="app-container">
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar">
+      <div class="category-list">
+        <div class="category-title">Categories</div>
+        <div class="category-item active">
+          <span>All Integrations</span>
+          <span class="category-count">58</span>
+        </div>
+        <div class="category-item">
+          <span>Communication</span>
+          <span class="category-count">12</span>
+        </div>
+        <div class="category-item">
+          <span>Productivity</span>
+          <span class="category-count">15</span>
+        </div>
+        <div class="category-item">
+          <span>Storage</span>
+          <span class="category-count">8</span>
+        </div>
+        <div class="category-item">
+          <span>Analytics</span>
+          <span class="category-count">10</span>
+        </div>
+        <div class="category-item">
+          <span>HR</span>
+          <span class="category-count">9</span>
+        </div>
+        <div class="category-item">
+          <span>Finance</span>
+          <span class="category-count">7</span>
+        </div>
+        <div class="category-item">
+          <span>CRM</span>
+          <span class="category-count">11</span>
+        </div>
+        <div class="category-item">
+          <span>Dev Tools</span>
+          <span class="category-count">14</span>
+        </div>
+      </div>
+
+      <div class="category-list">
+        <div class="category-title">Status</div>
+        <div class="category-item">
+          <span>Installed</span>
+          <span class="category-count">15</span>
+        </div>
+        <div class="category-item">
+          <span>Available</span>
+          <span class="category-count">35</span>
+        </div>
+        <div class="category-item">
+          <span>Coming Soon</span>
+          <span class="category-count">8</span>
+        </div>
+      </div>
+
+      <div class="category-list">
+        <div class="category-title">Price</div>
+        <div class="category-item">
+          <span>Free</span>
+          <span class="category-count">32</span>
+        </div>
+        <div class="category-item">
+          <span>Paid</span>
+          <span class="category-count">18</span>
+        </div>
+        <div class="category-item">
+          <span>Freemium</span>
+          <span class="category-count">8</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <div class="page-header">
+        <h1 class="page-title">Integrations Marketplace</h1>
+        <p class="page-subtitle">Connect your favorite tools and extend platform capabilities</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="marketplace">Marketplace</div>
+        <div class="tab" data-tab="my-integrations">My Integrations (15)</div>
+        <div class="tab" data-tab="webhooks">Webhooks (12)</div>
+        <div class="tab" data-tab="api-keys">API Keys (5)</div>
+      </div>
+
+      <!-- Marketplace Tab -->
+      <div id="marketplace-tab" class="tab-content">
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="search-box">
+            <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" placeholder="Search integrations..." id="searchInput">
+          </div>
+          <select class="filter-dropdown">
+            <option>Sort by: Popular</option>
+            <option>Sort by: Newest</option>
+            <option>Sort by: Rating</option>
+            <option>Sort by: Name</option>
+          </select>
+        </div>
+
+        <!-- Integration Grid -->
+        <div class="integration-grid" id="integrationGrid">
+          <!-- Integration Cards will be dynamically populated -->
+        </div>
+      </div>
+
+      <!-- My Integrations Tab -->
+      <div id="my-integrations-tab" class="tab-content" style="display: none;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Integration</th>
+                <th>Status</th>
+                <th>Last Sync</th>
+                <th>Connected</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="myIntegrationsTable">
+              <!-- Rows will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Webhooks Tab -->
+      <div id="webhooks-tab" class="tab-content" style="display: none;">
+        <div style="margin-bottom: 1.5rem;">
+          <button class="btn-primary">+ Create Webhook</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Type</th>
+                <th>URL</th>
+                <th>Status</th>
+                <th>Last Triggered</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="webhooksTable">
+              <!-- Rows will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- API Keys Tab -->
+      <div id="api-keys-tab" class="tab-content" style="display: none;">
+        <div style="margin-bottom: 1.5rem;">
+          <button class="btn-primary">+ Generate API Key</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Key</th>
+                <th>Scopes</th>
+                <th>Created</th>
+                <th>Expires</th>
+                <th>Usage</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="apiKeysTable">
+              <!-- Rows will be dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Integration Detail Modal -->
+  <div class="modal-overlay" id="integrationModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-logo" id="modalLogo"></div>
+        <div class="modal-header-content">
+          <h2 class="integration-name" id="modalName"></h2>
+          <div class="integration-rating" id="modalRating"></div>
+          <button class="btn-primary" id="modalConnectBtn" style="margin-top: 1rem;"></button>
+        </div>
+        <div class="modal-close" onclick="closeModal()">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3 class="modal-section-title">Overview</h3>
+          <p id="modalOverview" style="color: var(--text-secondary); line-height: 1.6;"></p>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Features</h3>
+          <ul class="feature-list" id="modalFeatures"></ul>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Setup Instructions</h3>
+          <ol id="modalSetup" style="padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;"></ol>
+        </div>
+
+        <div class="modal-section">
+          <h3 class="modal-section-title">Reviews</h3>
+          <div id="modalReviews"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock Data
+    const integrations = [
+      {
+        id: 1,
+        name: 'Slack',
+        logo: '💬',
+        color: '#4A154B',
+        rating: 4.8,
+        reviews: 2543,
+        installs: '10k+',
+        description: 'Connect your workspace to receive real-time notifications and create tasks from messages.',
+        status: 'connected',
+        category: 'Communication',
+        price: 'Free',
+        overview: 'Slack integration enables seamless communication between your team and the AI Org Platform. Receive instant notifications, create tasks directly from Slack messages, and keep everyone in sync.',
+        features: [
+          'Real-time task notifications',
+          'Create tasks from Slack messages',
+          'Slash commands (/task create)',
+          'Workflow triggers from Slack',
+          'Two-way sync'
+        ],
+        setup: [
+          'Click "Connect to Slack"',
+          'Select your Slack workspace',
+          'Authorize permissions',
+          'Configure notification channels',
+          'Done!'
+        ],
+        reviewList: [
+          { author: 'John D.', rating: 5, text: 'Essential for our team! Notifications work perfectly.' },
+          { author: 'Sarah M.', rating: 5, text: 'Love the slash commands, makes task creation so easy.' }
+        ]
+      },
+      {
+        id: 2,
+        name: 'Google Workspace',
+        logo: '🔷',
+        color: '#4285F4',
+        rating: 4.9,
+        reviews: 1876,
+        installs: '8k+',
+        description: 'Sync calendars, import documents from Drive, and authenticate users with Google SSO.',
+        status: 'connected',
+        category: 'Productivity',
+        price: 'Free',
+        overview: 'Google Workspace integration provides seamless connectivity with Gmail, Calendar, Drive, and more.',
+        features: [
+          'Calendar sync (two-way)',
+          'Import documents from Drive',
+          'Google SSO authentication',
+          'Gmail email integration',
+          'Google Meet video calls'
+        ],
+        setup: [
+          'Click "Connect to Google"',
+          'Sign in with your Google account',
+          'Grant access permissions',
+          'Select services to sync',
+          'Complete setup'
+        ],
+        reviewList: [
+          { author: 'Mike R.', rating: 5, text: 'Calendar sync is flawless. Saved us so much time!' },
+          { author: 'Emma L.', rating: 4, text: 'Great integration, works well with our workflow.' }
+        ]
+      },
+      {
+        id: 3,
+        name: 'Microsoft 365',
+        logo: '📘',
+        color: '#0078D4',
+        rating: 4.7,
+        reviews: 1654,
+        installs: '7k+',
+        description: 'Integrate Outlook, Teams, OneDrive, and Azure AD for enterprise workflows.',
+        status: 'available',
+        category: 'Productivity',
+        price: 'Free',
+        overview: 'Microsoft 365 integration connects your organization with Outlook, Teams, OneDrive, and Azure AD.',
+        features: [
+          'Outlook calendar integration',
+          'Teams notifications',
+          'OneDrive file sync',
+          'Azure AD SSO',
+          'SharePoint integration'
+        ],
+        setup: [
+          'Click "Connect to Microsoft"',
+          'Sign in with Microsoft account',
+          'Approve permissions',
+          'Select services',
+          'Finish configuration'
+        ],
+        reviewList: [
+          { author: 'David K.', rating: 5, text: 'Perfect for our enterprise setup.' },
+          { author: 'Lisa P.', rating: 4, text: 'Works great, though setup took some time.' }
+        ]
+      },
+      {
+        id: 4,
+        name: 'Zoom',
+        logo: '📹',
+        color: '#2D8CFF',
+        rating: 4.6,
+        reviews: 1234,
+        installs: '5k+',
+        description: 'Schedule and join Zoom meetings directly from tasks and calendar events.',
+        status: 'connected',
+        category: 'Communication',
+        price: 'Free',
+        overview: 'Zoom integration enables video conferencing capabilities within the platform.',
+        features: [
+          'One-click meeting creation',
+          'Auto-add Zoom links to events',
+          'Join meetings from platform',
+          'Meeting recordings sync',
+          'Participant tracking'
+        ],
+        setup: [
+          'Click "Connect to Zoom"',
+          'Authorize Zoom account',
+          'Configure default settings',
+          'Test meeting creation',
+          'Start using'
+        ],
+        reviewList: [
+          { author: 'Tom H.', rating: 5, text: 'So convenient! No more copy-pasting links.' },
+          { author: 'Anna B.', rating: 4, text: 'Good integration, reliable.' }
+        ]
+      },
+      {
+        id: 5,
+        name: 'Salesforce',
+        logo: '☁️',
+        color: '#00A1E0',
+        rating: 4.8,
+        reviews: 987,
+        installs: '4k+',
+        description: 'Sync CRM data, contacts, and opportunities with your organization structure.',
+        status: 'available',
+        category: 'CRM',
+        price: 'Paid',
+        overview: 'Salesforce integration brings powerful CRM capabilities to the platform.',
+        features: [
+          'Two-way contact sync',
+          'Opportunity tracking',
+          'Lead management',
+          'Account integration',
+          'Custom field mapping'
+        ],
+        setup: [
+          'Click "Connect to Salesforce"',
+          'Login to Salesforce',
+          'Grant API access',
+          'Map data fields',
+          'Start syncing'
+        ],
+        reviewList: [
+          { author: 'Rachel C.', rating: 5, text: 'Game changer for our sales team!' },
+          { author: 'Mark T.', rating: 4, text: 'Solid integration, very useful.' }
+        ]
+      },
+      {
+        id: 6,
+        name: 'GitHub',
+        logo: '🐙',
+        color: '#181717',
+        rating: 4.7,
+        reviews: 2145,
+        installs: '6k+',
+        description: 'Link code repositories, track issues, and manage pull requests.',
+        status: 'connected',
+        category: 'Dev Tools',
+        price: 'Free',
+        overview: 'GitHub integration connects your development workflow with project management.',
+        features: [
+          'Repository linking',
+          'Issue tracking',
+          'Pull request management',
+          'Commit notifications',
+          'Branch deployment tracking'
+        ],
+        setup: [
+          'Connect GitHub account',
+          'Select repositories',
+          'Configure webhooks',
+          'Map issues to tasks',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'Alex W.', rating: 5, text: 'Perfect for dev teams!' },
+          { author: 'Sophie G.', rating: 5, text: 'Excellent integration!' }
+        ]
+      },
+      {
+        id: 7,
+        name: 'Jira',
+        logo: '📊',
+        color: '#0052CC',
+        rating: 4.5,
+        reviews: 1543,
+        installs: '5.5k+',
+        description: 'Sync Jira issues, sprints, and project data with your platform.',
+        status: 'available',
+        category: 'Project Management',
+        price: 'Free',
+        overview: 'Jira integration enables agile project management capabilities.',
+        features: [
+          'Issue sync',
+          'Sprint tracking',
+          'Epic management',
+          'Custom workflows',
+          'Time tracking'
+        ],
+        setup: [
+          'Connect Jira instance',
+          'Authenticate',
+          'Select projects',
+          'Map fields',
+          'Sync data'
+        ],
+        reviewList: [
+          { author: 'Chris B.', rating: 4, text: 'Works well for our agile workflow.' },
+          { author: 'Nina S.', rating: 5, text: 'Great integration!' }
+        ]
+      },
+      {
+        id: 8,
+        name: 'Dropbox',
+        logo: '📦',
+        color: '#0061FF',
+        rating: 4.6,
+        reviews: 1876,
+        installs: '7k+',
+        description: 'Store and share files with Dropbox cloud storage integration.',
+        status: 'available',
+        category: 'Storage',
+        price: 'Freemium',
+        overview: 'Dropbox integration provides cloud storage and file sharing.',
+        features: [
+          'File sync',
+          'Folder sharing',
+          'Version history',
+          'Collaborative editing',
+          'Smart sync'
+        ],
+        setup: [
+          'Connect Dropbox',
+          'Grant permissions',
+          'Select folders',
+          'Configure sync',
+          'Done'
+        ],
+        reviewList: [
+          { author: 'Paul D.', rating: 5, text: 'Seamless file sync!' },
+          { author: 'Laura M.', rating: 4, text: 'Very useful integration.' }
+        ]
+      },
+      {
+        id: 9,
+        name: 'Asana',
+        logo: '✅',
+        color: '#F06A6A',
+        rating: 4.4,
+        reviews: 1234,
+        installs: '4.5k+',
+        description: 'Import tasks and projects from Asana to manage your workflow.',
+        status: 'available',
+        category: 'Project Management',
+        price: 'Free',
+        overview: 'Asana integration brings task and project management capabilities.',
+        features: [
+          'Task import',
+          'Project sync',
+          'Timeline view',
+          'Custom fields',
+          'Portfolio tracking'
+        ],
+        setup: [
+          'Connect Asana',
+          'Select workspace',
+          'Choose projects',
+          'Map fields',
+          'Start syncing'
+        ],
+        reviewList: [
+          { author: 'Kevin L.', rating: 4, text: 'Good for project tracking.' },
+          { author: 'Julia R.', rating: 5, text: 'Works perfectly!' }
+        ]
+      },
+      {
+        id: 10,
+        name: 'Trello',
+        logo: '📋',
+        color: '#0079BF',
+        rating: 4.5,
+        reviews: 1987,
+        installs: '6.5k+',
+        description: 'Sync Trello boards, lists, and cards with your tasks.',
+        status: 'available',
+        category: 'Project Management',
+        price: 'Free',
+        overview: 'Trello integration enables Kanban-style project management.',
+        features: [
+          'Board sync',
+          'Card import',
+          'Label mapping',
+          'Checklist sync',
+          'Power-ups support'
+        ],
+        setup: [
+          'Connect Trello',
+          'Select boards',
+          'Map lists',
+          'Configure sync',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'Sam J.', rating: 5, text: 'Love the board sync!' },
+          { author: 'Maya K.', rating: 4, text: 'Very helpful.' }
+        ]
+      },
+      {
+        id: 11,
+        name: 'HubSpot',
+        logo: '🧲',
+        color: '#FF7A59',
+        rating: 4.7,
+        reviews: 876,
+        installs: '3.5k+',
+        description: 'Connect your marketing automation and CRM data.',
+        status: 'available',
+        category: 'CRM',
+        price: 'Paid',
+        overview: 'HubSpot integration provides marketing and sales automation.',
+        features: [
+          'Contact sync',
+          'Deal tracking',
+          'Email campaigns',
+          'Analytics dashboard',
+          'Workflow automation'
+        ],
+        setup: [
+          'Connect HubSpot',
+          'Authorize API',
+          'Select data',
+          'Configure sync',
+          'Done'
+        ],
+        reviewList: [
+          { author: 'Olivia P.', rating: 5, text: 'Perfect for marketing!' },
+          { author: 'Ryan F.', rating: 4, text: 'Great CRM integration.' }
+        ]
+      },
+      {
+        id: 12,
+        name: 'Zendesk',
+        logo: '🎫',
+        color: '#03363D',
+        rating: 4.6,
+        reviews: 1432,
+        installs: '5k+',
+        description: 'Manage customer support tickets and inquiries.',
+        status: 'available',
+        category: 'Communication',
+        price: 'Paid',
+        overview: 'Zendesk integration enables customer support management.',
+        features: [
+          'Ticket sync',
+          'Customer profiles',
+          'SLA tracking',
+          'Knowledge base',
+          'Live chat'
+        ],
+        setup: [
+          'Connect Zendesk',
+          'Configure settings',
+          'Map fields',
+          'Set up automation',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'Hannah E.', rating: 5, text: 'Excellent for support!' },
+          { author: 'Ben A.', rating: 4, text: 'Works well.' }
+        ]
+      },
+      {
+        id: 13,
+        name: 'Tableau',
+        logo: '📈',
+        color: '#E97627',
+        rating: 4.8,
+        reviews: 654,
+        installs: '2.5k+',
+        description: 'Create powerful data visualizations and dashboards.',
+        status: 'available',
+        category: 'Analytics',
+        price: 'Paid',
+        overview: 'Tableau integration provides advanced data visualization.',
+        features: [
+          'Data export',
+          'Dashboard embedding',
+          'Real-time updates',
+          'Custom queries',
+          'Report scheduling'
+        ],
+        setup: [
+          'Connect Tableau',
+          'Configure data source',
+          'Set permissions',
+          'Create dashboards',
+          'Done'
+        ],
+        reviewList: [
+          { author: 'Grace N.', rating: 5, text: 'Amazing visualizations!' },
+          { author: 'Eric V.', rating: 5, text: 'Very powerful.' }
+        ]
+      },
+      {
+        id: 14,
+        name: 'Power BI',
+        logo: '⚡',
+        color: '#F2C811',
+        rating: 4.7,
+        reviews: 789,
+        installs: '3k+',
+        description: 'Microsoft Power BI integration for business intelligence.',
+        status: 'available',
+        category: 'Analytics',
+        price: 'Paid',
+        overview: 'Power BI integration enables enterprise analytics.',
+        features: [
+          'Report embedding',
+          'Data refresh',
+          'Custom visuals',
+          'Row-level security',
+          'Mobile reports'
+        ],
+        setup: [
+          'Connect Power BI',
+          'Set up workspace',
+          'Configure data',
+          'Create reports',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'Frank O.', rating: 5, text: 'Great for enterprise!' },
+          { author: 'Diana C.', rating: 4, text: 'Solid integration.' }
+        ]
+      },
+      {
+        id: 15,
+        name: 'Zapier',
+        logo: '⚙️',
+        color: '#FF4A00',
+        rating: 4.9,
+        reviews: 3210,
+        installs: '12k+',
+        description: 'Connect 5000+ apps with automated workflows.',
+        status: 'connected',
+        category: 'Automation',
+        price: 'Freemium',
+        overview: 'Zapier integration enables automation with thousands of apps.',
+        features: [
+          '5000+ app connections',
+          'Multi-step zaps',
+          'Conditional logic',
+          'Filters and paths',
+          'Custom webhooks'
+        ],
+        setup: [
+          'Connect Zapier',
+          'Create zap',
+          'Select trigger',
+          'Configure action',
+          'Test and enable'
+        ],
+        reviewList: [
+          { author: 'Isaac T.', rating: 5, text: 'Automation heaven!' },
+          { author: 'Chloe W.', rating: 5, text: 'Saves hours of work!' }
+        ]
+      },
+      {
+        id: 16,
+        name: 'Monday.com',
+        logo: '🎨',
+        color: '#FF3D57',
+        rating: 4.6,
+        reviews: 1123,
+        installs: '4k+',
+        description: 'Sync work management boards and workflows.',
+        status: 'available',
+        category: 'Project Management',
+        price: 'Paid',
+        overview: 'Monday.com integration for visual project management.',
+        features: [
+          'Board sync',
+          'Workflow automation',
+          'Time tracking',
+          'File management',
+          'Team collaboration'
+        ],
+        setup: [
+          'Connect Monday.com',
+          'Select boards',
+          'Map columns',
+          'Configure sync',
+          'Done'
+        ],
+        reviewList: [
+          { author: 'Zoe Y.', rating: 5, text: 'Visual and intuitive!' },
+          { author: 'Luke H.', rating: 4, text: 'Works great.' }
+        ]
+      },
+      {
+        id: 17,
+        name: 'Notion',
+        logo: '📝',
+        color: '#000000',
+        rating: 4.8,
+        reviews: 2341,
+        installs: '8k+',
+        description: 'Connect Notion workspaces and databases.',
+        status: 'available',
+        category: 'Productivity',
+        price: 'Free',
+        overview: 'Notion integration for knowledge management and collaboration.',
+        features: [
+          'Database sync',
+          'Page embedding',
+          'Two-way updates',
+          'Template import',
+          'Block-level sync'
+        ],
+        setup: [
+          'Connect Notion',
+          'Grant access',
+          'Select databases',
+          'Configure sync',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'Mia L.', rating: 5, text: 'Perfect for documentation!' },
+          { author: 'Noah P.', rating: 5, text: 'Love it!' }
+        ]
+      },
+      {
+        id: 18,
+        name: 'Figma',
+        logo: '🎨',
+        color: '#F24E1E',
+        rating: 4.7,
+        reviews: 1654,
+        installs: '5.5k+',
+        description: 'Link design files and collaborate on UI/UX projects.',
+        status: 'available',
+        category: 'Dev Tools',
+        price: 'Free',
+        overview: 'Figma integration for design collaboration.',
+        features: [
+          'File linking',
+          'Design preview',
+          'Comment sync',
+          'Version tracking',
+          'Component library'
+        ],
+        setup: [
+          'Connect Figma',
+          'Select files',
+          'Configure access',
+          'Set up webhooks',
+          'Done'
+        ],
+        reviewList: [
+          { author: 'Ava S.', rating: 5, text: 'Essential for designers!' },
+          { author: 'Owen M.', rating: 4, text: 'Very useful.' }
+        ]
+      },
+      {
+        id: 19,
+        name: 'GitLab',
+        logo: '🦊',
+        color: '#FC6D26',
+        rating: 4.6,
+        reviews: 987,
+        installs: '3.5k+',
+        description: 'DevOps platform integration for CI/CD pipelines.',
+        status: 'available',
+        category: 'Dev Tools',
+        price: 'Free',
+        overview: 'GitLab integration for complete DevOps workflow.',
+        features: [
+          'CI/CD pipeline tracking',
+          'Merge request sync',
+          'Issue management',
+          'Code review',
+          'Deployment monitoring'
+        ],
+        setup: [
+          'Connect GitLab',
+          'Select projects',
+          'Configure webhooks',
+          'Map issues',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'Ethan R.', rating: 5, text: 'Great for DevOps!' },
+          { author: 'Lily B.', rating: 4, text: 'Solid integration.' }
+        ]
+      },
+      {
+        id: 20,
+        name: 'Stripe',
+        logo: '💳',
+        color: '#635BFF',
+        rating: 4.9,
+        reviews: 2876,
+        installs: '9k+',
+        description: 'Payment processing and subscription management.',
+        status: 'available',
+        category: 'Finance',
+        price: 'Free',
+        overview: 'Stripe integration for payment processing.',
+        features: [
+          'Payment tracking',
+          'Subscription management',
+          'Invoice generation',
+          'Customer portal',
+          'Webhook events'
+        ],
+        setup: [
+          'Connect Stripe',
+          'Configure API keys',
+          'Set up products',
+          'Test payments',
+          'Go live'
+        ],
+        reviewList: [
+          { author: 'Mason K.', rating: 5, text: 'Flawless payment processing!' },
+          { author: 'Ella D.', rating: 5, text: 'Perfect!' }
+        ]
+      },
+      {
+        id: 21,
+        name: 'QuickBooks',
+        logo: '💰',
+        color: '#2CA01C',
+        rating: 4.5,
+        reviews: 1234,
+        installs: '4.5k+',
+        description: 'Accounting and bookkeeping integration.',
+        status: 'available',
+        category: 'Finance',
+        price: 'Paid',
+        overview: 'QuickBooks integration for accounting management.',
+        features: [
+          'Invoice sync',
+          'Expense tracking',
+          'Bank reconciliation',
+          'Financial reports',
+          'Tax preparation'
+        ],
+        setup: [
+          'Connect QuickBooks',
+          'Authorize access',
+          'Map accounts',
+          'Configure sync',
+          'Done'
+        ],
+        reviewList: [
+          { author: 'Logan F.', rating: 4, text: 'Good for accounting.' },
+          { author: 'Aria G.', rating: 5, text: 'Very helpful!' }
+        ]
+      },
+      {
+        id: 22,
+        name: 'BambooHR',
+        logo: '🎋',
+        color: '#73C41D',
+        rating: 4.7,
+        reviews: 876,
+        installs: '3k+',
+        description: 'HR management system integration.',
+        status: 'available',
+        category: 'HR',
+        price: 'Paid',
+        overview: 'BambooHR integration for human resources management.',
+        features: [
+          'Employee directory sync',
+          'Time-off tracking',
+          'Performance reviews',
+          'Onboarding workflows',
+          'Document management'
+        ],
+        setup: [
+          'Connect BambooHR',
+          'Configure API',
+          'Map employee data',
+          'Set permissions',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'Jack H.', rating: 5, text: 'Great for HR!' },
+          { author: 'Sofia I.', rating: 4, text: 'Works well.' }
+        ]
+      },
+      {
+        id: 23,
+        name: 'Workday',
+        logo: '👥',
+        color: '#0B5FFF',
+        rating: 4.6,
+        reviews: 654,
+        installs: '2.5k+',
+        description: 'Enterprise HR and finance management.',
+        status: 'coming-soon',
+        category: 'HR',
+        price: 'Enterprise',
+        overview: 'Workday integration for enterprise HR and finance.',
+        features: [
+          'HCM integration',
+          'Financial management',
+          'Payroll sync',
+          'Benefits administration',
+          'Talent management'
+        ],
+        setup: [
+          'Contact sales',
+          'Configure enterprise',
+          'Data migration',
+          'User training',
+          'Go live'
+        ],
+        reviewList: []
+      },
+      {
+        id: 24,
+        name: 'Confluence',
+        logo: '📄',
+        color: '#0052CC',
+        rating: 4.5,
+        reviews: 1432,
+        installs: '5k+',
+        description: 'Team collaboration and documentation.',
+        status: 'available',
+        category: 'Productivity',
+        price: 'Free',
+        overview: 'Confluence integration for team documentation.',
+        features: [
+          'Page sync',
+          'Space management',
+          'Template import',
+          'Comment integration',
+          'Search integration'
+        ],
+        setup: [
+          'Connect Confluence',
+          'Select spaces',
+          'Configure sync',
+          'Map content',
+          'Done'
+        ],
+        reviewList: [
+          { author: 'Liam J.', rating: 5, text: 'Perfect for documentation!' },
+          { author: 'Emma W.', rating: 4, text: 'Very useful.' }
+        ]
+      },
+      {
+        id: 25,
+        name: 'Intercom',
+        logo: '💬',
+        color: '#1F8DED',
+        rating: 4.8,
+        reviews: 1987,
+        installs: '6.5k+',
+        description: 'Customer messaging and support platform.',
+        status: 'available',
+        category: 'Communication',
+        price: 'Paid',
+        overview: 'Intercom integration for customer communication.',
+        features: [
+          'Live chat',
+          'Message automation',
+          'Customer data sync',
+          'Team inbox',
+          'Knowledge base'
+        ],
+        setup: [
+          'Connect Intercom',
+          'Install widget',
+          'Configure settings',
+          'Set up automation',
+          'Complete'
+        ],
+        reviewList: [
+          { author: 'James L.', rating: 5, text: 'Excellent customer support tool!' },
+          { author: 'Charlotte M.', rating: 5, text: 'Love the automation!' }
+        ]
+      }
+    ];
+
+    const myIntegrations = [
+      { name: 'Slack', status: 'Active', lastSync: '2 minutes ago', connected: 'Jan 10, 2025' },
+      { name: 'Google Workspace', status: 'Active', lastSync: '5 minutes ago', connected: 'Jan 8, 2025' },
+      { name: 'Zoom', status: 'Active', lastSync: '15 minutes ago', connected: 'Jan 5, 2025' },
+      { name: 'GitHub', status: 'Active', lastSync: '1 hour ago', connected: 'Dec 28, 2024' },
+      { name: 'Zapier', status: 'Active', lastSync: '3 hours ago', connected: 'Dec 20, 2024' },
+      { name: 'Stripe', status: 'Active', lastSync: '6 hours ago', connected: 'Dec 15, 2024' },
+      { name: 'Dropbox', status: 'Syncing', lastSync: 'In progress', connected: 'Jan 1, 2025' },
+      { name: 'Salesforce', status: 'Active', lastSync: '12 hours ago', connected: 'Nov 30, 2024' },
+      { name: 'Jira', status: 'Active', lastSync: '1 day ago', connected: 'Nov 25, 2024' },
+      { name: 'Notion', status: 'Active', lastSync: '2 days ago', connected: 'Nov 20, 2024' },
+      { name: 'Figma', status: 'Active', lastSync: '3 days ago', connected: 'Nov 15, 2024' },
+      { name: 'HubSpot', status: 'Error', lastSync: 'Failed 1 hour ago', connected: 'Oct 30, 2024' },
+      { name: 'Intercom', status: 'Active', lastSync: '4 hours ago', connected: 'Oct 25, 2024' },
+      { name: 'Confluence', status: 'Active', lastSync: '1 day ago', connected: 'Oct 20, 2024' },
+      { name: 'Monday.com', status: 'Active', lastSync: '2 days ago', connected: 'Oct 15, 2024' }
+    ];
+
+    const webhooks = [
+      { event: 'Task Created', type: 'Outgoing', url: 'https://api.example.com/task/created', status: 'Active', lastTriggered: '5 min ago' },
+      { event: 'Task Completed', type: 'Outgoing', url: 'https://api.example.com/task/completed', status: 'Active', lastTriggered: '15 min ago' },
+      { event: 'User Added', type: 'Outgoing', url: 'https://api.example.com/user/added', status: 'Active', lastTriggered: '1 hour ago' },
+      { event: 'Document Uploaded', type: 'Outgoing', url: 'https://api.example.com/doc/upload', status: 'Active', lastTriggered: '2 hours ago' },
+      { event: 'Approval Requested', type: 'Outgoing', url: 'https://api.example.com/approval', status: 'Active', lastTriggered: '3 hours ago' },
+      { event: 'Workflow Started', type: 'Outgoing', url: 'https://api.example.com/workflow/start', status: 'Active', lastTriggered: '5 hours ago' },
+      { event: 'Slack Message', type: 'Incoming', url: 'https://platform.ai/webhooks/slack/abc123', status: 'Active', lastTriggered: '10 min ago' },
+      { event: 'GitHub Push', type: 'Incoming', url: 'https://platform.ai/webhooks/github/def456', status: 'Active', lastTriggered: '30 min ago' },
+      { event: 'Stripe Payment', type: 'Incoming', url: 'https://platform.ai/webhooks/stripe/ghi789', status: 'Active', lastTriggered: '1 hour ago' },
+      { event: 'Zapier Trigger', type: 'Incoming', url: 'https://platform.ai/webhooks/zapier/jkl012', status: 'Active', lastTriggered: '2 hours ago' },
+      { event: 'Form Submission', type: 'Incoming', url: 'https://platform.ai/webhooks/forms/mno345', status: 'Paused', lastTriggered: '1 day ago' },
+      { event: 'Calendar Event', type: 'Outgoing', url: 'https://api.example.com/calendar/event', status: 'Active', lastTriggered: '6 hours ago' }
+    ];
+
+    const apiKeys = [
+      { name: 'Production API', key: 'pk_live_51H...', scopes: 'read:all, write:tasks', created: 'Dec 1, 2024', expires: 'Dec 1, 2025', usage: '15.2k calls' },
+      { name: 'Development API', key: 'pk_test_51H...', scopes: 'read:all, write:all', created: 'Jan 5, 2025', expires: 'Never', usage: '3.8k calls' },
+      { name: 'Mobile App', key: 'pk_live_72M...', scopes: 'read:tasks, write:tasks', created: 'Nov 15, 2024', expires: 'Nov 15, 2025', usage: '42.1k calls' },
+      { name: 'Analytics Service', key: 'pk_live_93Q...', scopes: 'read:all', created: 'Oct 20, 2024', expires: 'Oct 20, 2025', usage: '127.5k calls' },
+      { name: 'Automation Bot', key: 'pk_live_48K...', scopes: 'read:all, write:all', created: 'Sep 10, 2024', expires: 'Sep 10, 2025', usage: '8.9k calls' }
+    ];
+
+    // Render integration cards
+    function renderIntegrations() {
+      const grid = document.getElementById('integrationGrid');
+      grid.innerHTML = '';
+
+      integrations.forEach(integration => {
+        const card = document.createElement('div');
+        card.className = 'integration-card';
+        card.onclick = () => openModal(integration);
+
+        const statusClass = integration.status === 'connected' ? 'status-connected' :
+                           integration.status === 'coming-soon' ? 'status-coming-soon' : 'status-available';
+        const statusIcon = integration.status === 'connected' ? '✓' : '';
+        const statusText = integration.status === 'connected' ? 'Connected' :
+                          integration.status === 'coming-soon' ? 'Coming Soon' : 'Available';
+
+        card.innerHTML = `
+          <div class="integration-logo" style="background-color: ${integration.color}; color: white;">
+            ${integration.logo}
+          </div>
+          <h3 class="integration-name">${integration.name}</h3>
+          <div class="integration-rating">
+            <span class="stars">${'★'.repeat(Math.floor(integration.rating))}${'☆'.repeat(5 - Math.floor(integration.rating))}</span>
+            <span>${integration.rating}</span>
+            <span>(${integration.reviews})</span>
+            <span>•</span>
+            <span>${integration.installs} installs</span>
+          </div>
+          <p class="integration-description">${integration.description}</p>
+          <div class="integration-footer">
+            <span class="integration-status ${statusClass}">
+              ${statusIcon} ${statusText}
+            </span>
+            <button class="btn-${integration.status === 'connected' ? 'secondary' : 'primary'}" onclick="event.stopPropagation()">
+              ${integration.status === 'connected' ? 'Configure' : integration.status === 'coming-soon' ? 'Notify Me' : 'Install'}
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Render My Integrations table
+    function renderMyIntegrations() {
+      const table = document.getElementById('myIntegrationsTable');
+      table.innerHTML = '';
+
+      myIntegrations.forEach(integration => {
+        const row = document.createElement('tr');
+        const statusClass = integration.status === 'Active' ? 'badge-success' :
+                           integration.status === 'Syncing' ? 'badge-warning' : 'badge-warning';
+
+        row.innerHTML = `
+          <td><strong>${integration.name}</strong></td>
+          <td><span class="badge ${statusClass}">${integration.status}</span></td>
+          <td>${integration.lastSync}</td>
+          <td>${integration.connected}</td>
+          <td>
+            <button class="btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Configure</button>
+            <button class="btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;">Disconnect</button>
+          </td>
+        `;
+
+        table.appendChild(row);
+      });
+    }
+
+    // Render Webhooks table
+    function renderWebhooks() {
+      const table = document.getElementById('webhooksTable');
+      table.innerHTML = '';
+
+      webhooks.forEach(webhook => {
+        const row = document.createElement('tr');
+        const statusClass = webhook.status === 'Active' ? 'badge-success' : 'badge-warning';
+        const typeClass = webhook.type === 'Incoming' ? 'badge-info' : 'badge-success';
+
+        row.innerHTML = `
+          <td><strong>${webhook.event}</strong></td>
+          <td><span class="badge ${typeClass}">${webhook.type}</span></td>
+          <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${webhook.url}</td>
+          <td><span class="badge ${statusClass}">${webhook.status}</span></td>
+          <td>${webhook.lastTriggered}</td>
+          <td>
+            <button class="btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Edit</button>
+            <button class="btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;">Delete</button>
+          </td>
+        `;
+
+        table.appendChild(row);
+      });
+    }
+
+    // Render API Keys table
+    function renderAPIKeys() {
+      const table = document.getElementById('apiKeysTable');
+      table.innerHTML = '';
+
+      apiKeys.forEach(apiKey => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+          <td><strong>${apiKey.name}</strong></td>
+          <td><code style="background-color: var(--bg-secondary); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">${apiKey.key}</code></td>
+          <td>${apiKey.scopes}</td>
+          <td>${apiKey.created}</td>
+          <td>${apiKey.expires}</td>
+          <td>${apiKey.usage}</td>
+          <td>
+            <button class="btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Copy</button>
+            <button class="btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem; margin-left: 0.5rem;">Revoke</button>
+          </td>
+        `;
+
+        table.appendChild(row);
+      });
+    }
+
+    // Open integration detail modal
+    function openModal(integration) {
+      const modal = document.getElementById('integrationModal');
+      const modalLogo = document.getElementById('modalLogo');
+      const modalName = document.getElementById('modalName');
+      const modalRating = document.getElementById('modalRating');
+      const modalConnectBtn = document.getElementById('modalConnectBtn');
+      const modalOverview = document.getElementById('modalOverview');
+      const modalFeatures = document.getElementById('modalFeatures');
+      const modalSetup = document.getElementById('modalSetup');
+      const modalReviews = document.getElementById('modalReviews');
+
+      modalLogo.style.backgroundColor = integration.color;
+      modalLogo.style.color = 'white';
+      modalLogo.textContent = integration.logo;
+
+      modalName.textContent = integration.name;
+
+      modalRating.innerHTML = `
+        <span class="stars">${'★'.repeat(Math.floor(integration.rating))}${'☆'.repeat(5 - Math.floor(integration.rating))}</span>
+        <span>${integration.rating}</span>
+        <span>(${integration.reviews} reviews)</span>
+        <span>•</span>
+        <span>${integration.installs} users</span>
+      `;
+
+      modalConnectBtn.textContent = integration.status === 'connected' ? 'Configure Integration' :
+                                     integration.status === 'coming-soon' ? 'Notify Me When Available' : 'Connect to ' + integration.name;
+      modalConnectBtn.className = integration.status === 'connected' ? 'btn-secondary' : 'btn-primary';
+
+      modalOverview.textContent = integration.overview;
+
+      modalFeatures.innerHTML = '';
+      integration.features.forEach(feature => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <svg class="feature-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span>${feature}</span>
+        `;
+        modalFeatures.appendChild(li);
+      });
+
+      modalSetup.innerHTML = '';
+      integration.setup.forEach((step, index) => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        modalSetup.appendChild(li);
+      });
+
+      modalReviews.innerHTML = '';
+      if (integration.reviewList.length > 0) {
+        integration.reviewList.forEach(review => {
+          const reviewCard = document.createElement('div');
+          reviewCard.className = 'review-card';
+          reviewCard.innerHTML = `
+            <div class="review-header">
+              <span class="review-author">${review.author}</span>
+              <span class="stars" style="color: var(--warning-500);">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+            </div>
+            <p class="review-text">"${review.text}"</p>
+          `;
+          modalReviews.appendChild(reviewCard);
+        });
+      } else {
+        modalReviews.innerHTML = '<p style="color: var(--text-tertiary);">No reviews yet. Be the first to review!</p>';
+      }
+
+      modal.classList.add('show');
+    }
+
+    // Close modal
+    function closeModal() {
+      const modal = document.getElementById('integrationModal');
+      modal.classList.remove('show');
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.display = 'none';
+        });
+
+        // Show selected tab content
+        const tabName = this.getAttribute('data-tab');
+        document.getElementById(tabName + '-tab').style.display = 'block';
+      });
+    });
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const cards = document.querySelectorAll('.integration-card');
+
+      cards.forEach(card => {
+        const name = card.querySelector('.integration-name').textContent.toLowerCase();
+        const description = card.querySelector('.integration-description').textContent.toLowerCase();
+
+        if (name.includes(searchTerm) || description.includes(searchTerm)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+
+    // Category filter
+    document.querySelectorAll('.category-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        const category = this.querySelector('span').textContent;
+        const cards = document.querySelectorAll('.integration-card');
+
+        cards.forEach(card => {
+          if (category === 'All Integrations') {
+            card.style.display = 'block';
+          } else {
+            const integration = integrations.find(i => i.name === card.querySelector('.integration-name').textContent);
+            if (integration && (integration.category === category || integration.status.replace('-', ' ').toLowerCase() === category.toLowerCase() || integration.price.toLowerCase() === category.toLowerCase())) {
+              card.style.display = 'block';
+            } else {
+              card.style.display = 'none';
+            }
+          }
+        });
+      });
+    });
+
+    // Close modal on outside click
+    document.getElementById('integrationModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Initialize
+    renderIntegrations();
+    renderMyIntegrations();
+    renderWebhooks();
+    renderAPIKeys();
+  </script>
+</body>
+</html>
