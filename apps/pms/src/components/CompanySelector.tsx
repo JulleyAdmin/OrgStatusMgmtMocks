@@ -17,32 +17,32 @@ export function CompanySelector() {
 
   if (isLoading) {
     return (
-      <div className="p-4 border rounded-lg bg-blue-50">
-        <p className="text-blue-800">Loading companies...</p>
+      <div className="p-4 border rounded-lg bg-muted/50">
+        <p className="text-muted-foreground">Loading companies...</p>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="p-4 border rounded-lg bg-red-50">
-        <p className="text-red-800">Error: {error}</p>
+      <div className="p-4 border rounded-lg bg-destructive/10 border-destructive/20">
+        <p className="text-destructive">Error: {error}</p>
       </div>
     )
   }
 
   if (userCompanies.length === 0) {
     return (
-      <div className="p-4 border rounded-lg bg-yellow-50">
-        <p className="text-yellow-800">No companies found. Please create a company first.</p>
+      <div className="p-4 border rounded-lg bg-warning/10 border-warning/20">
+        <p className="text-warning-foreground">No companies found. Please create a company first.</p>
       </div>
     )
   }
 
   return (
-    <div className="p-4 border rounded-lg bg-green-50">
-      <h3 className="font-semibold text-green-800 mb-2">Company Selector</h3>
-      <p className="text-green-700 mb-2">
+    <div className="p-4 border rounded-lg bg-card">
+      <h3 className="font-semibold text-card-foreground mb-2">Company Selector</h3>
+      <p className="text-muted-foreground mb-2">
         Current: <strong>{currentCompany?.name || 'None'}</strong>
       </p>
       <div className="space-y-2">

@@ -414,30 +414,32 @@ export function ProjectCreationForm({
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select
-                    id="status"
+                    options={[
+                      { value: 'planning', label: 'Planning' },
+                      { value: 'active', label: 'Active' },
+                      { value: 'on-hold', label: 'On Hold' },
+                      { value: 'completed', label: 'Completed' },
+                      { value: 'cancelled', label: 'Cancelled' }
+                    ]}
                     value={values.status}
-                    onChange={(e) => setValue('status', e.target.value)}
-                  >
-                    <option value="planning">Planning</option>
-                    <option value="active">Active</option>
-                    <option value="on-hold">On Hold</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </Select>
+                    onValueChange={(value) => setValue('status', value)}
+                    placeholder="Select status..."
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="priority">Priority</Label>
                   <Select
-                    id="priority"
+                    options={[
+                      { value: 'low', label: 'Low' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'high', label: 'High' },
+                      { value: 'urgent', label: 'Urgent' }
+                    ]}
                     value={values.priority}
-                    onChange={(e) => setValue('priority', e.target.value)}
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
-                  </Select>
+                    onValueChange={(value) => setValue('priority', value)}
+                    placeholder="Select priority..."
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -463,34 +465,33 @@ export function ProjectCreationForm({
                 <div className="space-y-2">
                   <Label htmlFor="assignedPositionId">Primary Position *</Label>
                   <Select
-                    id="assignedPositionId"
+                    options={[
+                      { value: '', label: 'Select primary position...' },
+                      ...positions.map(position => ({
+                        value: position.id,
+                        label: `${position.title} - ${position.department}`
+                      }))
+                    ]}
                     value={values.assignedPositionId}
-                    onChange={(e) => {
-                      setValue('assignedPositionId', e.target.value)
+                    onValueChange={(value) => {
+                      setValue('assignedPositionId', value)
                       previewRouting()
                     }}
-                    className={errors.assignedPositionId ? 'border-red-500' : ''}
-                  >
-                    <option value="">Select primary position...</option>
-                    {positions.map(position => (
-                      <option key={position.id} value={position.id}>
-                        {position.title} - {position.department}
-                      </option>
-                    ))}
-                  </Select>
+                    placeholder="Select primary position..."
+                  />
                   {errors.assignedPositionId && <p className="text-sm text-red-500">{errors.assignedPositionId}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="assignedUserId">Specific Person (Optional)</Label>
                   <Select
-                    id="assignedUserId"
+                    options={[
+                      { value: '', label: 'Auto-assign based on position' }
+                    ]}
                     value={values.assignedUserId}
-                    onChange={(e) => setValue('assignedUserId', e.target.value)}
-                  >
-                    <option value="">Auto-assign based on position</option>
-                    {/* TODO: Load users assigned to selected position */}
-                  </Select>
+                    onValueChange={(value) => setValue('assignedUserId', value)}
+                    placeholder="Auto-assign based on position"
+                  />
                 </div>
               </div>
 
@@ -571,46 +572,48 @@ export function ProjectCreationForm({
                 <div className="space-y-2">
                   <Label htmlFor="costCategory">Cost Category</Label>
                   <Select
-                    id="costCategory"
+                    options={COST_CATEGORIES.map(category => ({
+                      value: category,
+                      label: category
+                    }))}
                     value={values.costCategory}
-                    onChange={(e) => setValue('costCategory', e.target.value)}
-                  >
-                    {COST_CATEGORIES.map(category => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
-                  </Select>
+                    onValueChange={(value) => setValue('costCategory', value)}
+                    placeholder="Select cost category..."
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="equipmentType">Equipment Type</Label>
                   <Select
-                    id="equipmentType"
+                    options={[
+                      { value: 'Industrial Robots', label: 'Industrial Robots' },
+                      { value: 'Automation Systems', label: 'Automation Systems' },
+                      { value: 'Manufacturing Equipment', label: 'Manufacturing Equipment' },
+                      { value: 'Quality Control Systems', label: 'Quality Control Systems' },
+                      { value: 'Smart Sensors', label: 'Smart Sensors' },
+                      { value: 'other', label: 'Other' }
+                    ]}
                     value={values.equipmentType}
-                    onChange={(e) => setValue('equipmentType', e.target.value)}
-                  >
-                    <option value="Industrial Robots">Industrial Robots</option>
-                    <option value="Automation Systems">Automation Systems</option>
-                    <option value="Manufacturing Equipment">Manufacturing Equipment</option>
-                    <option value="Quality Control Systems">Quality Control Systems</option>
-                    <option value="Smart Sensors">Smart Sensors</option>
-                    <option value="other">Other</option>
-                  </Select>
+                    onValueChange={(value) => setValue('equipmentType', value)}
+                    placeholder="Select equipment type..."
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="manufacturingPhase">Manufacturing Phase</Label>
                   <Select
-                    id="manufacturingPhase"
+                    options={[
+                      { value: 'Design & Engineering', label: 'Design & Engineering' },
+                      { value: 'Prototyping', label: 'Prototyping' },
+                      { value: 'Production Planning', label: 'Production Planning' },
+                      { value: 'Manufacturing', label: 'Manufacturing' },
+                      { value: 'Quality Testing', label: 'Quality Testing' },
+                      { value: 'Packaging & Delivery', label: 'Packaging & Delivery' }
+                    ]}
                     value={values.manufacturingPhase}
-                    onChange={(e) => setValue('manufacturingPhase', e.target.value)}
-                  >
-                    <option value="Design & Engineering">Design & Engineering</option>
-                    <option value="Prototyping">Prototyping</option>
-                    <option value="Production Planning">Production Planning</option>
-                    <option value="Manufacturing">Manufacturing</option>
-                    <option value="Quality Testing">Quality Testing</option>
-                    <option value="Packaging & Delivery">Packaging & Delivery</option>
-                  </Select>
+                    onValueChange={(value) => setValue('manufacturingPhase', value)}
+                    placeholder="Select manufacturing phase..."
+                  />
                 </div>
               </div>
 
@@ -689,17 +692,17 @@ export function ProjectCreationForm({
               <div className="space-y-2">
                 <Label htmlFor="workflowTemplate">Select Template (Optional)</Label>
                 <Select
-                  id="workflowTemplate"
+                  options={[
+                    { value: '', label: 'Select a workflow template...' },
+                    ...workflowTemplates.map(template => ({
+                      value: template.id,
+                      label: `${template.name} - ${template.category}`
+                    }))
+                  ]}
                   value={values.workflowTemplateId}
-                  onChange={(e) => handleTemplateSelect(e.target.value)}
-                >
-                  <option value="">Select a workflow template...</option>
-                  {workflowTemplates.map(template => (
-                    <option key={template.id} value={template.id}>
-                      {template.name} - {template.category}
-                    </option>
-                  ))}
-                </Select>
+                  onValueChange={(value) => handleTemplateSelect(value)}
+                  placeholder="Select a workflow template..."
+                />
                 {selectedTemplate && (
                   <div className="mt-2 p-3 bg-gray-50 border rounded-md">
                     <p className="text-sm text-gray-700">
@@ -760,13 +763,13 @@ export function ProjectCreationForm({
                   <div className="space-y-2">
                     <Label htmlFor="approvalMatrix">Approval Matrix</Label>
                     <Select
-                      id="approvalMatrix"
+                      options={[
+                        { value: '', label: 'Select approval matrix...' }
+                      ]}
                       value={values.approvalMatrixId}
-                      onChange={(e) => setValue('approvalMatrixId', e.target.value)}
-                    >
-                      <option value="">Select approval matrix...</option>
-                      {/* TODO: Load approval matrices */}
-                    </Select>
+                      onValueChange={(value) => setValue('approvalMatrixId', value)}
+                      placeholder="Select approval matrix..."
+                    />
                   </div>
                 )}
               </div>

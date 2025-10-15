@@ -9,14 +9,16 @@ import { COMPANY_CONFIG } from '@/config/company'
 import { EnhancedProject } from '@/types/project-schema'
 import { ProjectService } from '@/lib/project-services'
 import { useCompany } from '@/contexts/CompanyContext'
-import { CompanySelector } from '@/components/CompanySelector'
-import { Building2, Plus, Users, Calendar, DollarSign } from 'lucide-react'
+import { ViewToggle, ViewType } from '@/components/ui/view-toggle'
+import { ProjectTable } from '@/components/ProjectTable'
+import { Building2, Plus, Users, Calendar, DollarSign, TrendingUp, Clock, AlertCircle } from 'lucide-react'
 
 export default function ProjectsPage() {
   const router = useRouter()
   const { companyId, isLoading: companyLoading } = useCompany()
   const [projects, setProjects] = useState<EnhancedProject[]>([])
   const [loading, setLoading] = useState(true)
+  const [viewType, setViewType] = useState<ViewType>('card')
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -47,28 +49,28 @@ export default function ProjectsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800'
+        return 'bg-success/10 text-success'
       case 'planning':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-primary/10 text-primary'
       case 'completed':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-muted-foreground'
       case 'on-hold':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-warning/10 text-warning'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800'
+        return 'bg-destructive/10 text-destructive'
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-warning/10 text-warning'
       case 'low':
-        return 'bg-green-100 text-green-800'
+        return 'bg-success/10 text-success'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
@@ -84,17 +86,15 @@ export default function ProjectsPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto">
-        {/* Debug Company Selector */}
-        <div className="mb-6">
-          <CompanySelector />
-        </div>
-        
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-7xl mx-auto space-y-4">
+        {/* Header Section */}
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-600">Manage your {COMPANY_CONFIG.name} manufacturing projects</p>
+            <h1 className="text-3xl font-bold text-foreground">Projects</h1>
+            <p className="text-muted-foreground">Manage your {COMPANY_CONFIG.name} manufacturing projects</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center gap-4">
+            <ViewToggle currentView={viewType} onViewChange={setViewType} />
             <Button onClick={() => router.push('/projects/create')}>
               <Plus className="w-4 h-4 mr-2" />
               Create Project
@@ -102,21 +102,83 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-card rounded-lg border shadow-sm p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Projects</p>
+                <p className="text-2xl font-bold text-card-foreground">{projects.length}</p>
+              </div>
+              <Building2 className="h-8 w-8 text-primary" />
+            </div>
+          </div>
+          
+          <div className="bg-card rounded-lg border shadow-sm p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Active Projects</p>
+                <p className="text-2xl font-bold text-success">
+                  {projects.filter(p => p.status === 'active').length}
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-success" />
+            </div>
+          </div>
+          
+          <div className="bg-card rounded-lg border shadow-sm p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">In Progress</p>
+                <p className="text-2xl font-bold text-warning">
+                  {projects.filter(p => p.status === 'planning').length}
+                </p>
+              </div>
+              <Clock className="h-8 w-8 text-warning" />
+            </div>
+          </div>
+          
+          <div className="bg-card rounded-lg border shadow-sm p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">At Risk</p>
+                <p className="text-2xl font-bold text-destructive">
+                  {projects.filter(p => p.riskLevel === 'high').length}
+                </p>
+              </div>
+              <AlertCircle className="h-8 w-8 text-destructive" />
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Project List */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">All Projects</h2>
+            <div className="bg-card rounded-lg border shadow-sm">
+              <div className="px-4 py-3 border-b border-border">
+                <h2 className="text-xl font-semibold text-card-foreground">All Projects</h2>
               </div>
-              <ScrollArea className="h-96">
-                <div className="p-6 space-y-4">
+              <div className="p-4">
+                {viewType === 'table' ? (
+                  <ProjectTable 
+                    projects={projects}
+                    onEdit={(project) => console.log('Edit project:', project)}
+                    onDelete={(project) => console.log('Delete project:', project)}
+                    onView={(project) => console.log('View project:', project)}
+                  />
+                ) : (
+                  <ScrollArea className="h-[600px]">
+                    <div className="space-y-3">
                   {projects.map((project) => (
-                    <div key={project.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <Building2 className="w-5 h-5 text-blue-600" />
-                          <h3 className="font-medium text-gray-900">{project.name}</h3>
+                        <div key={project.id} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center space-x-3">
+                              <Building2 className="w-5 h-5 text-primary" />
+                              <div>
+                                <h3 className="font-semibold text-card-foreground text-base">{project.name}</h3>
+                                <p className="text-sm text-muted-foreground">{project.description}</p>
+                              </div>
                         </div>
                         <div className="flex space-x-2">
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
@@ -127,115 +189,156 @@ export default function ProjectsPage() {
                           </span>
                         </div>
                       </div>
-                      <p className="text-gray-600 text-sm mb-3">{project.description}</p>
                       
                       {/* Progress Bar */}
                       <div className="mb-3">
-                        <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                            <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
                           <span>Progress</span>
-                          <span>{project.progress}%</span>
+                              <span className="font-medium">{project.progress || 0}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                            style={{ width: `${project.progress}%` }}
-                          ></div>
+                            <div className="w-full bg-muted rounded-full h-2">
+                              <div 
+                                className="bg-primary h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${project.progress || 0}%` }}
+                              />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center space-x-1">
-                            <Users className="w-4 h-4" />
-                            <span>{Array.isArray(project.team) ? project.team.length : 0} members</span>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <Users className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">
+                                {Array.isArray(project.team) ? project.team.length : 0} members
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">
+                                {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">
+                                ${project.budget?.toLocaleString() || 'N/A'}
+                              </span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{new Date(project.endDate).toLocaleDateString()}</span>
+                            <div className="flex items-center space-x-2">
+                              <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">
+                                {project.riskLevel || 'Low'} risk
+                              </span>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <DollarSign className="w-4 h-4" />
-                            <span>${project.budget.toLocaleString()}</span>
                           </div>
-                        </div>
-                        <div className="flex space-x-1">
-                          {(Array.isArray(project.tags) ? project.tags : []).map((tag, index) => (
-                            <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                          
+                          <div className="flex flex-wrap gap-1 mt-3">
+                            {(Array.isArray(project.tags) ? project.tags : []).map((tag, index) => (
+                              <span key={index} className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
                               {tag}
                             </span>
                           ))}
                         </div>
                       </div>
+                      ))}
                     </div>
-                  ))}
+                  </ScrollArea>
+                )}
                 </div>
-              </ScrollArea>
             </div>
           </div>
 
-          {/* Project Stats */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Overview</h3>
+          {/* Project Stats & Insights */}
+          <div className="space-y-4">
+            {/* Project Overview */}
+            <div className="bg-card rounded-lg border shadow-sm p-4">
+              <h3 className="text-lg font-semibold text-card-foreground mb-3">Project Overview</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Total Projects</span>
-                  <span className="font-semibold">{projects.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Active</span>
-                  <span className="font-semibold text-green-600">
-                    {projects.filter(p => p.status === 'active').length}
+                  <span className="text-sm text-muted-foreground">Total Budget</span>
+                  <span className="font-semibold text-card-foreground">
+                    ${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Planning</span>
-                  <span className="font-semibold text-blue-600">
-                    {projects.filter(p => p.status === 'planning').length}
+                  <span className="text-sm text-muted-foreground">Avg. Progress</span>
+                  <span className="font-semibold text-card-foreground">
+                    {projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length) : 0}%
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Completed</span>
-                  <span className="font-semibold text-gray-600">
-                    {projects.filter(p => p.status === 'completed').length}
+                  <span className="text-sm text-muted-foreground">Team Members</span>
+                  <span className="font-semibold text-card-foreground">
+                    {projects.reduce((sum, p) => sum + (Array.isArray(p.team) ? p.team.length : 0), 0)}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Equipment Types</h3>
+            {/* Status Distribution */}
+            <div className="bg-card rounded-lg border shadow-sm p-4">
+              <h3 className="text-lg font-semibold text-card-foreground mb-3">Status Distribution</h3>
               <div className="space-y-2">
-                {COMPANY_CONFIG.equipmentTypes?.map((type, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <span className="text-gray-600">{type}</span>
-                    <span className="font-semibold">
-                      {projects.filter(p => p.equipmentType === type).length}
-                    </span>
+                {['active', 'planning', 'completed', 'on-hold'].map((status) => {
+                  const count = projects.filter(p => p.status === status).length;
+                  const percentage = projects.length > 0 ? (count / projects.length) * 100 : 0;
+                  return (
+                    <div key={status} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground capitalize">{status.replace('-', ' ')}</span>
+                        <span className="font-medium text-card-foreground">{count}</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(status)}`}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Priority Distribution */}
+            <div className="bg-card rounded-lg border shadow-sm p-4">
+              <h3 className="text-lg font-semibold text-card-foreground mb-3">Priority Distribution</h3>
+              <div className="space-y-2">
+                {['high', 'medium', 'low'].map((priority) => {
+                  const count = projects.filter(p => p.priority === priority).length;
+                  const percentage = projects.length > 0 ? (count / projects.length) * 100 : 0;
+                  return (
+                    <div key={priority} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground capitalize">{priority}</span>
+                        <span className="font-medium text-card-foreground">{count}</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${getPriorityColor(priority)}`}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                  </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-card rounded-lg border shadow-sm p-4">
+              <h3 className="text-lg font-semibold text-card-foreground mb-3">Recent Activity</h3>
+              <div className="space-y-2">
+                {projects.slice(0, 5).map((project) => (
+                  <div key={project.id} className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-primary rounded-full" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-card-foreground truncate">{project.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {project.lastActivityDate ? new Date(project.lastActivityDate).toLocaleDateString() : 'No recent activity'}
+                      </p>
+                    </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-              <div className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => router.push('/projects/create')}
-                >
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Create Project
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Users className="w-4 h-4 mr-2" />
-                  Assign Team
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Set Timeline
-                </Button>
               </div>
             </div>
           </div>

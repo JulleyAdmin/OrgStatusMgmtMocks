@@ -128,7 +128,7 @@ export default function LoginPage() {
           </div>
 
           {/* Login Form Container */}
-          <div className="bg-white rounded-lg p-8 shadow-xl border border-gray-200">
+          <div className="bg-white p-8">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome back</h2>
               <p className="text-gray-600">Sign in to your account to continue</p>
