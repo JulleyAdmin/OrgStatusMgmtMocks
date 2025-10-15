@@ -1,97 +1,48 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { COMPANY_CONFIG } from '@/config/company'
-import { Project } from '@/types'
+import { EnhancedProject } from '@/types/project-schema'
+import { ProjectService } from '@/lib/project-services'
+import { useCompany } from '@/contexts/CompanyContext'
+import { CompanySelector } from '@/components/CompanySelector'
 import { Building2, Plus, Users, Calendar, DollarSign } from 'lucide-react'
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([])
+  const router = useRouter()
+  const { companyId, isLoading: companyLoading } = useCompany()
+  const [projects, setProjects] = useState<EnhancedProject[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const loadProjects = async () => {
+      if (!companyId) {
+        setLoading(false)
+        return
+      }
+
       try {
         setLoading(true)
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000))
         
-        const mockProjects: Project[] = [
-          {
-            id: '1',
-            name: 'Industrial Robot Assembly Line',
-            description: 'Development of automated assembly line with advanced robotics and AI integration for manufacturing efficiency.',
-            status: 'active',
-            priority: 'high',
-            manager: 'user-1',
-            team: ['user-2', 'user-3'],
-            startDate: '2024-01-15',
-            endDate: '2024-06-30',
-            budget: 2500000,
-            progress: 65,
-            tags: ['robotics', 'automation', 'ai'],
-            equipmentType: 'Industrial Robots',
-            manufacturingPhase: 'Manufacturing',
-            qualityStandards: ['ISO 9001', 'ISO 14001'],
-            complianceRequirements: ['OSHA', 'CE Marking'],
-            createdAt: '2024-01-15',
-            updatedAt: '2024-03-15'
-          },
-          {
-            id: '2',
-            name: 'Smart Manufacturing System',
-            description: 'Implementation of IoT-enabled smart manufacturing system with real-time monitoring and predictive maintenance.',
-            status: 'active',
-            priority: 'high',
-            manager: 'user-1',
-            team: ['user-2', 'user-4'],
-            startDate: '2024-02-01',
-            endDate: '2024-07-15',
-            budget: 1800000,
-            progress: 45,
-            tags: ['iot', 'smart-factory', 'monitoring'],
-            equipmentType: 'Automation Systems',
-            manufacturingPhase: 'Production Planning',
-            qualityStandards: ['ISO 9001', 'Six Sigma'],
-            complianceRequirements: ['OSHA', 'FDA'],
-            createdAt: '2024-02-01',
-            updatedAt: '2024-03-15'
-          },
-          {
-            id: '3',
-            name: 'Quality Control Automation',
-            description: 'Development of automated quality control systems with machine learning and computer vision integration.',
-            status: 'planning',
-            priority: 'medium',
-            manager: 'user-1',
-            team: ['user-3'],
-            startDate: '2024-08-01',
-            endDate: '2024-12-31',
-            budget: 2200000,
-            progress: 15,
-            tags: ['quality-control', 'machine-learning'],
-            equipmentType: 'Quality Control Systems',
-            manufacturingPhase: 'Design & Engineering',
-            qualityStandards: ['ISO 9001', 'IATF 16949'],
-            complianceRequirements: ['OSHA', 'FDA'],
-            createdAt: '2024-03-01',
-            updatedAt: '2024-03-01'
-          }
-        ]
-        
-        setProjects(mockProjects)
+        // Load projects from Firebase for the current company
+        const firebaseProjects = await ProjectService.getProjects(companyId)
+        console.log('Firebase projects loaded:', firebaseProjects)
+        setProjects(firebaseProjects)
       } catch (error) {
         console.error('Error loading projects:', error)
+        // Fallback to empty array if Firebase fails
+        setProjects([])
       } finally {
         setLoading(false)
       }
     }
 
     loadProjects()
-  }, [])
+  }, [companyId])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -121,7 +72,7 @@ export default function ProjectsPage() {
     }
   }
 
-  if (loading) {
+  if (loading || companyLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
@@ -133,16 +84,22 @@ export default function ProjectsPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Debug Company Selector */}
+        <div className="mb-6">
+          <CompanySelector />
+        </div>
+        
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
             <p className="text-gray-600">Manage your {COMPANY_CONFIG.name} manufacturing projects</p>
           </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            New Project
-          </Button>
+          <div className="flex space-x-2">
+            <Button onClick={() => router.push('/projects/create')}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Project
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -190,7 +147,7 @@ export default function ProjectsPage() {
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-1">
                             <Users className="w-4 h-4" />
-                            <span>{project.team.length} members</span>
+                            <span>{Array.isArray(project.team) ? project.team.length : 0} members</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Calendar className="w-4 h-4" />
@@ -202,7 +159,7 @@ export default function ProjectsPage() {
                           </div>
                         </div>
                         <div className="flex space-x-1">
-                          {project.tags.map((tag, index) => (
+                          {(Array.isArray(project.tags) ? project.tags : []).map((tag, index) => (
                             <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
                               {tag}
                             </span>
@@ -263,7 +220,11 @@ export default function ProjectsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => router.push('/projects/create')}
+                >
                   <Building2 className="w-4 h-4 mr-2" />
                   Create Project
                 </Button>

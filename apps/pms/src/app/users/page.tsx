@@ -7,89 +7,50 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { COMPANY_CONFIG } from '@/config/company'
 import { User } from '@/types'
 import { Users, Plus, Mail, Phone, MessageSquare } from 'lucide-react'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setLoading(true)
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000))
         
-        const mockUsers: User[] = [
-          {
-            id: '1',
-            email: 'admin@autocracy.com',
-            name: 'John Admin',
-            role: 'admin',
-            department: 'Executive',
-            position: 'CEO',
-            avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-            skills: ['Leadership', 'Strategy', 'Manufacturing Operations'],
-            contact: { phone: '111-222-3333', slack: '@john.admin' },
-            createdAt: '2024-01-01',
-            updatedAt: '2024-03-15'
-          },
-          {
-            id: '2',
-            email: 'sarah.manager@autocracy.com',
-            name: 'Sarah Johnson',
-            role: 'manager',
-            department: 'Manufacturing',
-            position: 'Manufacturing Manager',
-            avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-            skills: ['Project Management', 'Team Leadership', 'Quality Control'],
-            contact: { phone: '444-555-6666', slack: '@sarah.j' },
-            createdAt: '2024-01-01',
-            updatedAt: '2024-03-15'
-          },
-          {
-            id: '3',
-            email: 'mike.dev@autocracy.com',
-            name: 'Mike Chen',
-            role: 'employee',
-            department: 'Engineering',
-            position: 'Senior Manufacturing Engineer',
-            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-            skills: ['CAD Design', 'Manufacturing Processes', 'Quality Assurance'],
-            contact: { phone: '777-888-9999', slack: '@mike.c' },
-            createdAt: '2024-01-01',
-            updatedAt: '2024-03-15'
-          },
-          {
-            id: '4',
-            email: 'lisa.designer@autocracy.com',
-            name: 'Lisa Rodriguez',
-            role: 'employee',
-            department: 'Design',
-            position: 'Automation Design Engineer',
-            avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
-            skills: ['CAD Design', 'Automation Design', 'Prototyping'],
-            contact: { phone: '123-456-7890', slack: '@lisa.r' },
-            createdAt: '2024-01-01',
-            updatedAt: '2024-03-15'
-          },
-          {
-            id: '5',
-            email: 'david.marketing@autocracy.com',
-            name: 'David Kim',
-            role: 'manager',
-            department: 'Quality Assurance',
-            position: 'Quality Manager',
-            avatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=150&h=150&fit=crop&crop=face',
-            skills: ['Quality Control', 'ISO Standards', 'Compliance'],
-            contact: { phone: '987-654-3210', slack: '@david.k' },
-            createdAt: '2024-01-01',
-            updatedAt: '2024-03-15'
+        // Load users from Firebase
+        const usersRef = collection(db, 'users')
+        const usersQuery = query(usersRef, orderBy('name', 'asc'))
+        const usersSnapshot = await getDocs(usersQuery)
+        
+        const usersData: User[] = usersSnapshot.docs.map(doc => {
+          const data = doc.data()
+          return {
+            id: doc.id,
+            email: data.email || '',
+            name: data.name || 'Unknown User',
+            role: data.role || 'employee',
+            department: data.department || 'Unknown Department',
+            position: data.position || 'Unknown Position',
+            avatar: data.avatar || undefined,
+            skills: data.skills || [],
+            contact: {
+              phone: data.contact?.phone || 'Not provided',
+              slack: data.contact?.slack || 'Not provided'
+            },
+            createdAt: data.createdAt || new Date().toISOString(),
+            updatedAt: data.updatedAt || new Date().toISOString()
           }
-        ]
+        })
         
-        setUsers(mockUsers)
+        setUsers(usersData)
+        setError(null)
       } catch (error) {
         console.error('Error loading users:', error)
+        setError('Failed to load users. Please try again.')
+        setUsers([])
       } finally {
         setLoading(false)
       }
@@ -121,12 +82,30 @@ export default function UsersPage() {
     )
   }
 
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="text-red-500 text-xl mb-4">⚠️</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Users</h3>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout>
-      <div className="p-6">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Users</h1>
             <p className="text-gray-600">Manage your {COMPANY_CONFIG.name} team members</p>
           </div>
           <Button>
@@ -144,7 +123,18 @@ export default function UsersPage() {
               </div>
               <ScrollArea className="h-96">
                 <div className="p-6 space-y-4">
-                  {users.map((user) => (
+                  {users.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Users Found</h3>
+                      <p className="text-gray-600 mb-4">Get started by adding your first team member.</p>
+                      <Button>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add First User
+                      </Button>
+                    </div>
+                  ) : (
+                    users.map((user) => (
                     <div key={user.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-start space-x-4">
                         <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
@@ -176,15 +166,15 @@ export default function UsersPage() {
                             </div>
                             <div className="flex items-center space-x-1">
                               <Phone className="w-4 h-4" />
-                              <span>{user.contact.phone}</span>
+                              <span>{user.contact?.phone || 'Not provided'}</span>
                             </div>
                             <div className="flex items-center space-x-1">
                               <MessageSquare className="w-4 h-4" />
-                              <span>{user.contact.slack}</span>
+                              <span>{user.contact?.slack || 'Not provided'}</span>
                             </div>
                           </div>
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {user.skills.map((skill, index) => (
+                            {(user.skills || []).map((skill, index) => (
                               <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
                                 {skill}
                               </span>
@@ -193,7 +183,8 @@ export default function UsersPage() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </ScrollArea>
             </div>

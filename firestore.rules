@@ -1,31 +1,222 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow all reads and writes for development
-    // In production, you should implement proper security rules
-    match /{document=**} {
-      allow read, write: if true;
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Explicit rules for all collections
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && getUserData().role == 'admin';
+    }
+    
+    function isManager() {
+      return isAuthenticated() && getUserData().role in ['admin', 'manager'];
+    }
+    
+    function isProjectMember(projectId) {
+      return isAuthenticated() && (
+        getUserData().role == 'admin' ||
+        resource.data.manager == request.auth.uid ||
+        request.auth.uid in resource.data.team
+      );
+    }
+    
+    function isProjectManager(projectId) {
+      return isAuthenticated() && (
+        getUserData().role == 'admin' ||
+        resource.data.manager == request.auth.uid
+      );
+    }
+    
+    // User collection rules
     match /users/{userId} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        isAdmin()
+      );
     }
     
+    // Project collection rules
     match /projects/{projectId} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isProjectManager(projectId);
+      allow delete: if isAdmin();
     }
     
+    // Project phases
+    match /projectPhases/{phaseId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isProjectManager(resource.data.projectId);
+      allow delete: if isAdmin();
+    }
+    
+    // Project deliverables
+    match /projectDeliverables/{deliverableId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.assignee ||
+        isProjectManager(resource.data.projectId)
+      );
+      allow delete: if isAdmin();
+    }
+    
+    // Project resources
+    match /projectResources/{resourceId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.allocatedTo ||
+        isProjectManager(resource.data.projectId)
+      );
+      allow delete: if isAdmin();
+    }
+    
+    // Project risks
+    match /projectRisks/{riskId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.owner ||
+        isProjectManager(resource.data.projectId)
+      );
+      allow delete: if isAdmin();
+    }
+    
+    // Project milestones
+    match /projectMilestones/{milestoneId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isProjectManager(resource.data.projectId);
+      allow delete: if isAdmin();
+    }
+    
+    // Project files
+    match /projectFiles/{fileId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.uploadedBy ||
+        isProjectManager(resource.data.projectId)
+      );
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.uploadedBy ||
+        isAdmin()
+      );
+    }
+    
+    // Project comments
+    match /projectComments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId ||
+        isProjectManager(resource.data.projectId)
+      );
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId ||
+        isAdmin()
+      );
+    }
+    
+    // Project templates
+    match /projectTemplates/{templateId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isManager();
+      allow delete: if isAdmin();
+    }
+    
+    // Project budgets
+    match /projectBudgets/{budgetId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isProjectManager(resource.data.projectId);
+      allow delete: if isAdmin();
+    }
+    
+    // Project time tracking
+    match /projectTimeTracking/{timeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId ||
+        isManager()
+      );
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId ||
+        isAdmin()
+      );
+    }
+    
+    // Task collection rules
     match /tasks/{taskId} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.assignee ||
+        request.auth.uid == resource.data.reporter ||
+        isProjectManager(resource.data.projectId)
+      );
+      allow delete: if isAdmin();
     }
     
+    // Activity collection rules
     match /activities/{activityId} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
     }
     
+    // Organization chart rules
     match /org_chart/{nodeId} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // Equipment collection rules
+    match /equipment/{equipmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isManager();
+      allow update: if isAuthenticated() && (
+        request.auth.uid in resource.data.projectTeam ||
+        isProjectManager(resource.data.projectId)
+      );
+      allow delete: if isAdmin();
+    }
+    
+    // Quality checks
+    match /qualityChecks/{checkId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.inspector ||
+        isManager()
+      );
+      allow delete: if isAdmin();
+    }
+    
+    // Safety inspections
+    match /safetyInspections/{inspectionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.inspector ||
+        isManager()
+      );
+      allow delete: if isAdmin();
     }
   }
 }
