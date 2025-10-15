@@ -2,6 +2,23 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Z-index utilities for proper stacking */
+.z-dropdown {
+  z-index: 60;
+}
+
+.z-modal {
+  z-index: 70;
+}
+
+.z-toast {
+  z-index: 80;
+}
+
+.z-tooltip {
+  z-index: 90;
+}
+
 :root {
   --radius: 0.65rem;
   --background: oklch(1 0 0);

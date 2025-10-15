@@ -8,9 +8,11 @@ import { COMPANY_CONFIG } from '@/config/company'
 import { User } from '@/types'
 import { useCompany } from '@/contexts/CompanyContext'
 import { ViewToggle, ViewType } from '@/components/ui/view-toggle'
+import { ActionMenu, createViewAction, createEditAction, createDeleteAction } from '@/components/ui/action-menu'
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { Users, Plus, Mail, Phone, MessageSquare } from 'lucide-react'
-import { collection, getDocs, query, orderBy } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { UserService } from '@/lib/user-services'
+import toast from 'react-hot-toast'
 
 export default function UsersPage() {
   const { companyId, isLoading: companyLoading } = useCompany()
@@ -18,6 +20,10 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewType, setViewType] = useState<ViewType>('card')
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean
+    user: User | null
+  }>({ open: false, user: null })
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -30,30 +36,7 @@ export default function UsersPage() {
         setLoading(true)
         
         // Load users from Firebase for the current company
-        const usersRef = collection(db, `companies/${companyId}/users`)
-        const usersQuery = query(usersRef, orderBy('name', 'asc'))
-        const usersSnapshot = await getDocs(usersQuery)
-        
-        const usersData: User[] = usersSnapshot.docs.map(doc => {
-          const data = doc.data()
-          return {
-            id: doc.id,
-            email: data.email || '',
-            name: data.name || 'Unknown User',
-            role: data.role || 'employee',
-            department: data.department || 'Unknown Department',
-            position: data.position || 'Unknown Position',
-            avatar: data.avatar || undefined,
-            skills: data.skills || [],
-            contact: {
-              phone: data.contact?.phone || 'Not provided',
-              slack: data.contact?.slack || 'Not provided'
-            },
-            createdAt: data.createdAt || new Date().toISOString(),
-            updatedAt: data.updatedAt || new Date().toISOString()
-          }
-        })
-        
+        const usersData = await UserService.getUsers(companyId)
         setUsers(usersData)
         setError(null)
       } catch (error) {
@@ -81,6 +64,29 @@ export default function UsersPage() {
     }
   }
 
+  const handleDeleteUser = async (user: User) => {
+    if (!companyId) return
+
+    try {
+      await UserService.deleteUser(companyId, user.id)
+      setUsers(users.filter(u => u.id !== user.id))
+      toast.success(`${user.name} has been deleted successfully`)
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      toast.error('Failed to delete user. Please try again.')
+    }
+  }
+
+  const handleViewUser = (user: User) => {
+    // TODO: Implement user detail view
+    toast.success(`Viewing ${user.name}`)
+  }
+
+  const handleEditUser = (user: User) => {
+    // TODO: Implement user edit form
+    toast.success(`Editing ${user.name}`)
+  }
+
   if (loading || companyLoading) {
     return (
       <DashboardLayout>
@@ -94,7 +100,7 @@ export default function UsersPage() {
   if (error) {
     return (
       <DashboardLayout>
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="text-red-500 text-xl mb-4">⚠️</div>
@@ -112,7 +118,7 @@ export default function UsersPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto space-y-4">
+      <div className="mx-auto space-y-4">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>

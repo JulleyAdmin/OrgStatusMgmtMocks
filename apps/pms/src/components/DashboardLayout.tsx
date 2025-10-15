@@ -150,7 +150,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 
                 {/* Notifications dropdown */}
                 {notificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-card rounded-lg shadow-lg border border-border z-50">
+                  <div className="absolute right-0 mt-2 w-80 bg-card rounded-lg shadow-lg border border-border z-[70]">
                     <div className="p-4 border-b border-border">
                       <h3 className="font-semibold text-card-foreground">Notifications</h3>
                     </div>
@@ -188,7 +188,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
                 {/* Profile dropdown */}
                 {profileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-lg border border-border z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-lg border border-border z-[70]">
                     <div className="p-4 border-b border-border">
                       <p className="font-semibold text-card-foreground">{user?.name || 'User'}</p>
                       <p className="text-sm text-muted-foreground">{user?.email || 'user@example.com'}</p>

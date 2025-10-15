@@ -230,7 +230,7 @@ export default function CreateProjectPage() {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto">
           <div className="mb-6">
             <p className="text-gray-600">
               Create a new project using AI-Powered Organizational Hierarchy Platform with position-based architecture, intelligent routing, and compliance automation.
