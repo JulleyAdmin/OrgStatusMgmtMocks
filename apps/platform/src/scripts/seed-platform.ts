@@ -220,7 +220,7 @@ const demoCompanies: Omit<Company, 'id' | 'createdAt' | 'updatedAt'>[] = [
     domain: 'liebherr.com',
     industry: 'Construction & Mining Equipment',
     size: 'large',
-    status: 'trial',
+    status: 'pending',
     subscription: {
       id: 'sub-lie-001',
       companyId: 'lie-001',
@@ -284,6 +284,8 @@ const createUsers = (companyIds: string[]): Omit<User, 'id' | 'createdAt' | 'upd
   // Company users
   companyIds.forEach((companyId, index) => {
     const company = demoCompanies[index];
+    
+    if (!company) return;
     
     // CEO/Admin
     users.push({
@@ -385,6 +387,8 @@ async function main() {
     for (let i = 0; i < demoCompanies.length; i++) {
       const company = demoCompanies[i];
       const companyId = companyIds[i];
+      
+      if (!company) continue;
       
       try {
         const subscription = {

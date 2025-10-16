@@ -5,6 +5,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "build:pms": "turbo run build --filter=pms",
+    "dev:pms": "turbo run dev --filter=pms",
+    "build:platform": "turbo run build --filter=platform",
+    "dev:platform": "turbo run dev --filter=platform",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "type-check": "turbo run type-check",
