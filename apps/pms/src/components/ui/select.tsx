@@ -59,7 +59,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
             aria-expanded={open}
             className={cn(
               "w-full justify-between font-normal",
-              !selectedOption && "text-muted-foreground",
+              !selectedOption && "text-gray-500",
               className
             )}
             disabled={disabled}
@@ -69,7 +69,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-[60]" align="start">
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-[9999]" align="start">
           <Command>
             {searchable && (
               <CommandInput placeholder="Search..." />
@@ -82,7 +82,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                     key={option.value}
                     value={option.value}
                     onSelect={(currentValue) => {
-                      onValueChange?.(currentValue === value ? "" : currentValue)
+                      onValueChange?.(currentValue)
                       setOpen(false)
                     }}
                     disabled={option.disabled}
@@ -166,7 +166,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
             aria-expanded={open}
             className={cn(
               "w-full justify-between font-normal",
-              selectedOptions.length === 0 && "text-muted-foreground",
+              selectedOptions.length === 0 && "text-gray-500",
               className
             )}
             disabled={disabled}
@@ -176,7 +176,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-[60]" align="start">
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-[9999]" align="start">
           <Command>
             {searchable && (
               <CommandInput placeholder="Search..." />

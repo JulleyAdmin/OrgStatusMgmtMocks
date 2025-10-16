@@ -50,7 +50,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         <AlertDialogHeader>
           <div className="flex items-center space-x-2">
             {variant === "destructive" && (
-              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <AlertTriangle className="h-5 w-5 text-red-600" />
             )}
             <AlertDialogTitle>{title}</AlertDialogTitle>
           </div>
@@ -64,7 +64,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
-            className={variant === "destructive" ? "bg-destructive hover:bg-destructive/90" : ""}
+            className={variant === "destructive" ? "bg-red-600 hover:bg-red-700 text-white" : ""}
           >
             {confirmText}
           </AlertDialogAction>

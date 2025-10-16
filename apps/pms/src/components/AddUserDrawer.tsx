@@ -117,11 +117,11 @@ export function AddUserDrawer({ open, onOpenChange, onUserAdded }: AddUserDrawer
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} title="Add New User" description="Create a new team member">
-      <DrawerContent>
+      <DrawerContent className="bg-white">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Basic Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -163,7 +163,7 @@ export function AddUserDrawer({ open, onOpenChange, onUserAdded }: AddUserDrawer
 
           {/* Role and Department */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Role & Department</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Role & Department</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -203,7 +203,7 @@ export function AddUserDrawer({ open, onOpenChange, onUserAdded }: AddUserDrawer
 
           {/* Contact Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Contact Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -230,7 +230,7 @@ export function AddUserDrawer({ open, onOpenChange, onUserAdded }: AddUserDrawer
 
           {/* Skills and Avatar */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Additional Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Additional Information</h3>
             
             <div>
               <Label htmlFor="skills">Skills</Label>
@@ -240,7 +240,7 @@ export function AddUserDrawer({ open, onOpenChange, onUserAdded }: AddUserDrawer
                 onChange={(e) => handleSkillsChange(e.target.value)}
                 placeholder="Enter skills separated by commas"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 Separate multiple skills with commas
               </p>
             </div>

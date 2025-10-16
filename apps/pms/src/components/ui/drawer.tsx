@@ -28,7 +28,7 @@ export function Drawer({ open, onOpenChange, children, title, description }: Dra
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-[9999]">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50" 
@@ -36,22 +36,22 @@ export function Drawer({ open, onOpenChange, children, title, description }: Dra
       />
       
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-background border-l border-border shadow-lg">
+      <div className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white border-l border-gray-200 shadow-lg">
         <div className="flex flex-col h-full">
           {/* Header */}
           {(title || description) && (
-            <div className="flex items-center justify-between p-6 border-b border-border">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
               <div>
                 {title && (
-                  <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                 )}
                 {description && (
-                  <p className="text-sm text-muted-foreground mt-1">{description}</p>
+                  <p className="text-sm text-gray-600 mt-1">{description}</p>
                 )}
               </div>
               <button
                 onClick={() => onOpenChange(false)}
-                className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
               >
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>
@@ -60,7 +60,7 @@ export function Drawer({ open, onOpenChange, children, title, description }: Dra
           )}
           
           {/* Content */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto bg-white">
             {children}
           </div>
         </div>
@@ -83,7 +83,7 @@ interface DrawerFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function DrawerFooter({ className, children, ...props }: DrawerFooterProps) {
   return (
-    <div className={cn("flex items-center justify-end gap-2 p-6 border-t border-border", className)} {...props}>
+    <div className={cn("flex items-center justify-end gap-2 p-6 border-t border-gray-200 bg-white", className)} {...props}>
       {children}
     </div>
   )
