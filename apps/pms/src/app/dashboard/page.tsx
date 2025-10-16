@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore'
 import { DashboardMetrics, Project, Task, Activity } from '../../types'
 import { COMPANY_CONFIG } from '../../config/company'
 import { DashboardLayout } from '../../components/DashboardLayout'
+import { Users, Building2, BarChart3, Settings, CheckSquare } from 'lucide-react'
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null)
@@ -101,81 +102,181 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        {/* Header */}
+      <div className="space-y-8">
+        {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{COMPANY_CONFIG.name} Dashboard</h1>
-          <p className="text-gray-600">{COMPANY_CONFIG.industry} Operations Overview</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Admin!</h1>
+          <p className="text-gray-600">Manage {COMPANY_CONFIG.name} administration and operations.</p>
         </div>
 
-        {/* Metrics Grid */}
+        {/* Key Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-lg p-6 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Team</h3>
+            <p className="text-gray-600 text-sm mb-4">Manage team members and permissions</p>
+            <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-purple-700 transition-all">
+              Manage
+            </button>
+          </div>
+
+          <div className="bg-white rounded-lg p-6 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Projects</h3>
+            <p className="text-gray-600 text-sm mb-4">Manage project lifecycle and operations</p>
+            <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-purple-700 transition-all">
+              Manage
+            </button>
+          </div>
+
+          <div className="bg-white rounded-lg p-6 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports</h3>
+            <p className="text-gray-600 text-sm mb-4">View analytics and statistics</p>
+            <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-purple-700 transition-all">
+              View
+            </button>
+          </div>
+
+          <div className="bg-white rounded-lg p-6 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Settings className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Settings</h3>
+            <p className="text-gray-600 text-sm mb-4">Configure system preferences</p>
+            <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-purple-700 transition-all">
+              Configure
+            </button>
+          </div>
+        </div>
+
+        {/* Summary Cards */}
         {metrics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Active Projects</h3>
-              <p className="text-3xl font-bold text-blue-600">{metrics.activeProjects}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-lg p-6 card-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Users className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Team Size</h3>
+              <p className="text-3xl font-bold text-gray-900 mb-1">-</p>
+              <p className="text-gray-600 text-sm">Active team members</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Completed Tasks</h3>
-              <p className="text-3xl font-bold text-green-600">{metrics.completedTasks}</p>
+
+            <div className="bg-white rounded-lg p-6 card-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-orange-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Active Projects</h3>
+              <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.activeProjects}</p>
+              <p className="text-gray-600 text-sm">Registered projects</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Quality Score</h3>
-              <p className="text-3xl font-bold text-purple-600">{metrics.qualityScore}%</p>
+
+            <div className="bg-white rounded-lg p-6 card-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Growth Rate</h3>
+              <p className="text-3xl font-bold text-green-600 mb-1">+12%</p>
+              <p className="text-gray-600 text-sm">This month</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-sm font-medium text-gray-500">Safety Score</h3>
-              <p className="text-3xl font-bold text-orange-600">{metrics.safetyScore}%</p>
+
+            <div className="bg-white rounded-lg p-6 card-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Activity</h3>
+              <p className="text-3xl font-bold text-purple-600 mb-1">24</p>
+              <p className="text-gray-600 text-sm">Events this year</p>
             </div>
           </div>
         )}
 
-        {/* Projects Section */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Active {COMPANY_CONFIG.name} Projects</h2>
-          </div>
-          <div className="p-6">
+        {/* Bottom Section - Two Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Activity */}
+          <div className="bg-white rounded-lg p-6 card-shadow">
+            <div className="flex items-center mb-4">
+              <BarChart3 className="w-5 h-5 text-gray-600 mr-2" />
+              <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+            </div>
             <div className="space-y-4">
-              {projects.map((project) => (
-                <div key={project.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-medium text-gray-900">{project.name}</h3>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      project.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {project.status}
-                    </span>
-                  </div>
-                  <p className="text-gray-600 mb-3">{project.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="text-sm text-gray-500">Equipment: {project.equipmentType}</span>
-                      <span className="text-sm text-gray-500">Phase: {project.manufacturingPhase}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm text-gray-600">{project.progress}%</span>
-                    </div>
-                  </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Users className="w-4 h-4 text-blue-600" />
                 </div>
-              ))}
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">New team member added</p>
+                  <p className="text-xs text-gray-500">2 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-orange-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">New project created</p>
+                  <p className="text-xs text-gray-500">5 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckSquare className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">Task completed</p>
+                  <p className="text-xs text-gray-500">1 day ago</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Welcome Message */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-blue-900 mb-2">Welcome to {COMPANY_CONFIG.name} PMS!</h3>
-          <p className="text-blue-700">
-            You're now logged in as <strong>{user?.name}</strong> ({user?.role}). 
-            This is your project management dashboard for {COMPANY_CONFIG.industry.toLowerCase()} operations.
-          </p>
+          {/* Quick Stats */}
+          <div className="bg-white rounded-lg p-6 card-shadow">
+            <div className="flex items-center mb-4">
+              <BarChart3 className="w-5 h-5 text-gray-600 mr-2" />
+              <h2 className="text-lg font-semibold text-gray-900">Quick Stats</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Pending Approvals</span>
+                <span className="text-lg font-semibold text-orange-600">3</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Active Users</span>
+                <span className="text-lg font-semibold text-gray-900">-</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Pending Tasks</span>
+                <span className="text-lg font-semibold text-gray-900">-</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Total Revenue</span>
+                <span className="text-lg font-semibold text-gray-900">-</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>

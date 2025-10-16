@@ -100,63 +100,52 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
         {/* Topbar */}
-        <div className="bg-card border-b border-border px-4 py-3">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side - Mobile menu button and breadcrumb */}
-            <div className="flex items-center space-x-3">
+            {/* Left side - Mobile menu button and page title */}
+            <div className="flex items-center space-x-4">
               {/* Mobile menu button */}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden"
+                className="lg:hidden text-gray-500 hover:text-gray-700"
               >
                 <Menu className="w-5 h-5" />
               </Button>
               
-              {/* Breadcrumb */}
-              <div className="flex items-center space-x-2">
-                {getBreadcrumb(pathname).map((item, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    {index > 0 && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-                    <span className={`text-sm font-medium ${
-                      index === getBreadcrumb(pathname).length - 1 
-                        ? 'text-foreground' 
-                        : 'text-muted-foreground'
-                    }`}>
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {/* Page Title */}
+              <h1 className="text-2xl font-bold text-gray-900">
+                {getPageTitle(pathname)}
+              </h1>
             </div>
             
             {/* Right side - Notifications and User Profile */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-4">
               {/* Notifications */}
               <div className="relative" ref={notificationsRef}>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="relative"
+                  className="relative text-gray-500 hover:text-gray-700"
                 >
                   <Bell className="w-5 h-5" />
                   {/* Notification badge */}
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">46</span>
                 </Button>
                 
                 {/* Notifications dropdown */}
                 {notificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-card rounded-lg shadow-lg border border-border z-[70]">
-                    <div className="p-4 border-b border-border">
-                      <h3 className="font-semibold text-card-foreground">Notifications</h3>
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-[70]">
+                    <div className="p-4 border-b border-gray-200">
+                      <h3 className="font-semibold text-gray-900">Notifications</h3>
                     </div>
                     <div className="p-4">
-                      <div className="text-center text-muted-foreground py-8">
-                        <Bell className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <div className="text-center text-gray-500 py-8">
+                        <Bell className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                         <p>No new notifications</p>
                       </div>
                     </div>
@@ -165,76 +154,30 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
 
               {/* User Profile */}
-              <div className="relative" ref={profileRef}>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-white">
+                    {user?.name?.charAt(0) || 'S'}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-600">
+                  {user?.name || 'Admin User'}
+                </span>
                 <Button
-                  variant="ghost"
-                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center space-x-2 px-3 py-2"
+                  variant="outline"
+                  onClick={handleSignOut}
+                  className="flex items-center space-x-2 text-gray-600 border-gray-300 hover:bg-gray-50"
                 >
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary-foreground">
-                      {user?.name?.charAt(0) || 'U'}
-                    </span>
-                  </div>
-                  <div className="hidden sm:block text-left">
-                    <p className="text-sm font-medium text-card-foreground">
-                      {user?.name || 'User'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {user?.role || 'Employee'}
-                    </p>
-                  </div>
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
                 </Button>
-
-                {/* Profile dropdown */}
-                {profileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-lg border border-border z-[70]">
-                    <div className="p-4 border-b border-border">
-                      <p className="font-semibold text-card-foreground">{user?.name || 'User'}</p>
-                      <p className="text-sm text-muted-foreground">{user?.email || 'user@example.com'}</p>
-                    </div>
-                    <div className="py-2">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-4 py-2"
-                        onClick={() => {
-                          setProfileDropdownOpen(false)
-                          // Navigate to profile page
-                        }}
-                      >
-                        <User className="w-4 h-4 mr-3" />
-                        Profile
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-4 py-2"
-                        onClick={() => {
-                          setProfileDropdownOpen(false)
-                          // Navigate to settings page
-                        }}
-                      >
-                        <Settings className="w-4 h-4 mr-3" />
-                        Settings
-                      </Button>
-                      <div className="border-t border-border my-2"></div>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start px-4 py-2 text-destructive hover:text-destructive"
-                        onClick={handleSignOut}
-                      >
-                        <LogOut className="w-4 h-4 mr-3" />
-                        Sign out
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Page content with consistent spacing */}
-        <main className="flex-1 overflow-auto p-4">
+        <main className="flex-1 overflow-auto p-6">
           {children}
         </main>
       </div>
