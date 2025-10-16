@@ -85,8 +85,8 @@ const createProjects = (userIds: string[]): Omit<Project, 'id' | 'createdAt' | '
     description: 'Development of automated assembly line with advanced robotics and AI integration for manufacturing efficiency.',
     status: 'active',
     priority: 'high',
-    manager: userIds[1], // Sarah Johnson
-    team: [userIds[2], userIds[3]], // Mike Chen, Lisa Rodriguez
+    manager: userIds[1]!, // Sarah Johnson
+    team: [userIds[2]!, userIds[3]!], // Mike Chen, Lisa Rodriguez
     startDate: '2024-01-15',
     endDate: '2024-06-30',
     budget: 2500000,
@@ -102,8 +102,8 @@ const createProjects = (userIds: string[]): Omit<Project, 'id' | 'createdAt' | '
     description: 'Implementation of IoT-enabled smart manufacturing system with real-time monitoring and predictive maintenance.',
     status: 'active',
     priority: 'high',
-    manager: userIds[1], // Sarah Johnson
-    team: [userIds[2], userIds[4]], // Mike Chen, David Kim
+    manager: userIds[1]!, // Sarah Johnson
+    team: [userIds[2]!, userIds[4]!], // Mike Chen, David Kim
     startDate: '2024-02-01',
     endDate: '2024-07-15',
     budget: 1800000,
@@ -119,8 +119,8 @@ const createProjects = (userIds: string[]): Omit<Project, 'id' | 'createdAt' | '
     description: 'Development of automated quality control systems with machine learning and computer vision integration.',
     status: 'planning',
     priority: 'medium',
-    manager: userIds[1], // Sarah Johnson
-    team: [userIds[3]], // Lisa Rodriguez
+    manager: userIds[1]!, // Sarah Johnson
+    team: [userIds[3]!], // Lisa Rodriguez
     startDate: '2024-08-01',
     endDate: '2024-12-31',
     budget: 2200000,
@@ -136,8 +136,8 @@ const createProjects = (userIds: string[]): Omit<Project, 'id' | 'createdAt' | '
     description: 'Implementation of comprehensive smart sensor network for real-time manufacturing monitoring and optimization.',
     status: 'completed',
     priority: 'medium',
-    manager: userIds[1], // Sarah Johnson
-    team: [userIds[2], userIds[4]], // Mike Chen, David Kim
+    manager: userIds[1]!, // Sarah Johnson
+    team: [userIds[2]!, userIds[4]!], // Mike Chen, David Kim
     startDate: '2023-09-01',
     endDate: '2024-01-31',
     budget: 2000000,
@@ -156,14 +156,14 @@ const createTasks = (userIds: string[], projectIds: string[]): Omit<Task, 'id' |
     description: 'Design and engineer the control system for industrial robot assembly line with AI integration.',
     status: 'done',
     priority: 'high',
-    assignee: userIds[2], // Mike Chen
-    reporter: userIds[1], // Sarah Johnson
-    projectId: projectIds[0], // Industrial Robot Assembly Line
+    assignee: userIds[2]!, // Mike Chen
+    reporter: userIds[1]!, // Sarah Johnson
+    projectId: projectIds[0]!, // Industrial Robot Assembly Line
     dueDate: '2024-01-30',
     estimatedHours: 80,
     actualHours: 75,
     tags: ['design', 'robotics', 'ai', 'control'],
-    comments: [{ userId: userIds[1], text: 'Excellent work on the robot control design!', timestamp: '2024-01-30T10:00:00Z' }],
+    comments: [{ userId: userIds[1]!, text: 'Excellent work on the robot control design!', timestamp: '2024-01-30T10:00:00Z' }],
     manufacturingStep: 'Design & Engineering',
     qualityCheckpoints: ['Design Review', 'Safety Analysis'],
     safetyRequirements: ['OSHA Robotics Standards', 'Safety Testing']
@@ -173,9 +173,9 @@ const createTasks = (userIds: string[], projectIds: string[]): Omit<Task, 'id' |
     description: 'Integrate IoT sensors into smart manufacturing system for real-time monitoring capabilities.',
     status: 'in_progress',
     priority: 'high',
-    assignee: userIds[4], // David Kim
-    reporter: userIds[1], // Sarah Johnson
-    projectId: projectIds[1], // Smart Manufacturing System
+    assignee: userIds[4]!, // David Kim
+    reporter: userIds[1]!, // Sarah Johnson
+    projectId: projectIds[1]!, // Smart Manufacturing System
     dueDate: '2024-03-20',
     estimatedHours: 40,
     actualHours: 25,
@@ -190,9 +190,9 @@ const createTasks = (userIds: string[], projectIds: string[]): Omit<Task, 'id' |
     description: 'Develop machine learning models for predictive maintenance and quality control automation.',
     status: 'todo',
     priority: 'medium',
-    assignee: userIds[2], // Mike Chen
-    reporter: userIds[1], // Sarah Johnson
-    projectId: projectIds[2], // Quality Control Automation
+    assignee: userIds[2]!, // Mike Chen
+    reporter: userIds[1]!, // Sarah Johnson
+    projectId: projectIds[2]!, // Quality Control Automation
     dueDate: '2024-04-15',
     estimatedHours: 60,
     actualHours: 0,
@@ -207,9 +207,9 @@ const createTasks = (userIds: string[], projectIds: string[]): Omit<Task, 'id' |
     description: 'Review and finalize automation system specifications for smart sensor network.',
     status: 'todo',
     priority: 'medium',
-    assignee: userIds[3], // Lisa Rodriguez
-    reporter: userIds[1], // Sarah Johnson
-    projectId: projectIds[3], // Smart Sensor Network
+    assignee: userIds[3]!, // Lisa Rodriguez
+    reporter: userIds[1]!, // Sarah Johnson
+    projectId: projectIds[3]!, // Smart Sensor Network
     dueDate: '2024-08-15',
     estimatedHours: 50,
     actualHours: 0,
@@ -226,7 +226,7 @@ const createActivities = (userIds: string[], projectIds: string[]): Omit<Activit
     type: 'task_completed',
     title: 'Task Completed',
     description: 'Mike Chen completed "Design Robot Control System" for Industrial Robot Assembly Line',
-    userId: userIds[2],
+    userId: userIds[2]!!,
     userName: 'Mike Chen',
     userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     timestamp: '2024-01-30T10:30:00Z',
@@ -236,7 +236,7 @@ const createActivities = (userIds: string[], projectIds: string[]): Omit<Activit
     type: 'project_created',
     title: 'Project Created',
     description: 'Sarah Johnson created "Smart Manufacturing System" automation project',
-    userId: userIds[1],
+    userId: userIds[1]!!,
     userName: 'Sarah Johnson',
     userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
     timestamp: '2024-02-01T14:00:00Z',
@@ -246,7 +246,7 @@ const createActivities = (userIds: string[], projectIds: string[]): Omit<Activit
     type: 'quality_check',
     title: 'Quality Check Completed',
     description: 'David Kim completed quality control inspection on Smart Sensor Network components',
-    userId: userIds[4],
+    userId: userIds[4]!!,
     userName: 'David Kim',
     userAvatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=150&h=150&fit=crop&crop=face',
     timestamp: '2024-01-15T09:00:00Z',
@@ -256,11 +256,11 @@ const createActivities = (userIds: string[], projectIds: string[]): Omit<Activit
     type: 'task_assigned',
     title: 'Task Assigned',
     description: 'Machine Learning Model Development assigned to Mike Chen for Quality Control Automation',
-    userId: userIds[1],
+    userId: userIds[1]!!,
     userName: 'Sarah Johnson',
     userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
     timestamp: '2024-03-01T11:00:00Z',
-    metadata: { taskId: 'ml-model-task', assigneeId: userIds[2] }
+    metadata: { taskId: 'ml-model-task', assigneeId: userIds[2]! }
   }
 ];
 
@@ -270,50 +270,50 @@ const createOrgChartNodes = (userIds: string[]): Omit<OrgChartNode, 'id'>[] => [
     position: 'CEO',
     department: 'Executive',
     manager: null,
-    reports: [userIds[1], userIds[4]], // Sarah Johnson, David Kim
+    reports: [userIds[1]!, userIds[4]!], // Sarah Johnson, David Kim
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     level: 0,
-    userId: userIds[0]
+    userId: userIds[0]!
   },
   {
     name: 'Sarah Johnson',
     position: 'Manufacturing Manager',
     department: 'Manufacturing',
-    manager: userIds[0], // John Admin
-    reports: [userIds[2], userIds[3]], // Mike Chen, Lisa Rodriguez
+    manager: userIds[0]!, // John Admin
+    reports: [userIds[2]!, userIds[3]!], // Mike Chen, Lisa Rodriguez
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
     level: 1,
-    userId: userIds[1]
+    userId: userIds[1]!
   },
   {
     name: 'David Kim',
     position: 'Quality Manager',
     department: 'Quality Assurance',
-    manager: userIds[0], // John Admin
+    manager: userIds[0]!, // John Admin
     reports: [],
     avatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=150&h=150&fit=crop&crop=face',
     level: 1,
-    userId: userIds[4]
+    userId: userIds[4]!
   },
   {
     name: 'Mike Chen',
     position: 'Senior Manufacturing Engineer',
     department: 'Engineering',
-    manager: userIds[1], // Sarah Johnson
+    manager: userIds[1]!, // Sarah Johnson
     reports: [],
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     level: 2,
-    userId: userIds[2]
+    userId: userIds[2]!
   },
   {
     name: 'Lisa Rodriguez',
     position: 'Equipment Design Engineer',
     department: 'Design',
-    manager: userIds[1], // Sarah Johnson
+    manager: userIds[1]!, // Sarah Johnson
     reports: [],
     avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
     level: 2,
-    userId: userIds[3]
+    userId: userIds[3]!
   }
 ];
 

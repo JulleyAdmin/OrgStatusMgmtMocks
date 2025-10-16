@@ -19,7 +19,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       set({ loading: true })
       const user = await authService.signIn(email, password)
-      set({ user, loading: false })
+      if (user) {
+        set({ user, loading: false })
+      } else {
+        set({ loading: false })
+        throw new Error('Login failed. User not found.')
+      }
     } catch (error) {
       set({ loading: false })
       throw error

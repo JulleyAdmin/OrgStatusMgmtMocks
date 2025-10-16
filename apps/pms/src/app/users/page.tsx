@@ -301,7 +301,7 @@ export default function UsersPage() {
                                 </div>
                               </div>
                               <div className="flex flex-wrap gap-1 mt-2">
-                                {(user.skills || []).map((skill, index) => (
+                                {(Array.isArray(user.skills) ? user.skills : []).map((skill, index) => (
                                   <span key={index} className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded">
                                     {skill}
                                   </span>

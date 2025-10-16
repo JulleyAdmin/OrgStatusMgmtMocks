@@ -5,7 +5,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, getDocs, collection } from 'firebase/firestore'
 import { auth, db } from './firebase'
 import { User } from '../types'
 
@@ -15,18 +15,25 @@ export const authService = {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const user = userCredential.user
       
-      // Get user data from Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid))
-      if (userDoc.exists()) {
-        return {
-          id: user.uid,
-          ...userDoc.data(),
-          createdAt: userDoc.data().createdAt.toDate(),
-          updatedAt: userDoc.data().updatedAt.toDate()
-        } as User
+      // Get user data from Firestore - check in companies collection
+      // First, try to find the user in any company
+      const companiesSnapshot = await getDocs(collection(db, 'companies'))
+      let userData = null
+      
+      for (const companyDoc of companiesSnapshot.docs) {
+        const userDoc = await getDoc(doc(db, `companies/${companyDoc.id}/users`, user.uid))
+        if (userDoc.exists()) {
+          userData = {
+            id: user.uid,
+            ...userDoc.data(),
+            createdAt: userDoc.data().createdAt.toDate().toISOString(),
+            updatedAt: userDoc.data().updatedAt.toDate().toISOString()
+          } as User
+          break
+        }
       }
       
-      return null
+      return userData
     } catch (error) {
       console.error('Sign in error:', error)
       throw error
@@ -74,18 +81,24 @@ export const authService = {
     return onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
-          if (userDoc.exists()) {
-            const userData = {
-              id: firebaseUser.uid,
-              ...userDoc.data(),
-              createdAt: userDoc.data().createdAt.toDate(),
-              updatedAt: userDoc.data().updatedAt.toDate()
-            } as User
-            callback(userData)
-          } else {
-            callback(null)
+          // Get user data from Firestore - check in companies collection
+          const companiesSnapshot = await getDocs(collection(db, 'companies'))
+          let userData = null
+          
+          for (const companyDoc of companiesSnapshot.docs) {
+            const userDoc = await getDoc(doc(db, `companies/${companyDoc.id}/users`, firebaseUser.uid))
+            if (userDoc.exists()) {
+              userData = {
+                id: firebaseUser.uid,
+                ...userDoc.data(),
+                createdAt: userDoc.data().createdAt.toDate().toISOString(),
+                updatedAt: userDoc.data().updatedAt.toDate().toISOString()
+              } as User
+              break
+            }
           }
+          
+          callback(userData)
         } catch (error) {
           console.error('Error fetching user data:', error)
           callback(null)

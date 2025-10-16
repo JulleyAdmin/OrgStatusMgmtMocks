@@ -44,7 +44,7 @@ export class UserService {
           department: data.department || 'Unknown Department',
           position: data.position || 'Unknown Position',
           avatar: data.avatar || undefined,
-          skills: data.skills || [],
+          skills: Array.isArray(data.skills) ? data.skills : [],
           contact: {
             phone: data.contact?.phone || 'Not provided',
             slack: data.contact?.slack || 'Not provided'
@@ -73,7 +73,7 @@ export class UserService {
           department: data.department || 'Unknown Department',
           position: data.position || 'Unknown Position',
           avatar: data.avatar || undefined,
-          skills: data.skills || [],
+          skills: Array.isArray(data.skills) ? data.skills : [],
           contact: {
             phone: data.contact?.phone || 'Not provided',
             slack: data.contact?.slack || 'Not provided'

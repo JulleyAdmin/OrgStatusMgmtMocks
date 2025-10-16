@@ -170,7 +170,7 @@ export default function TaskCenterPage() {
                           <span>Step: {task.manufacturingStep}</span>
                         </div>
                         <div className="flex space-x-1">
-                          {task.tags.map((tag, index) => (
+                          {(Array.isArray(task.tags) ? task.tags : []).map((tag, index) => (
                             <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
                               {tag}
                             </span>

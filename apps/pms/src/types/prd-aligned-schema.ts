@@ -172,7 +172,7 @@ export interface PRDAlignedProject {
   
   // Task routing (FR5, FR6)
   routingRules: RoutingRule[]
-  lastRoutingDecision: RoutingDecision?
+  lastRoutingDecision: RoutingDecision | null
   manualOverrides: ManualOverride[]
   
   // Approval workflow (FR7)

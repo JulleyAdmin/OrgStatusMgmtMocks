@@ -382,7 +382,7 @@ const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<
     status: 'completed',
     dependencies: [],
     deliverables: [],
-    reviewers: [userIds[1], userIds[0]],
+    reviewers: [userIds[1]!, userIds[0]!],
     approvedBy: userIds[0]!,
     approvedAt: '2024-02-15T16:00:00Z',
     notes: 'All design specifications approved and ready for prototyping'
@@ -397,7 +397,7 @@ const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<
     status: 'completed',
     dependencies: ['milestone-1'],
     deliverables: [],
-    reviewers: [userIds[1], userIds[4]],
+    reviewers: [userIds[1]!, userIds[4]!],
     approvedBy: userIds[1]!,
     approvedAt: '2024-03-15T14:30:00Z',
     notes: 'Prototype meets all specifications and quality standards'
@@ -411,7 +411,7 @@ const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<
     status: 'upcoming',
     dependencies: ['milestone-2'],
     deliverables: [],
-    reviewers: [userIds[1], userIds[0], userIds[4]],
+    reviewers: [userIds[1]!, userIds[0]!, userIds[4]!],
     notes: 'Target completion of manufacturing phase'
   },
   {
@@ -423,7 +423,7 @@ const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<
     status: 'upcoming',
     dependencies: [],
     deliverables: [],
-    reviewers: [userIds[1], userIds[4]],
+    reviewers: [userIds[1]!, userIds[4]!],
     notes: 'Complete integration of IoT monitoring system'
   }
 ];
@@ -442,7 +442,7 @@ const createProjectTemplates = (userIds: string[]): Omit<ProjectTemplate, 'id' |
     estimatedDuration: 180,
     estimatedBudget: 2000000,
     isActive: true,
-    createdBy: userIds[1]
+    createdBy: userIds[1]!
   },
   {
     name: 'Smart Manufacturing System Template',
@@ -457,7 +457,7 @@ const createProjectTemplates = (userIds: string[]): Omit<ProjectTemplate, 'id' |
     estimatedDuration: 150,
     estimatedBudget: 1500000,
     isActive: true,
-    createdBy: userIds[1]
+    createdBy: userIds[1]!
   }
 ];
 
@@ -519,7 +519,7 @@ const createProjectBudgets = (projectIds: string[]): Omit<ProjectBudget, 'id' | 
 const createProjectTimeTracking = (projectIds: string[], userIds: string[]): Omit<ProjectTimeTracking, 'id' | 'createdAt' | 'updatedAt'>[] => [
   {
     projectId: projectIds[0]!,
-    userId: userIds[2], // Mike Chen
+    userId: userIds[2]!, // Mike Chen
     userName: 'Mike Chen',
     date: '2024-03-15',
     hoursWorked: 8,
@@ -531,7 +531,7 @@ const createProjectTimeTracking = (projectIds: string[], userIds: string[]): Omi
   },
   {
     projectId: projectIds[0]!,
-    userId: userIds[3], // Lisa Rodriguez
+    userId: userIds[3]!, // Lisa Rodriguez
     userName: 'Lisa Rodriguez',
     date: '2024-03-15',
     hoursWorked: 7.5,
@@ -543,7 +543,7 @@ const createProjectTimeTracking = (projectIds: string[], userIds: string[]): Omi
   },
   {
     projectId: projectIds[1]!,
-    userId: userIds[4], // David Kim
+    userId: userIds[4]!, // David Kim
     userName: 'David Kim',
     date: '2024-03-15',
     hoursWorked: 6,

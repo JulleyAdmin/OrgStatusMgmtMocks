@@ -260,17 +260,3 @@ export interface CompanyStats {
   qualityScore: number
 }
 
-// Export all types
-export type {
-  Company,
-  CompanySettings,
-  CompanySubscription,
-  CompanyBranding,
-  CompanyLimits,
-  CompanyFeatures,
-  CompanyUser,
-  CompanyPermissions,
-  CompanyInvitation,
-  CompanyActivity,
-  CompanyStats
-}

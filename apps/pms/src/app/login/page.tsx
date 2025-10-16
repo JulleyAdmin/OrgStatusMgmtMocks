@@ -16,13 +16,6 @@ export default function LoginPage() {
   const { user, signIn, loading: authLoading } = useAuthStore()
   const router = useRouter()
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!authLoading && user) {
-      router.push('/dashboard')
-    }
-  }, [user, authLoading, router])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -44,7 +37,7 @@ export default function LoginPage() {
     try {
       await signIn(email, password)
       toast.success('Login successful!')
-      router.push('/dashboard')
+      // AuthGuard will handle the redirect to dashboard
     } catch (error: any) {
       console.error('Login error:', error)
       toast.error(error.message || 'Login failed. Please check your credentials.')
