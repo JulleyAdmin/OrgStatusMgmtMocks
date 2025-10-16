@@ -3,16 +3,14 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/DashboardLayout'
-import { ProjectCreationForm } from '@/components/ProjectCreationForm'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ProjectCreationWizard } from '@/components/ProjectCreationWizard'
 import { 
-  PRDAlignedProject, 
   Position, 
   WorkflowTemplate, 
   ComplianceRequirement 
 } from '@/types/prd-aligned-schema'
 import { EnhancedProject } from '@/types/project-schema'
+import toast from 'react-hot-toast'
 
 export default function CreateProjectPage() {
   const router = useRouter()
@@ -198,7 +196,6 @@ export default function CreateProjectPage() {
 
   const handleProjectCreated = (project: EnhancedProject) => {
     console.log('Enhanced project created:', project)
-    alert(`Project "${project.name}" created successfully!`)
     router.push('/projects')
   }
 
@@ -230,24 +227,14 @@ export default function CreateProjectPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gray-50">
-        <div className="mx-auto">
-          <div className="mb-6">
-            <p className="text-gray-600">
-              Create a new project using AI-Powered Organizational Hierarchy Platform with position-based architecture, intelligent routing, and compliance automation.
-            </p>
-          </div>
-          
-          <ProjectCreationForm
-            onProjectCreated={handleProjectCreated}
-            onCancel={handleCancel}
-            currentUser={currentUser}
-            positions={positions}
-            workflowTemplates={workflowTemplates}
-            complianceRequirements={complianceRequirements}
-          />
-        </div>
-      </div>
+      <ProjectCreationWizard
+        onProjectCreated={handleProjectCreated}
+        onCancel={handleCancel}
+        currentUser={currentUser}
+        positions={positions}
+        workflowTemplates={workflowTemplates}
+        complianceRequirements={complianceRequirements}
+      />
     </DashboardLayout>
   )
 }

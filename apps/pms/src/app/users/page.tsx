@@ -254,8 +254,7 @@ export default function UsersPage() {
                     </table>
                   </div>
                 ) : (
-                  <ScrollArea className="h-96">
-                    <div className="space-y-4">
+                  <div className="space-y-4">
                       {users.length === 0 ? (
                         <div className="text-center py-12">
                           <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -328,8 +327,7 @@ export default function UsersPage() {
                         </div>
                         ))
                       )}
-                    </div>
-                  </ScrollArea>
+                  </div>
                 )}
               </div>
             </div>

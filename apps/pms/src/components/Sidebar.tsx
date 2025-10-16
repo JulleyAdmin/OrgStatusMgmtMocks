@@ -120,34 +120,6 @@ export function Sidebar({ className }: SidebarProps) {
           </Button>
         </div>
 
-        {/* User Profile Section */}
-        <div className="px-4 py-3 border-b border-gray-200">
-          {!isCollapsed ? (
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {user?.name?.charAt(0) || 'S'}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user?.name || 'Admin User'}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {user?.role || 'Administrator'}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {user?.name?.charAt(0) || 'S'}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Navigation */}
         <ScrollArea className="flex-1 px-3 py-4">

@@ -136,7 +136,7 @@ export default function ProjectsPage() {
           <div className="bg-card rounded-lg border shadow-sm p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Projects</p>
+                <p className="text-sm font-medium text-muted-foreground">Total</p>
                 <p className="text-2xl font-bold text-card-foreground">{projects.length}</p>
               </div>
               <Building2 className="h-8 w-8 text-primary" />
@@ -146,7 +146,7 @@ export default function ProjectsPage() {
           <div className="bg-card rounded-lg border shadow-sm p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Projects</p>
+                <p className="text-sm font-medium text-muted-foreground">Active</p>
                 <p className="text-2xl font-bold text-success">
                   {projects.filter(p => p.status === 'active').length}
                 </p>
@@ -158,7 +158,7 @@ export default function ProjectsPage() {
           <div className="bg-card rounded-lg border shadow-sm p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">In Progress</p>
+                <p className="text-sm font-medium text-muted-foreground">Planning</p>
                 <p className="text-2xl font-bold text-warning">
                   {projects.filter(p => p.status === 'planning').length}
                 </p>
@@ -181,9 +181,9 @@ export default function ProjectsPage() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {/* Project List */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="bg-card rounded-lg border shadow-sm">
               <div className="px-4 py-3 border-b border-border">
                 <h2 className="text-xl font-semibold text-card-foreground">All Projects</h2>
@@ -197,185 +197,87 @@ export default function ProjectsPage() {
                     onView={handleViewProject}
                   />
                 ) : (
-                  <ScrollArea className="h-[600px]">
-                    <div className="space-y-3">
-                  {projects.map((project) => (
-                        <div key={project.id} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center space-x-3">
-                              <Building2 className="w-5 h-5 text-primary" />
-                              <div>
-                                <h3 className="font-semibold text-card-foreground text-base">{project.name}</h3>
-                                <p className="text-sm text-muted-foreground">{project.description}</p>
-                              </div>
+                  <div className="space-y-3">
+                    {projects.map((project) => (
+                      <div key={project.id} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <Building2 className="w-5 h-5 text-primary" />
+                            <div>
+                              <h3 className="font-semibold text-card-foreground text-base">{project.name}</h3>
+                              <p className="text-sm text-muted-foreground">{project.description}</p>
                             </div>
-                        <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
-                            {project.status}
-                          </span>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(project.priority)}`}>
-                            {project.priority}
-                          </span>
-                              <ActionMenu
-                                items={[
-                                  createViewAction(() => handleViewProject(project)),
-                                  createEditAction(() => handleEditProject(project)),
-                                  createDeleteAction(() => setDeleteDialog({ open: true, project }))
-                                ]}
-                                size="sm"
-                              />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
+                              {project.status}
+                            </span>
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(project.priority)}`}>
+                              {project.priority}
+                            </span>
+                            <ActionMenu
+                              items={[
+                                createViewAction(() => handleViewProject(project)),
+                                createEditAction(() => handleEditProject(project)),
+                                createDeleteAction(() => setDeleteDialog({ open: true, project }))
+                              ]}
+                              size="sm"
+                            />
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Progress Bar */}
-                      <div className="mb-3">
-                            <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
-                          <span>Progress</span>
-                              <span className="font-medium">{project.progress || 0}%</span>
+                        
+                        {/* Progress Bar */}
+                        <div className="mb-3">
+                          <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
+                            <span>Progress</span>
+                            <span className="font-medium">{project.progress || 0}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div 
+                              className="bg-primary h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${project.progress || 0}%` }}
+                            />
+                          </div>
                         </div>
-                            <div className="w-full bg-muted rounded-full h-2">
-                              <div 
-                                className="bg-primary h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${project.progress || 0}%` }}
-                              />
-                        </div>
-                      </div>
 
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                            <div className="flex items-center space-x-2">
-                              <Users className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                {Array.isArray(project.team) ? project.team.length : 0} members
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <DollarSign className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                ${project.budget?.toLocaleString() || 'N/A'}
-                              </span>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <Users className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              {Array.isArray(project.team) ? project.team.length : 0} members
+                            </span>
                           </div>
-                            <div className="flex items-center space-x-2">
-                              <AlertCircle className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                {project.riskLevel || 'Low'} risk
-                              </span>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}
+                            </span>
                           </div>
+                          <div className="flex items-center space-x-2">
+                            <DollarSign className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              ${project.budget?.toLocaleString() || 'N/A'}
+                            </span>
                           </div>
-                          
-                          <div className="flex flex-wrap gap-1 mt-3">
-                            {(Array.isArray(project.tags) ? project.tags : []).map((tag, index) => (
-                              <span key={index} className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
+                          <div className="flex items-center space-x-2">
+                            <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              {project.riskLevel || 'Low'} risk
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-1 mt-3">
+                          {(Array.isArray(project.tags) ? project.tags : []).map((tag, index) => (
+                            <span key={index} className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
                               {tag}
                             </span>
                           ))}
                         </div>
                       </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
+                    ))}
+                  </div>
                 )}
-                </div>
-            </div>
-          </div>
-
-          {/* Project Stats & Insights */}
-          <div className="space-y-4">
-            {/* Project Overview */}
-            <div className="bg-card rounded-lg border shadow-sm p-4">
-              <h3 className="text-lg font-semibold text-card-foreground mb-3">Project Overview</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Total Budget</span>
-                  <span className="font-semibold text-card-foreground">
-                    ${projects.reduce((sum, p) => sum + (p.budget || 0), 0).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Avg. Progress</span>
-                  <span className="font-semibold text-card-foreground">
-                    {projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + (p.progress || 0), 0) / projects.length) : 0}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Team Members</span>
-                  <span className="font-semibold text-card-foreground">
-                    {projects.reduce((sum, p) => sum + (Array.isArray(p.team) ? p.team.length : 0), 0)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Status Distribution */}
-            <div className="bg-card rounded-lg border shadow-sm p-4">
-              <h3 className="text-lg font-semibold text-card-foreground mb-3">Status Distribution</h3>
-              <div className="space-y-2">
-                {['active', 'planning', 'completed', 'on-hold'].map((status) => {
-                  const count = projects.filter(p => p.status === status).length;
-                  const percentage = projects.length > 0 ? (count / projects.length) * 100 : 0;
-                  return (
-                    <div key={status} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground capitalize">{status.replace('-', ' ')}</span>
-                        <span className="font-medium text-card-foreground">{count}</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(status)}`}
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Priority Distribution */}
-            <div className="bg-card rounded-lg border shadow-sm p-4">
-              <h3 className="text-lg font-semibold text-card-foreground mb-3">Priority Distribution</h3>
-              <div className="space-y-2">
-                {['high', 'medium', 'low'].map((priority) => {
-                  const count = projects.filter(p => p.priority === priority).length;
-                  const percentage = projects.length > 0 ? (count / projects.length) * 100 : 0;
-                  return (
-                    <div key={priority} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground capitalize">{priority}</span>
-                        <span className="font-medium text-card-foreground">{count}</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full transition-all duration-300 ${getPriorityColor(priority)}`}
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                  </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="bg-card rounded-lg border shadow-sm p-4">
-              <h3 className="text-lg font-semibold text-card-foreground mb-3">Recent Activity</h3>
-              <div className="space-y-2">
-                {projects.slice(0, 5).map((project) => (
-                  <div key={project.id} className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-primary rounded-full" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-card-foreground truncate">{project.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {project.lastActivityDate ? new Date(project.lastActivityDate).toLocaleDateString() : 'No recent activity'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           </div>

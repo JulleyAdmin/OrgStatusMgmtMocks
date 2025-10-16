@@ -2,16 +2,18 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { Sidebar } from '@/components/Sidebar'
 import { Button } from '@/components/ui/button'
-import { Menu, ChevronRight, Bell, User, Settings, LogOut } from 'lucide-react'
+import { Menu, ChevronRight, Bell, User, Settings, LogOut, Home } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
+  projectName?: string
 }
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children, projectName }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -60,17 +62,33 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const breadcrumb = []
     
     if (segments.length === 0) {
-      return ['Dashboard']
+      return [{ label: 'Dashboard', href: '/dashboard' }]
     }
     
-    if (segments[0] === 'projects' && segments[1] === 'create') {
-      return ['Projects', 'Create Project']
+    // Handle specific project routes
+    if (segments[0] === 'projects') {
+      breadcrumb.push({ label: 'Projects', href: '/projects' })
+      
+      if (segments[1] === 'create') {
+        breadcrumb.push({ label: 'Create Project', href: '/projects/create' })
+      } else if (segments[1] && segments[1] !== 'create') {
+        // This is a project ID - use project name if available
+        breadcrumb.push({ label: projectName || 'Project Details', href: `/projects/${segments[1]}` })
+      }
+    } else {
+      // Default breadcrumb generation
+      let currentPath = ''
+      segments.forEach((segment, index) => {
+        currentPath += `/${segment}`
+        const capitalized = segment.charAt(0).toUpperCase() + segment.slice(1)
+        breadcrumb.push({ 
+          label: capitalized, 
+          href: currentPath 
+        })
+      })
     }
     
-    return segments.map(segment => {
-      const capitalized = segment.charAt(0).toUpperCase() + segment.slice(1)
-      return capitalized
-    })
+    return breadcrumb
   }
 
   const handleSignOut = async () => {
@@ -104,7 +122,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Topbar */}
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side - Mobile menu button and page title */}
+            {/* Left side - Mobile menu button and breadcrumbs */}
             <div className="flex items-center space-x-4">
               {/* Mobile menu button */}
               <Button
@@ -116,10 +134,27 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Menu className="w-5 h-5" />
               </Button>
               
-              {/* Page Title */}
-              <h1 className="text-2xl font-bold text-gray-900">
-                {getPageTitle(pathname)}
-              </h1>
+              {/* Breadcrumbs */}
+              <nav className="flex items-center space-x-2 text-sm">
+                <Link href="/dashboard" className="text-gray-500 hover:text-gray-700">
+                  <Home className="w-4 h-4" />
+                </Link>
+                {getBreadcrumb(pathname).map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                    {index === getBreadcrumb(pathname).length - 1 ? (
+                      <span className="font-medium text-gray-900">{item.label}</span>
+                    ) : (
+                      <Link 
+                        href={item.href} 
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </nav>
             </div>
             
             {/* Right side - Notifications and User Profile */}

@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator'
 import { useCompany } from '@/contexts/CompanyContext'
 import { ProjectService } from '@/lib/project-services'
 import { EnhancedProject } from '@/types/project-schema'
-import { ArrowLeft, Save, Calendar, DollarSign, Users, AlertCircle, CheckCircle, Clock, Target } from 'lucide-react'
+import { Save, Calendar, DollarSign, Users, AlertCircle, CheckCircle, Clock, Target } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function ProjectDetailsPage() {
@@ -124,10 +124,6 @@ export default function ProjectDetailsPage() {
             <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-card-foreground mb-2">Project Not Found</h3>
             <p className="text-muted-foreground mb-4">The project you're looking for doesn't exist.</p>
-            <Button onClick={() => router.push('/projects')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Projects
-            </Button>
           </div>
         </div>
       </DashboardLayout>
@@ -135,19 +131,13 @@ export default function ProjectDetailsPage() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout projectName={project.name}>
       <div className="mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={() => router.push('/projects')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Projects
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">{project.name}</h1>
-              <p className="text-muted-foreground">{project.description}</p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">{project.name}</h1>
+            <p className="text-muted-foreground">{project.description}</p>
           </div>
           <div className="flex items-center space-x-2">
             {!isEditing ? (
