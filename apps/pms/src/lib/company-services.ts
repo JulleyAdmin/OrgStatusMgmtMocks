@@ -96,9 +96,10 @@ export class CompanyService {
       
       const snapshot = await getDocs(q);
       if (snapshot.docs.length > 0) {
+        const firstDoc = snapshot.docs[0]!;
         return {
-          id: snapshot.docs[0].id,
-          ...convertTimestamps(snapshot.docs[0].data())
+          id: firstDoc.id,
+          ...convertTimestamps(firstDoc.data())
         } as Company;
       }
       return null;
@@ -274,7 +275,7 @@ export class CompanyUserService {
   }
 
   // Update user role in company
-  static async updateUserRole(companyId: string, userId: string, role: string, permissions: CompanyPermissions): Promise<void> {
+  static async updateUserRole(companyId: string, userId: string, role: string, permissions: any): Promise<void> {
     try {
       const docRef = doc(db, `companies/${companyId}/users`, userId);
       await updateDoc(docRef, {

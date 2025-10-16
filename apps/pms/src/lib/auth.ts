@@ -51,7 +51,9 @@ export const authService = {
       
       return {
         id: user.uid,
-        ...userDoc
+        ...userDoc,
+        createdAt: userDoc.createdAt.toISOString(),
+        updatedAt: userDoc.updatedAt.toISOString()
       } as User
     } catch (error) {
       console.error('Sign up error:', error)

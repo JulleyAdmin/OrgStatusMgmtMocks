@@ -2,12 +2,10 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, Timestamp, writeBatch, doc } from "firebase/firestore";
 import { 
-  User, 
-  Project, 
-  Task, 
-  Activity, 
-  OrgChartNode, 
-  Workflow,
+  User
+} from '../types';
+import { 
+  EnhancedProject as Project, 
   ProjectPhase,
   ProjectDeliverable,
   ProjectResource,
@@ -17,10 +15,7 @@ import {
   ProjectComment,
   ProjectTemplate,
   ProjectBudget,
-  ProjectTimeTracking,
-  Equipment,
-  QualityCheck,
-  SafetyInspection
+  ProjectTimeTracking
 } from '../types/project-schema';
 
 // Your web app's Firebase configuration
@@ -105,8 +100,8 @@ const createEnhancedProjects = (userIds: string[]): Omit<Project, 'id' | 'create
     description: 'Development of automated assembly line with advanced robotics and AI integration for manufacturing efficiency.',
     status: 'active',
     priority: 'high',
-    manager: userIds[1], // Sarah Johnson
-    team: [userIds[2], userIds[3]], // Mike Chen, Lisa Rodriguez
+    manager: userIds[1]!,
+    team: [userIds[2]!, userIds[3]!],
     startDate: '2024-01-15',
     endDate: '2024-06-30',
     budget: 2500000,
@@ -131,7 +126,7 @@ const createEnhancedProjects = (userIds: string[]): Omit<Project, 'id' | 'create
     resolvedIssuesCount: 2,
     lastActivityDate: '2024-03-15T14:30:00Z',
     requiresApproval: true,
-    approvedBy: userIds[0],
+    approvedBy: userIds[0]!,
     approvedAt: '2024-01-10T09:00:00Z',
     approvalNotes: 'Approved for Phase 2 manufacturing'
   },
@@ -140,8 +135,8 @@ const createEnhancedProjects = (userIds: string[]): Omit<Project, 'id' | 'create
     description: 'Implementation of IoT-enabled smart manufacturing system with real-time monitoring and predictive maintenance.',
     status: 'active',
     priority: 'high',
-    manager: userIds[1], // Sarah Johnson
-    team: [userIds[2], userIds[4]], // Mike Chen, David Kim
+    manager: userIds[1]!, // Sarah Johnson
+    team: [userIds[2]!, userIds[4]!], // Mike Chen, David Kim
     startDate: '2024-02-01',
     endDate: '2024-07-15',
     budget: 1800000,
@@ -166,7 +161,7 @@ const createEnhancedProjects = (userIds: string[]): Omit<Project, 'id' | 'create
     resolvedIssuesCount: 1,
     lastActivityDate: '2024-03-14T16:45:00Z',
     requiresApproval: true,
-    approvedBy: userIds[0],
+    approvedBy: userIds[0]!,
     approvedAt: '2024-01-25T11:30:00Z',
     approvalNotes: 'Approved for IoT integration phase'
   }
@@ -175,7 +170,7 @@ const createEnhancedProjects = (userIds: string[]): Omit<Project, 'id' | 'create
 const createProjectPhases = (projectIds: string[], userIds: string[]): Omit<ProjectPhase, 'id' | 'createdAt' | 'updatedAt'>[] => [
   // Industrial Robot Assembly Line phases
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     name: 'Design & Engineering Phase',
     description: 'Initial design and engineering of the robot assembly line system',
     phase: 'Design & Engineering',
@@ -189,7 +184,7 @@ const createProjectPhases = (projectIds: string[], userIds: string[]): Omit<Proj
     risks: []
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     name: 'Prototyping Phase',
     description: 'Building and testing prototype components',
     phase: 'Prototyping',
@@ -203,7 +198,7 @@ const createProjectPhases = (projectIds: string[], userIds: string[]): Omit<Proj
     risks: []
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     name: 'Manufacturing Phase',
     description: 'Full-scale manufacturing and assembly',
     phase: 'Manufacturing',
@@ -218,7 +213,7 @@ const createProjectPhases = (projectIds: string[], userIds: string[]): Omit<Proj
   },
   // Smart Manufacturing System phases
   {
-    projectId: projectIds[1],
+    projectId: projectIds[1]!,
     name: 'Production Planning Phase',
     description: 'Planning and preparation for IoT system implementation',
     phase: 'Production Planning',
@@ -235,40 +230,40 @@ const createProjectPhases = (projectIds: string[], userIds: string[]): Omit<Proj
 
 const createProjectDeliverables = (phaseIds: string[], userIds: string[]): Omit<ProjectDeliverable, 'id' | 'createdAt' | 'updatedAt'>[] => [
   {
-    phaseId: phaseIds[0], // Design & Engineering Phase
+    phaseId: phaseIds[0]!, // Design & Engineering Phase
     name: 'System Architecture Document',
     description: 'Complete system architecture and design specifications',
     type: 'document',
     status: 'completed',
-    assignee: userIds[2], // Mike Chen
+    assignee: userIds[2]!, // Mike Chen
     dueDate: '2024-02-10',
     completedDate: '2024-02-08',
     files: [],
     approvalRequired: true,
-    approvedBy: userIds[1],
+    approvedBy: userIds[1]!,
     approvedAt: '2024-02-09T10:00:00Z'
   },
   {
-    phaseId: phaseIds[0],
+    phaseId: phaseIds[0]!,
     name: 'Robot Control System Design',
     description: 'Detailed design of the robot control system with AI integration',
     type: 'system',
     status: 'completed',
-    assignee: userIds[3], // Lisa Rodriguez
+    assignee: userIds[3]!, // Lisa Rodriguez
     dueDate: '2024-02-15',
     completedDate: '2024-02-14',
     files: [],
     approvalRequired: true,
-    approvedBy: userIds[1],
+    approvedBy: userIds[1]!,
     approvedAt: '2024-02-15T14:30:00Z'
   },
   {
-    phaseId: phaseIds[2], // Manufacturing Phase
+    phaseId: phaseIds[2]!, // Manufacturing Phase
     name: 'Assembly Line Prototype',
     description: 'Working prototype of the complete assembly line',
     type: 'prototype',
     status: 'in_progress',
-    assignee: userIds[2], // Mike Chen
+    assignee: userIds[2]!, // Mike Chen
     dueDate: '2024-05-15',
     files: [],
     approvalRequired: true
@@ -277,8 +272,8 @@ const createProjectDeliverables = (phaseIds: string[], userIds: string[]): Omit<
 
 const createProjectResources = (projectIds: string[], phaseIds: string[], userIds: string[]): Omit<ProjectResource, 'id' | 'createdAt' | 'updatedAt'>[] => [
   {
-    projectId: projectIds[0],
-    phaseId: phaseIds[2], // Manufacturing Phase
+    projectId: projectIds[0]!,
+    phaseId: phaseIds[2]!, // Manufacturing Phase
     name: 'Industrial Robot Arm - Model XR-2000',
     type: 'equipment',
     category: 'Robotics',
@@ -288,7 +283,7 @@ const createProjectResources = (projectIds: string[], phaseIds: string[], userId
     cost: 150000,
     supplier: 'RoboTech Industries',
     status: 'allocated',
-    allocatedTo: userIds[2],
+    allocatedTo: userIds[2]!,
     allocationDate: '2024-03-20',
     specifications: {
       payload: '50kg',
@@ -298,7 +293,7 @@ const createProjectResources = (projectIds: string[], phaseIds: string[], userId
     }
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     name: 'Steel Components - Grade A36',
     type: 'material',
     category: 'Raw Materials',
@@ -315,7 +310,7 @@ const createProjectResources = (projectIds: string[], phaseIds: string[], userId
     }
   },
   {
-    projectId: projectIds[1],
+    projectId: projectIds[1]!,
     name: 'IoT Sensors Package',
     type: 'equipment',
     category: 'Sensors',
@@ -335,41 +330,41 @@ const createProjectResources = (projectIds: string[], phaseIds: string[], userId
 
 const createProjectRisks = (projectIds: string[], phaseIds: string[], userIds: string[]): Omit<ProjectRisk, 'id' | 'createdAt' | 'updatedAt'>[] => [
   {
-    projectId: projectIds[0],
-    phaseId: phaseIds[2], // Manufacturing Phase
+    projectId: projectIds[0]!,
+    phaseId: phaseIds[2]!, // Manufacturing Phase
     title: 'Supply Chain Delay',
     description: 'Potential delay in receiving critical robot components due to supply chain issues',
     category: 'schedule',
     probability: 'medium',
     impact: 'high',
     status: 'monitoring',
-    owner: userIds[1], // Sarah Johnson
+    owner: userIds[1]!, // Sarah Johnson
     mitigationPlan: 'Identify alternative suppliers and maintain buffer inventory',
     contingencyPlan: 'Extend project timeline by 2 weeks if needed',
     identifiedDate: '2024-03-01'
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     title: 'Technical Integration Challenge',
     description: 'Complex integration between AI system and existing manufacturing equipment',
     category: 'technical',
     probability: 'high',
     impact: 'medium',
     status: 'mitigating',
-    owner: userIds[2], // Mike Chen
+    owner: userIds[2]!, // Mike Chen
     mitigationPlan: 'Conduct thorough testing and have backup integration approach',
     contingencyPlan: 'Use simplified integration approach if needed',
     identifiedDate: '2024-02-15'
   },
   {
-    projectId: projectIds[1],
+    projectId: projectIds[1]!,
     title: 'Budget Overrun Risk',
     description: 'IoT sensor costs may exceed budget due to market price fluctuations',
     category: 'budget',
     probability: 'low',
     impact: 'medium',
     status: 'monitoring',
-    owner: userIds[1], // Sarah Johnson
+    owner: userIds[1]!, // Sarah Johnson
     mitigationPlan: 'Monitor market prices and negotiate bulk discounts',
     contingencyPlan: 'Reduce sensor count or use alternative suppliers',
     identifiedDate: '2024-02-20'
@@ -378,7 +373,7 @@ const createProjectRisks = (projectIds: string[], phaseIds: string[], userIds: s
 
 const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<ProjectMilestone, 'id' | 'createdAt' | 'updatedAt'>[] => [
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     name: 'Design Phase Complete',
     description: 'All design deliverables completed and approved',
     type: 'phase_gate',
@@ -388,12 +383,12 @@ const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<
     dependencies: [],
     deliverables: [],
     reviewers: [userIds[1], userIds[0]],
-    approvedBy: userIds[0],
+    approvedBy: userIds[0]!,
     approvedAt: '2024-02-15T16:00:00Z',
     notes: 'All design specifications approved and ready for prototyping'
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     name: 'Prototype Testing Complete',
     description: 'Prototype testing and validation completed',
     type: 'review',
@@ -403,12 +398,12 @@ const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<
     dependencies: ['milestone-1'],
     deliverables: [],
     reviewers: [userIds[1], userIds[4]],
-    approvedBy: userIds[1],
+    approvedBy: userIds[1]!,
     approvedAt: '2024-03-15T14:30:00Z',
     notes: 'Prototype meets all specifications and quality standards'
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     name: 'Manufacturing Phase Complete',
     description: 'Full-scale manufacturing and assembly completed',
     type: 'phase_gate',
@@ -420,7 +415,7 @@ const createProjectMilestones = (projectIds: string[], userIds: string[]): Omit<
     notes: 'Target completion of manufacturing phase'
   },
   {
-    projectId: projectIds[1],
+    projectId: projectIds[1]!,
     name: 'IoT System Integration',
     description: 'IoT sensors and monitoring system integration complete',
     type: 'deliverable',
@@ -468,7 +463,7 @@ const createProjectTemplates = (userIds: string[]): Omit<ProjectTemplate, 'id' |
 
 const createProjectBudgets = (projectIds: string[]): Omit<ProjectBudget, 'id' | 'createdAt' | 'updatedAt'>[] => [
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     category: 'equipment',
     name: 'Robot Equipment',
     description: 'Industrial robot arms and control systems',
@@ -481,7 +476,7 @@ const createProjectBudgets = (projectIds: string[]): Omit<ProjectBudget, 'id' | 
     lastUpdated: '2024-03-15T10:00:00Z'
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     category: 'materials',
     name: 'Raw Materials',
     description: 'Steel, aluminum, and other raw materials',
@@ -494,7 +489,7 @@ const createProjectBudgets = (projectIds: string[]): Omit<ProjectBudget, 'id' | 
     lastUpdated: '2024-03-15T10:00:00Z'
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     category: 'personnel',
     name: 'Engineering Team',
     description: 'Engineering and design team costs',
@@ -507,7 +502,7 @@ const createProjectBudgets = (projectIds: string[]): Omit<ProjectBudget, 'id' | 
     lastUpdated: '2024-03-15T10:00:00Z'
   },
   {
-    projectId: projectIds[1],
+    projectId: projectIds[1]!,
     category: 'equipment',
     name: 'IoT Sensors',
     description: 'IoT sensors and monitoring equipment',
@@ -523,7 +518,7 @@ const createProjectBudgets = (projectIds: string[]): Omit<ProjectBudget, 'id' | 
 
 const createProjectTimeTracking = (projectIds: string[], userIds: string[]): Omit<ProjectTimeTracking, 'id' | 'createdAt' | 'updatedAt'>[] => [
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     userId: userIds[2], // Mike Chen
     userName: 'Mike Chen',
     date: '2024-03-15',
@@ -531,11 +526,11 @@ const createProjectTimeTracking = (projectIds: string[], userIds: string[]): Omi
     description: 'Robot control system integration and testing',
     billable: true,
     hourlyRate: 75,
-    approvedBy: userIds[1],
+    approvedBy: userIds[1]!,
     approvedAt: '2024-03-15T17:00:00Z'
   },
   {
-    projectId: projectIds[0],
+    projectId: projectIds[0]!,
     userId: userIds[3], // Lisa Rodriguez
     userName: 'Lisa Rodriguez',
     date: '2024-03-15',
@@ -543,11 +538,11 @@ const createProjectTimeTracking = (projectIds: string[], userIds: string[]): Omi
     description: 'Design review and documentation updates',
     billable: true,
     hourlyRate: 70,
-    approvedBy: userIds[1],
+    approvedBy: userIds[1]!,
     approvedAt: '2024-03-15T17:00:00Z'
   },
   {
-    projectId: projectIds[1],
+    projectId: projectIds[1]!,
     userId: userIds[4], // David Kim
     userName: 'David Kim',
     date: '2024-03-15',
@@ -555,7 +550,7 @@ const createProjectTimeTracking = (projectIds: string[], userIds: string[]): Omi
     description: 'IoT sensor testing and quality validation',
     billable: true,
     hourlyRate: 80,
-    approvedBy: userIds[1],
+    approvedBy: userIds[1]!,
     approvedAt: '2024-03-15T17:00:00Z'
   }
 ];

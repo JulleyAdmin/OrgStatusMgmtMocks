@@ -3,6 +3,7 @@ import { EnhancedProject } from "@/types/project-schema"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ActionMenu, createViewAction, createEditAction, createDeleteAction } from "@/components/ui/action-menu"
 import { 
   Table, 
   TableBody, 
@@ -143,34 +144,14 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
               <TableCell>
                 <div className="flex items-center gap-1">
                   {onView && (
-                    <Button
-                      variant="ghost"
+                    <ActionMenu
+                      items={[
+                        createViewAction(() => onView(project)),
+                        createEditAction(() => onEdit?.(project)),
+                        createDeleteAction(() => onDelete?.(project))
+                      ]}
                       size="sm"
-                      onClick={() => onView(project)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {onEdit && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit(project)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {onDelete && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete(project)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    />
                   )}
                 </div>
               </TableCell>

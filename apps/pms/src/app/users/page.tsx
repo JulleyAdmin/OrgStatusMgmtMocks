@@ -91,7 +91,7 @@ export default function UsersPage() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </DashboardLayout>
     )
@@ -197,6 +197,7 @@ export default function UsersPage() {
                           <th className="text-left py-2 px-4 font-medium text-muted-foreground">Department</th>
                           <th className="text-left py-2 px-4 font-medium text-muted-foreground">Email</th>
                           <th className="text-left py-2 px-4 font-medium text-muted-foreground">Phone</th>
+                          <th className="text-left py-2 px-4 font-medium text-muted-foreground">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -231,6 +232,16 @@ export default function UsersPage() {
                             <td className="py-3 px-4 text-muted-foreground">{user.department}</td>
                             <td className="py-3 px-4 text-muted-foreground">{user.email}</td>
                             <td className="py-3 px-4 text-muted-foreground">{user.contact?.phone || 'Not provided'}</td>
+                            <td className="py-3 px-4">
+                              <ActionMenu
+                                items={[
+                                  createViewAction(() => handleViewUser(user)),
+                                  createEditAction(() => handleEditUser(user)),
+                                  createDeleteAction(() => setDeleteDialog({ open: true, user }))
+                                ]}
+                                size="sm"
+                              />
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -296,6 +307,16 @@ export default function UsersPage() {
                                   </span>
                                 ))}
                               </div>
+                            </div>
+                            <div className="flex-shrink-0">
+                              <ActionMenu
+                                items={[
+                                  createViewAction(() => handleViewUser(user)),
+                                  createEditAction(() => handleEditUser(user)),
+                                  createDeleteAction(() => setDeleteDialog({ open: true, user }))
+                                ]}
+                                size="sm"
+                              />
                             </div>
                           </div>
                         </div>
@@ -372,6 +393,18 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, user: null })}
+        title="Delete User"
+        description={`Are you sure you want to delete ${deleteDialog.user?.name}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={() => deleteDialog.user && handleDeleteUser(deleteDialog.user)}
+      />
     </DashboardLayout>
   )
 }

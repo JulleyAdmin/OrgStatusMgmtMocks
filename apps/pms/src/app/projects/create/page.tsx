@@ -12,6 +12,7 @@ import {
   WorkflowTemplate, 
   ComplianceRequirement 
 } from '@/types/prd-aligned-schema'
+import { EnhancedProject } from '@/types/project-schema'
 
 export default function CreateProjectPage() {
   const router = useRouter()
@@ -195,9 +196,9 @@ export default function CreateProjectPage() {
     loadData()
   }, [])
 
-  const handleProjectCreated = (project: PRDAlignedProject) => {
-    console.log('PRD-aligned project created:', project)
-    alert(`Position-based project "${project.name}" created successfully!\n\nKey Features:\n- Position-based routing: ${project.assignedPositionId}\n- Matrix positions: ${project.matrixPositions.length}\n- Compliance requirements: ${project.complianceRequirements.length}\n- Workflow steps: ${project.workflowSteps.length}`)
+  const handleProjectCreated = (project: EnhancedProject) => {
+    console.log('Enhanced project created:', project)
+    alert(`Project "${project.name}" created successfully!`)
     router.push('/projects')
   }
 

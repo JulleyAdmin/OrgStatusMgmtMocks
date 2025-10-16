@@ -11,7 +11,10 @@ import { ProjectService } from '@/lib/project-services'
 import { useCompany } from '@/contexts/CompanyContext'
 import { ViewToggle, ViewType } from '@/components/ui/view-toggle'
 import { ProjectTable } from '@/components/ProjectTable'
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
+import { ActionMenu, createViewAction, createEditAction, createDeleteAction } from '@/components/ui/action-menu'
 import { Building2, Plus, Users, Calendar, DollarSign, TrendingUp, Clock, AlertCircle } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function ProjectsPage() {
   const router = useRouter()
@@ -19,6 +22,10 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<EnhancedProject[]>([])
   const [loading, setLoading] = useState(true)
   const [viewType, setViewType] = useState<ViewType>('card')
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean
+    project: EnhancedProject | null
+  }>({ open: false, project: null })
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -74,11 +81,34 @@ export default function ProjectsPage() {
     }
   }
 
+  const handleDeleteProject = async (project: EnhancedProject) => {
+    if (!companyId) return
+
+    try {
+      await ProjectService.deleteProject(companyId, project.id)
+      setProjects(projects.filter(p => p.id !== project.id))
+      toast.success(`${project.name} has been deleted successfully`)
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      toast.error('Failed to delete project. Please try again.')
+    }
+  }
+
+  const handleViewProject = (project: EnhancedProject) => {
+    // TODO: Implement project detail view
+    toast.success(`Viewing ${project.name}`)
+  }
+
+  const handleEditProject = (project: EnhancedProject) => {
+    // TODO: Implement project edit form
+    toast.success(`Editing ${project.name}`)
+  }
+
   if (loading || companyLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </DashboardLayout>
     )
@@ -163,9 +193,9 @@ export default function ProjectsPage() {
                 {viewType === 'table' ? (
                   <ProjectTable 
                     projects={projects}
-                    onEdit={(project) => console.log('Edit project:', project)}
-                    onDelete={(project) => console.log('Delete project:', project)}
-                    onView={(project) => console.log('View project:', project)}
+                    onEdit={handleEditProject}
+                    onDelete={(project) => setDeleteDialog({ open: true, project })}
+                    onView={handleViewProject}
                   />
                 ) : (
                   <ScrollArea className="h-[600px]">
@@ -179,14 +209,22 @@ export default function ProjectsPage() {
                                 <h3 className="font-semibold text-card-foreground text-base">{project.name}</h3>
                                 <p className="text-sm text-muted-foreground">{project.description}</p>
                               </div>
-                        </div>
-                        <div className="flex space-x-2">
+                            </div>
+                        <div className="flex items-center space-x-2">
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
                             {project.status}
                           </span>
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(project.priority)}`}>
                             {project.priority}
                           </span>
+                              <ActionMenu
+                                items={[
+                                  createViewAction(() => handleViewProject(project)),
+                                  createEditAction(() => handleEditProject(project)),
+                                  createDeleteAction(() => setDeleteDialog({ open: true, project }))
+                                ]}
+                                size="sm"
+                              />
                         </div>
                       </div>
                       
@@ -344,6 +382,18 @@ export default function ProjectsPage() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, project: null })}
+        title="Delete Project"
+        description={`Are you sure you want to delete ${deleteDialog.project?.name}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={() => deleteDialog.project && handleDeleteProject(deleteDialog.project)}
+      />
     </DashboardLayout>
   )
 }

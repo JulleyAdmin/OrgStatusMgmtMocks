@@ -15,11 +15,12 @@ import {
   ApprovalMatrix,
   RoutingRule
 } from '@/types/prd-aligned-schema'
+import { EnhancedProject } from '@/types/project-schema'
 import { ProjectService } from '@/lib/project-services'
 import { useCompany } from '@/contexts/CompanyContext'
 
 interface ProjectCreationFormProps {
-  onProjectCreated?: (project: PRDAlignedProject) => void
+  onProjectCreated?: (project: EnhancedProject) => void
   onCancel?: () => void
   currentUser: any
   positions: Position[]
@@ -203,7 +204,7 @@ export function ProjectCreationForm({
     setIsSubmitting(true)
     try {
       // Create PRD-aligned project data
-      const projectData: Omit<PRDAlignedProject, 'id' | 'createdAt' | 'updatedAt'> = {
+      const projectData = {
         ...values,
         actualCost: 0,
         progress: 0,
@@ -213,7 +214,7 @@ export function ProjectCreationForm({
         workflowSteps: selectedTemplate?.steps || [],
         currentStepId: selectedTemplate?.steps[0]?.id,
         routingRules: [],
-        lastRoutingDecision: null,
+        lastRoutingDecision: null as any,
         manualOverrides: [],
         approvalStatus: values.requiresApproval ? 'pending' : 'approved',
         approvalHistory: [],
@@ -236,7 +237,7 @@ export function ProjectCreationForm({
         description: values.description,
         status: values.status,
         priority: values.priority,
-        manager: currentUser.id,
+        manager: values.assignedUserId || 'unassigned',
         team: values.assignedUserId ? [values.assignedUserId] : [],
         startDate: values.startDate,
         endDate: values.endDate,
@@ -271,13 +272,13 @@ export function ProjectCreationForm({
       
       if (onProjectCreated) {
         // Create the project object for the callback
-        const createdProject: PRDAlignedProject = {
+        const createdProject = {
           id: projectId,
           ...projectData,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
-        onProjectCreated(createdProject)
+        onProjectCreated(createdProject as any)
       }
     } catch (error) {
       console.error('Error creating project:', error)
@@ -357,7 +358,7 @@ export function ProjectCreationForm({
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="mx-auto p-6">
       <Card>
         <CardHeader>
           <CardTitle>Create New Project</CardTitle>
