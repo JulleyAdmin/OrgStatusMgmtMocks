@@ -237,7 +237,7 @@ export function ProjectCreationForm({
         description: values.description,
         status: values.status,
         priority: values.priority,
-        manager: values.assignedUserId || 'unassigned',
+        manager: values.assignedUserId || null,
         team: values.assignedUserId ? [values.assignedUserId] : [],
         startDate: values.startDate,
         endDate: values.endDate,
@@ -249,8 +249,10 @@ export function ProjectCreationForm({
         manufacturingPhase: values.manufacturingPhase || 'Design & Engineering',
         qualityStandards: values.qualityStandards || [],
         complianceRequirements: values.complianceRequirements,
+        templateId: values.workflowTemplateId || null,
         projectCode: values.projectCode,
         department: values.department,
+        client: values.client || null,
         location: values.location,
         totalTasks: 0,
         completedTasks: 0,
@@ -263,9 +265,9 @@ export function ProjectCreationForm({
         resolvedIssuesCount: 0,
         lastActivityDate: new Date().toISOString(),
         requiresApproval: values.requiresApproval,
-        approvedBy: values.requiresApproval ? undefined : currentUser.id,
-        approvedAt: values.requiresApproval ? undefined : new Date().toISOString(),
-        approvalNotes: values.requiresApproval ? undefined : 'Auto-approved'
+        approvedBy: values.requiresApproval ? null : currentUser.id,
+        approvedAt: values.requiresApproval ? null : new Date().toISOString(),
+        approvalNotes: values.requiresApproval ? null : 'Auto-approved'
       })
       
       console.log('Project created successfully with ID:', projectId)

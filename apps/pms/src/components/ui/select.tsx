@@ -81,8 +81,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                   <CommandItem
                     key={option.value}
                     value={option.value}
-                    onSelect={(currentValue) => {
-                      onValueChange?.(currentValue)
+                    onSelect={() => {
+                      onValueChange?.(option.value)
                       setOpen(false)
                     }}
                     disabled={option.disabled}

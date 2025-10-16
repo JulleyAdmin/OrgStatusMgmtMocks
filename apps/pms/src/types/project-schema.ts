@@ -198,7 +198,7 @@ export interface EnhancedProject {
   description: string
   status: 'planning' | 'active' | 'on-hold' | 'completed' | 'cancelled'
   priority: 'low' | 'medium' | 'high' | 'urgent'
-  manager: string // User ID
+  manager: string | null // User ID
   team: string[] // User IDs
   startDate: string
   endDate: string
@@ -212,8 +212,8 @@ export interface EnhancedProject {
   complianceRequirements: string[]
   
   // Additional fields for enhanced project management
-  templateId?: string // Reference to ProjectTemplate
-  client?: string
+  templateId?: string | null // Reference to ProjectTemplate
+  client?: string | null
   clientContact?: string
   projectCode: string
   department: string
@@ -239,9 +239,9 @@ export interface EnhancedProject {
   
   // Approval workflow
   requiresApproval: boolean
-  approvedBy?: string // User ID
-  approvedAt?: string
-  approvalNotes?: string
+  approvedBy?: string | null // User ID
+  approvedAt?: string | null
+  approvalNotes?: string | null
   
   createdAt: string
   updatedAt: string
