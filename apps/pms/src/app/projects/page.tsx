@@ -100,8 +100,7 @@ export default function ProjectsPage() {
   }
 
   const handleEditProject = (project: EnhancedProject) => {
-    // TODO: Implement project edit form
-    toast.success(`Editing ${project.name}`)
+    router.push(`/projects/${project.id}`)
   }
 
   if (loading || companyLoading) {

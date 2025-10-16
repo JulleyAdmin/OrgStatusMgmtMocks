@@ -10,6 +10,7 @@ import { useCompany } from '@/contexts/CompanyContext'
 import { ViewToggle, ViewType } from '@/components/ui/view-toggle'
 import { ActionMenu, createViewAction, createEditAction, createDeleteAction } from '@/components/ui/action-menu'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
+import { AddUserDrawer } from '@/components/AddUserDrawer'
 import { Users, Plus, Mail, Phone, MessageSquare } from 'lucide-react'
 import { UserService } from '@/lib/user-services'
 import toast from 'react-hot-toast'
@@ -24,6 +25,7 @@ export default function UsersPage() {
     open: boolean
     user: User | null
   }>({ open: false, user: null })
+  const [addUserDrawerOpen, setAddUserDrawerOpen] = useState(false)
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -87,6 +89,10 @@ export default function UsersPage() {
     toast.success(`Editing ${user.name}`)
   }
 
+  const handleUserAdded = (newUser: User) => {
+    setUsers(prev => [...prev, newUser])
+  }
+
   if (loading || companyLoading) {
     return (
       <DashboardLayout>
@@ -127,7 +133,7 @@ export default function UsersPage() {
           </div>
           <div className="flex items-center gap-4">
             <ViewToggle currentView={viewType} onViewChange={setViewType} />
-            <Button>
+            <Button onClick={() => setAddUserDrawerOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add User
             </Button>
@@ -179,9 +185,9 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {/* User List */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="bg-card rounded-lg border shadow-sm">
               <div className="px-4 py-3 border-b border-border">
                 <h2 className="text-xl font-semibold text-card-foreground">Team Members</h2>
@@ -328,69 +334,6 @@ export default function UsersPage() {
               </div>
             </div>
           </div>
-
-          {/* User Stats */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Team Overview</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Total Users</span>
-                  <span className="font-semibold">{users.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Admins</span>
-                  <span className="font-semibold text-red-600">
-                    {users.filter(u => u.role === 'admin').length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Managers</span>
-                  <span className="font-semibold text-blue-600">
-                    {users.filter(u => u.role === 'manager').length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Employees</span>
-                  <span className="font-semibold text-green-600">
-                    {users.filter(u => u.role === 'employee').length}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Departments</h3>
-              <div className="space-y-2">
-                {Array.from(new Set(users.map(u => u.department))).map((dept, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <span className="text-gray-600">{dept}</span>
-                    <span className="font-semibold">
-                      {users.filter(u => u.department === dept).length}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-              <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
-                  <Users className="w-4 h-4 mr-2" />
-                  Invite User
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Send Email
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Team Chat
-                </Button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -404,6 +347,13 @@ export default function UsersPage() {
         cancelText="Cancel"
         variant="destructive"
         onConfirm={() => deleteDialog.user && handleDeleteUser(deleteDialog.user)}
+      />
+
+      {/* Add User Drawer */}
+      <AddUserDrawer
+        open={addUserDrawerOpen}
+        onOpenChange={setAddUserDrawerOpen}
+        onUserAdded={handleUserAdded}
       />
     </DashboardLayout>
   )

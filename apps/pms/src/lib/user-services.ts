@@ -11,7 +11,8 @@ import {
   orderBy,
   Timestamp 
 } from 'firebase/firestore'
-import { db } from './firebase'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { db, auth } from './firebase'
 import { User } from '../types'
 
 const convertTimestamps = (data: any): any => {
@@ -88,15 +89,43 @@ export class UserService {
     }
   }
 
-  static async createUser(companyId: string, userData: Omit<User, 'id'>): Promise<string> {
+  static async createUser(companyId: string, userData: Omit<User, 'id'> & { password: string }): Promise<User> {
     try {
+      // Create Firebase Auth user
+      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password)
+      const firebaseUser = userCredential.user
+      
+      // Create user document in Firestore
       const usersRef = collection(db, `companies/${companyId}/users`)
-      const docRef = await addDoc(usersRef, {
-        ...userData,
+      const userDocData = {
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        department: userData.department,
+        position: userData.position,
+        avatar: userData.avatar,
+        skills: userData.skills,
+        contact: userData.contact,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
-      })
-      return docRef.id
+      }
+      
+      const docRef = await addDoc(usersRef, userDocData)
+      
+      // Return the created user object
+      return {
+        id: docRef.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        department: userData.department,
+        position: userData.position,
+        avatar: userData.avatar,
+        skills: userData.skills,
+        contact: userData.contact,
+        createdAt: userDocData.createdAt.toDate().toISOString(),
+        updatedAt: userDocData.updatedAt.toDate().toISOString()
+      } as User
     } catch (error) {
       console.error('Error creating user:', error)
       throw error
