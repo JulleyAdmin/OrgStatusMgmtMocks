@@ -47,10 +47,16 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
       '/projects': 'Projects',
       '/projects/create': 'Create Project',
       '/workflow': 'Workflow Designer',
+      '/organization': 'Organization',
       '/org-chart': 'Organization Chart',
       '/users': 'Users',
       '/notifications': 'Notifications',
       '/settings': 'Settings'
+    }
+    
+    // Handle dynamic routes like /projects/[id]
+    if (path.startsWith('/projects/') && path !== '/projects/create') {
+      return projectName || 'Project Details'
     }
     
     return routeMap[path] || 'Dashboard'
@@ -122,7 +128,7 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
         {/* Topbar */}
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side - Mobile menu button and breadcrumbs */}
+            {/* Left side - Mobile menu button and page title */}
             <div className="flex items-center space-x-4">
               {/* Mobile menu button */}
               <Button
@@ -134,27 +140,10 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
                 <Menu className="w-5 h-5" />
               </Button>
               
-              {/* Breadcrumbs */}
-              <nav className="flex items-center space-x-2 text-sm">
-                <Link href="/dashboard" className="text-gray-500 hover:text-gray-700">
-                  <Home className="w-4 h-4" />
-                </Link>
-                {getBreadcrumb(pathname).map((item, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                    {index === getBreadcrumb(pathname).length - 1 ? (
-                      <span className="font-medium text-gray-900">{item.label}</span>
-                    ) : (
-                      <Link 
-                        href={item.href} 
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        {item.label}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </nav>
+              {/* Page Title */}
+              <h1 className="text-2xl font-semibold text-gray-900">
+                {getPageTitle(pathname)}
+              </h1>
             </div>
             
             {/* Right side - Notifications and User Profile */}

@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore'
 import { DashboardMetrics, Project, Task, Activity } from '../../types'
 import { COMPANY_CONFIG } from '../../config/company'
 import { DashboardLayout } from '../../components/DashboardLayout'
+import { Breadcrumb } from '../../components/Breadcrumb'
 import { Users, Building2, BarChart3, Settings, CheckSquare } from 'lucide-react'
 
 export default function DashboardPage() {
@@ -103,9 +104,12 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+        
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Admin!</h1>
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">Welcome back, Admin!</h2>
           <p className="text-gray-600">Manage {COMPANY_CONFIG.name} administration and operations.</p>
         </div>
 

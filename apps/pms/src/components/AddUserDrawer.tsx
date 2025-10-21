@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Drawer, DrawerContent, DrawerFooter } from '@/components/ui/drawer'
 import { useCompany } from '@/contexts/CompanyContext'
@@ -171,12 +171,16 @@ export function AddUserDrawer({ open, onOpenChange, onUserAdded }: AddUserDrawer
                 <Select
                   value={formData.role}
                   onValueChange={(value) => handleInputChange('role', value)}
-                  options={[
-                    { value: 'employee', label: 'Employee' },
-                    { value: 'manager', label: 'Manager' },
-                    { value: 'admin', label: 'Admin' }
-                  ]}
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="employee">Employee</SelectItem>
+                    <SelectItem value="manager">Manager</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div>

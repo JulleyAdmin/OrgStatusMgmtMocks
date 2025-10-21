@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Select } from '@/components/ui/select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -492,32 +492,38 @@ export function ProjectCreationWizard({
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
                 <Select
-                  options={[
-                    { value: 'planning', label: 'Planning' },
-                    { value: 'active', label: 'Active' },
-                    { value: 'on-hold', label: 'On Hold' },
-                    { value: 'completed', label: 'Completed' },
-                    { value: 'cancelled', label: 'Cancelled' }
-                  ]}
                   value={values.status}
                   onValueChange={(value) => setValue('status', value)}
-                  placeholder="Select status..."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="planning">Planning</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="on-hold">On Hold</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
                 <Select
-                  options={[
-                    { value: 'low', label: 'Low' },
-                    { value: 'medium', label: 'Medium' },
-                    { value: 'high', label: 'High' },
-                    { value: 'urgent', label: 'Urgent' }
-                  ]}
                   value={values.priority}
                   onValueChange={(value) => setValue('priority', value)}
-                  placeholder="Select priority..."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -536,33 +542,40 @@ export function ProjectCreationWizard({
               <div className="space-y-2">
                 <Label htmlFor="assignedPositionId">Primary Position *</Label>
                 <Select
-                  options={[
-                    { value: '', label: 'Select primary position...' },
-                    ...positions.map(position => ({
-                      value: position.id,
-                      label: `${position.title} - ${position.department}`
-                    }))
-                  ]}
                   value={values.assignedPositionId}
                   onValueChange={(value) => {
                     setValue('assignedPositionId', value)
                     previewRouting()
                   }}
-                  placeholder="Select primary position..."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select primary position..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Select primary position...</SelectItem>
+                    {positions.map(position => (
+                      <SelectItem key={position.id} value={position.id}>
+                        {position.title} - {position.department}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.assignedPositionId && <p className="text-sm text-red-500">{errors.assignedPositionId}</p>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="assignedUserId">Specific Person (Optional)</Label>
                 <Select
-                  options={[
-                    { value: '', label: 'Auto-assign based on position' }
-                  ]}
                   value={values.assignedUserId}
                   onValueChange={(value) => setValue('assignedUserId', value)}
-                  placeholder="Auto-assign based on position"
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Auto-assign based on position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Auto-assign based on position</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -663,14 +676,20 @@ export function ProjectCreationWizard({
               <div className="space-y-2">
                 <Label htmlFor="costCategory">Cost Category</Label>
                 <Select
-                  options={COST_CATEGORIES.map(category => ({
-                    value: category,
-                    label: category
-                  }))}
                   value={values.costCategory}
                   onValueChange={(value) => setValue('costCategory', value)}
-                  placeholder="Select cost category..."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select cost category..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COST_CATEGORIES.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -725,35 +744,41 @@ export function ProjectCreationWizard({
               <div className="space-y-2">
                 <Label htmlFor="equipmentType">Equipment Type</Label>
                 <Select
-                  options={[
-                    { value: 'Industrial Robots', label: 'Industrial Robots' },
-                    { value: 'Automation Systems', label: 'Automation Systems' },
-                    { value: 'Manufacturing Equipment', label: 'Manufacturing Equipment' },
-                    { value: 'Quality Control Systems', label: 'Quality Control Systems' },
-                    { value: 'Smart Sensors', label: 'Smart Sensors' },
-                    { value: 'other', label: 'Other' }
-                  ]}
                   value={values.equipmentType}
                   onValueChange={(value) => setValue('equipmentType', value)}
-                  placeholder="Select equipment type..."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select equipment type..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Industrial Robots">Industrial Robots</SelectItem>
+                    <SelectItem value="Automation Systems">Automation Systems</SelectItem>
+                    <SelectItem value="Manufacturing Equipment">Manufacturing Equipment</SelectItem>
+                    <SelectItem value="Quality Control Systems">Quality Control Systems</SelectItem>
+                    <SelectItem value="Smart Sensors">Smart Sensors</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="manufacturingPhase">Manufacturing Phase</Label>
                 <Select
-                  options={[
-                    { value: 'Design & Engineering', label: 'Design & Engineering' },
-                    { value: 'Prototyping', label: 'Prototyping' },
-                    { value: 'Production Planning', label: 'Production Planning' },
-                    { value: 'Manufacturing', label: 'Manufacturing' },
-                    { value: 'Quality Testing', label: 'Quality Testing' },
-                    { value: 'Packaging & Delivery', label: 'Packaging & Delivery' }
-                  ]}
                   value={values.manufacturingPhase}
                   onValueChange={(value) => setValue('manufacturingPhase', value)}
-                  placeholder="Select manufacturing phase..."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select manufacturing phase..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Design & Engineering">Design & Engineering</SelectItem>
+                    <SelectItem value="Prototyping">Prototyping</SelectItem>
+                    <SelectItem value="Production Planning">Production Planning</SelectItem>
+                    <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="Quality Testing">Quality Testing</SelectItem>
+                    <SelectItem value="Packaging & Delivery">Packaging & Delivery</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -782,17 +807,21 @@ export function ProjectCreationWizard({
               <div className="space-y-2">
                 <Label htmlFor="workflowTemplate">Workflow Template (Optional)</Label>
                 <Select
-                  options={[
-                    { value: '', label: 'Select a workflow template...' },
-                    ...workflowTemplates.map(template => ({
-                      value: template.id,
-                      label: `${template.name} - ${template.category}`
-                    }))
-                  ]}
                   value={values.workflowTemplateId}
                   onValueChange={(value) => handleTemplateSelect(value)}
-                  placeholder="Select a workflow template..."
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a workflow template..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Select a workflow template...</SelectItem>
+                    {workflowTemplates.map(template => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name} - {template.category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {selectedTemplate && (
                   <div className="mt-2 p-3 bg-gray-50 border rounded-md">
                     <p className="text-sm text-gray-700">

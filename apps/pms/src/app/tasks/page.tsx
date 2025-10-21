@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/DashboardLayout'
+import { Breadcrumb } from '@/components/Breadcrumb'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { COMPANY_CONFIG } from '@/config/company'
@@ -131,10 +132,12 @@ export default function TaskCenterPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="space-y-4">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+        
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Task Center</h1>
             <p className="text-gray-600">Manage your {COMPANY_CONFIG.name} manufacturing tasks</p>
           </div>
           <Button>

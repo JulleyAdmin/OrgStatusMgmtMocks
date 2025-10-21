@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/DashboardLayout'
+import { Breadcrumb } from '@/components/Breadcrumb'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { COMPANY_CONFIG } from '@/config/company'
@@ -116,10 +117,12 @@ export default function ProjectsPage() {
   return (
     <DashboardLayout>
       <div className="mx-auto space-y-4">
+        {/* Breadcrumb */}
+        <Breadcrumb />
+        
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Projects</h1>
             <p className="text-muted-foreground">Manage your {COMPANY_CONFIG.name} manufacturing projects</p>
           </div>
           <div className="flex items-center gap-4">

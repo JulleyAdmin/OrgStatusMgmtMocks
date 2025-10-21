@@ -218,5 +218,86 @@ service cloud.firestore {
       );
       allow delete: if isAdmin();
     }
+    
+    // ========================================================================
+    // ORG STRUCTURE RULES (EPIC A - Org & Identity)
+    // ========================================================================
+    
+    // Departments
+    match /departments/{departmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Positions
+    match /positions/{positionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Position Assignments
+    match /positionAssignments/{assignmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (
+        isAuthenticated() && 
+        request.auth.uid == resource.data.userId
+      );
+      allow delete: if isAdmin();
+    }
+    
+    // Delegations
+    match /delegations/{delegationId} {
+      allow read: if isAuthenticated() && (
+        // Delegator, delegate, or admin can read
+        request.auth.uid == resource.data.delegatorUserId ||
+        request.auth.uid == resource.data.delegateUserId ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated() && (
+        // Only the delegator or admin can create
+        request.auth.uid == request.resource.data.delegatorUserId ||
+        isAdmin()
+      );
+      allow update: if isAuthenticated() && (
+        // Delegator can update, admin can approve/reject
+        request.auth.uid == resource.data.delegatorUserId ||
+        isAdmin() ||
+        isManager()
+      );
+      allow delete: if isAdmin() || (
+        isAuthenticated() && 
+        request.auth.uid == resource.data.delegatorUserId
+      );
+    }
+    
+    // Occupant Swaps
+    match /occupantSwaps/{swapId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Delegation Resolution Cache
+    match /delegationCache/{cacheId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // System needs to write cache
+    }
+    
+    // Org Audit Logs
+    match /orgAuditLogs/{logId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() || 
+        isManager()
+      );
+      allow create: if isAuthenticated(); // System creates audit logs
+      allow update: if false; // Audit logs are immutable
+      allow delete: if isAdmin();
+    }
   }
 }

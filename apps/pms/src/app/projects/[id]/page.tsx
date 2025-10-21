@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select } from '@/components/ui/select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -292,14 +292,18 @@ export default function ProjectDetailsPage() {
                       <Select
                         value={formData.status || project.status}
                         onValueChange={(value) => handleInputChange('status', value)}
-                        options={[
-                          { value: 'planning', label: 'Planning' },
-                          { value: 'in-progress', label: 'In Progress' },
-                          { value: 'on-hold', label: 'On Hold' },
-                          { value: 'completed', label: 'Completed' },
-                          { value: 'cancelled', label: 'Cancelled' }
-                        ]}
-                      />
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="planning">Planning</SelectItem>
+                          <SelectItem value="in-progress">In Progress</SelectItem>
+                          <SelectItem value="on-hold">On Hold</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <p className="text-sm font-medium mt-1">{project.status.replace('-', ' ').toUpperCase()}</p>
                     )}
@@ -310,12 +314,16 @@ export default function ProjectDetailsPage() {
                       <Select
                         value={formData.priority || project.priority}
                         onValueChange={(value) => handleInputChange('priority', value)}
-                        options={[
-                          { value: 'low', label: 'Low' },
-                          { value: 'medium', label: 'Medium' },
-                          { value: 'high', label: 'High' }
-                        ]}
-                      />
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <p className="text-sm font-medium mt-1">{project.priority.toUpperCase()}</p>
                     )}

@@ -20,7 +20,8 @@ import {
   BarChart3,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Network
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'next/navigation'
@@ -46,6 +47,11 @@ const navigation = [
     name: 'Workflow Designer',
     href: '/workflow',
     icon: Workflow,
+  },
+  {
+    name: 'Organization',
+    href: '/organization',
+    icon: Network,
   },
   {
     name: 'Org Chart',
