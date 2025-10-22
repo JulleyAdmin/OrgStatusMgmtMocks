@@ -70,7 +70,7 @@ export function DelegationManagement() {
       // Load positions and users
       const [positionsData, usersQuery] = await Promise.all([
         getPositions(companyId),
-        getDocs(query(collection(db, 'users'), where('companyId', '==', companyId))),
+        getDocs(collection(db, 'companies', companyId, 'users')),
       ])
 
       setPositions(positionsData)

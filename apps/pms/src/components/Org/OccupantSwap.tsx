@@ -59,11 +59,8 @@ export function OccupantSwap() {
       const positionsData = await getPositions(companyId)
       setPositions(positionsData)
 
-      // Load users
-      const usersQuery = query(
-        collection(db, 'users'),
-        where('companyId', '==', companyId)
-      )
+      // Load users from companies/{companyId}/users
+      const usersQuery = collection(db, 'companies', companyId, 'users')
       const usersSnap = await getDocs(usersQuery)
       const usersData = usersSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as User))
       setUsers(usersData)
