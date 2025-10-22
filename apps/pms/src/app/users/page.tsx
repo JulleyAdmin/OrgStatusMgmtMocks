@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { COMPANY_CONFIG } from '@/config/company'
 import { User } from '@/types'
@@ -13,7 +14,7 @@ import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { AddUserDrawer } from '@/components/AddUserDrawer'
 import { EditUserDrawer } from '@/components/EditUserDrawer'
 import { UserProfileView } from '@/components/UserProfileView'
-import { Users, Plus, Mail, Phone, MessageSquare } from 'lucide-react'
+import { Users, Plus, Mail, Phone, MessageSquare, Search, X } from 'lucide-react'
 import { UserService } from '@/lib/user-services'
 import toast from 'react-hot-toast'
 
@@ -23,6 +24,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewType, setViewType] = useState<ViewType>('card')
+  const [searchTerm, setSearchTerm] = useState('')
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean
     user: User | null
@@ -105,6 +107,17 @@ export default function UsersPage() {
     setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u))
   }
 
+  // Filter users based on search term
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.contact?.phone && user.contact.phone.includes(searchTerm)) ||
+    (user.skills && user.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())))
+  )
+
   if (loading || companyLoading) {
     return (
       <DashboardLayout>
@@ -150,6 +163,26 @@ export default function UsersPage() {
               Add User
             </Button>
           </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Search users by name, email, role, department, position, skills..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-10"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Stats Overview */}
@@ -202,7 +235,9 @@ export default function UsersPage() {
           <div>
             <div className="bg-card rounded-lg border shadow-sm">
               <div className="px-4 py-3 border-b border-border">
-                <h2 className="text-xl font-semibold text-card-foreground">Team Members</h2>
+                <h2 className="text-xl font-semibold text-card-foreground">
+                  Team Members {searchTerm && `(${filteredUsers.length} of ${users.length})`}
+                </h2>
               </div>
               <div className="p-4">
                 {viewType === 'table' ? (
@@ -219,7 +254,23 @@ export default function UsersPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {users.map((user) => (
+                        {filteredUsers.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="text-center py-12">
+                              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                              <h3 className="text-lg font-semibold text-card-foreground mb-2">No Users Found</h3>
+                              <p className="text-muted-foreground mb-4">
+                                {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first team member.'}
+                              </p>
+                              {searchTerm && (
+                                <Button variant="outline" onClick={() => setSearchTerm('')}>
+                                  Clear Search
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredUsers.map((user) => (
                           <tr key={user.id} className="border-b border-border hover:bg-muted/50">
                             <td className="py-3 px-4">
                               <div className="flex items-center space-x-3">
@@ -261,24 +312,33 @@ export default function UsersPage() {
                               />
                             </td>
                           </tr>
-                        ))}
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                      {users.length === 0 ? (
+                      {filteredUsers.length === 0 ? (
                         <div className="text-center py-12">
                           <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                           <h3 className="text-lg font-semibold text-card-foreground mb-2">No Users Found</h3>
-                          <p className="text-muted-foreground mb-4">Get started by adding your first team member.</p>
-                          <Button>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add First User
-                          </Button>
+                          <p className="text-muted-foreground mb-4">
+                            {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first team member.'}
+                          </p>
+                          {searchTerm ? (
+                            <Button variant="outline" onClick={() => setSearchTerm('')}>
+                              Clear Search
+                            </Button>
+                          ) : (
+                            <Button onClick={() => setAddUserDrawerOpen(true)}>
+                              <Plus className="w-4 h-4 mr-2" />
+                              Add First User
+                            </Button>
+                          )}
                         </div>
                       ) : (
-                        users.map((user) => (
+                        filteredUsers.map((user) => (
                         <div key={user.id} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
                           <div className="flex items-start space-x-4">
                             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">

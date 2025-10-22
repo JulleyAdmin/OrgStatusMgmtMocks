@@ -158,13 +158,27 @@ export function DepartmentManagement() {
             Manage organizational departments and their hierarchy
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => resetForm()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Department
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-3">
+          {/* Search Box */}
+          {!loading && departments.length > 0 && (
+            <div className="relative w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search departments..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
+          )}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => resetForm()}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Department
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
@@ -306,21 +320,8 @@ export function DepartmentManagement() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
-
-      {/* Search Bar */}
-      {!loading && departments.length > 0 && (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search departments by name, code, description, or location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
         </div>
-      )}
+      </div>
 
       {loading ? (
         <div className="flex items-center justify-center h-64">

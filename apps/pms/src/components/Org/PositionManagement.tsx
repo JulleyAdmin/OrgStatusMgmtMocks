@@ -225,13 +225,27 @@ export function PositionManagement() {
             Manage organizational positions, roles, and reporting structure
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => resetForm()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Position
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-3">
+          {/* Search Box */}
+          {!loading && positions.length > 0 && (
+            <div className="relative w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search positions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-10"
+              />
+            </div>
+          )}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => resetForm()}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Position
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
@@ -644,21 +658,8 @@ export function PositionManagement() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
-
-      {/* Search Bar */}
-      {!loading && positions.length > 0 && (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search positions by title, code, department, or skills..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
         </div>
-      )}
+      </div>
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
