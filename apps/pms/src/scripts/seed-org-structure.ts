@@ -25,7 +25,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
-const COMPANY_ID = 'autocracy-mfg'
+const COMPANY_ID = 'SU6Svsf6iVGdopeWKFqQ'
 const ADMIN_USER_ID = 'admin-user-id'
 
 // Ensure company document exists
