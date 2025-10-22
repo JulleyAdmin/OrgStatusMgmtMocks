@@ -106,8 +106,8 @@ export function OrgChartVisualization({
     const searchLower = searchTerm.toLowerCase()
     const matchesPosition = node.position.title.toLowerCase().includes(searchLower) ||
                            node.position.code.toLowerCase().includes(searchLower)
-    const matchesDept = node.department?.name.toLowerCase().includes(searchLower)
-    const matchesUser = node.assignment?.userId?.toLowerCase().includes(searchLower)
+    const matchesDept = node.department?.name.toLowerCase().includes(searchLower) || false
+    const matchesUser = node.assignment?.userId?.toLowerCase().includes(searchLower) || false
 
     return matchesPosition || matchesDept || matchesUser
   }
