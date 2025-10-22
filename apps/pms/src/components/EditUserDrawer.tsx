@@ -127,13 +127,13 @@ export function EditUserDrawer({
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+        <form onSubmit={handleSubmit} className="space-y-8 mt-8">
           {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900">Basic Information</h3>
+          <div className="space-y-4 pb-6 border-b border-gray-200">
+            <h3 className="text-base font-semibold text-gray-900 mb-4">Basic Information</h3>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name *
               </label>
               <input
@@ -146,7 +146,7 @@ export function EditUserDrawer({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email *
               </label>
               <input
@@ -157,11 +157,11 @@ export function EditUserDrawer({
                 required
                 disabled
               />
-              <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+              <p className="text-xs text-gray-500 mt-1.5">Email cannot be changed</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Role *
               </label>
               <Select
@@ -183,11 +183,11 @@ export function EditUserDrawer({
           </div>
 
           {/* Work Information */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900">Work Information</h3>
+          <div className="space-y-4 pb-6 border-b border-gray-200">
+            <h3 className="text-base font-semibold text-gray-900 mb-4">Work Information</h3>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Department *
               </label>
               <input
@@ -200,7 +200,7 @@ export function EditUserDrawer({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Position *
               </label>
               <input
@@ -214,11 +214,11 @@ export function EditUserDrawer({
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900">Contact Information</h3>
+          <div className="space-y-4 pb-6 border-b border-gray-200">
+            <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Information</h3>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Phone Number
               </label>
               <input
@@ -231,7 +231,7 @@ export function EditUserDrawer({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Slack Username
               </label>
               <input
@@ -246,7 +246,7 @@ export function EditUserDrawer({
 
           {/* Skills */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900">Skills</h3>
+            <h3 className="text-base font-semibold text-gray-900 mb-4">Skills</h3>
             
             <div className="flex gap-2">
               <input
@@ -263,17 +263,17 @@ export function EditUserDrawer({
             </div>
 
             {formData.skills.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {formData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full flex items-center gap-1"
+                    className="px-3 py-1.5 bg-primary/10 text-primary text-xs rounded-full flex items-center gap-1.5"
                   >
                     {skill}
                     <button
                       type="button"
                       onClick={() => handleRemoveSkill(skill)}
-                      className="hover:text-red-600 transition-colors"
+                      className="hover:text-red-600 transition-colors text-base"
                     >
                       ×
                     </button>
@@ -284,7 +284,7 @@ export function EditUserDrawer({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-6 border-t border-gray-200">
             <Button
               type="button"
               variant="outline"
