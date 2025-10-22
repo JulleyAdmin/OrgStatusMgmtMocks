@@ -287,7 +287,8 @@ async function seedPositions() {
   ]
 
   for (const pos of positions) {
-    if (!departmentIds[pos.dept]) {
+    const departmentId = departmentIds[pos.dept]
+    if (!departmentId) {
       throw new Error(`Department ${pos.dept} not found for position ${pos.title}`)
     }
     
@@ -295,7 +296,7 @@ async function seedPositions() {
       COMPANY_ID,
       {
         companyId: COMPANY_ID,
-        departmentId: departmentIds[pos.dept],
+        departmentId,
         title: pos.title,
         code: pos.code,
         description: `${pos.title} position`,
