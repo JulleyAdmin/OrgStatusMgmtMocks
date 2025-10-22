@@ -80,6 +80,8 @@ export function AssignmentManagement() {
       const usersSnap = await getDocs(usersRef)
       const usersData = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as User))
       console.log('Loaded users from companies/' + companyId + '/users:', usersData)
+      console.log('Number of users loaded:', usersData.length)
+      console.log('First user sample:', usersData[0])
       setUsers(usersData)
 
       // Load current assignments for each position
@@ -238,7 +240,7 @@ export function AssignmentManagement() {
                   ) : (
                     users.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
-                        {user.name} ({user.email})
+                        {user.name || user.displayName || user.email} ({user.email})
                       </SelectItem>
                     ))
                   )}
