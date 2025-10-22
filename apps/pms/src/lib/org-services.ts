@@ -307,7 +307,15 @@ export async function assignUserToPosition(
   },
   assignedBy: string
 ): Promise<PositionAssignment> {
-  return await runTransaction(db, async (transaction) => {
+  // Get position and department details first (outside transaction)
+  const position = await getPosition(companyId, positionId)
+  let department: Department | null = null
+  
+  if (position?.departmentId) {
+    department = await getDepartment(companyId, position.departmentId)
+  }
+
+  const assignment = await runTransaction(db, async (transaction) => {
     // Check for existing active assignment
     const existingQuery = query(
       collection(db, 'companies', companyId, 'positionAssignments'),
@@ -335,7 +343,7 @@ export async function assignUserToPosition(
     const assignmentRef = doc(collection(db, 'companies', companyId, 'positionAssignments'))
     const now = new Date().toISOString()
 
-    const assignment: PositionAssignment = {
+    const newAssignment: PositionAssignment = {
       id: assignmentRef.id,
       companyId,
       positionId,
@@ -353,13 +361,25 @@ export async function assignUserToPosition(
       previousAssignmentId,
     }
 
-    transaction.set(assignmentRef, assignment)
+    transaction.set(assignmentRef, newAssignment)
 
-    // Invalidate delegation cache for this position
-    await invalidateDelegationCache(companyId, positionId)
+    // Update user profile with position and department
+    if (position) {
+      const userRef = doc(db, 'companies', companyId, 'users', userId)
+      transaction.update(userRef, {
+        position: position.title,
+        department: department?.name || position.departmentId,
+        updatedAt: now,
+      })
+    }
 
-    return assignment
+    return newAssignment
   })
+
+  // Invalidate delegation cache for this position
+  await invalidateDelegationCache(companyId, positionId)
+
+  return assignment
 }
 
 /**
@@ -427,6 +447,44 @@ export async function endPositionAssignment(
 
   const assignment = await getDoc(assignmentRef)
   const assignmentData = assignment.data() as PositionAssignment
+
+  // Check if user has any other active assignments
+  const userActiveAssignments = query(
+    collection(db, 'companies', companyId, 'positionAssignments'),
+    where('userId', '==', assignmentData.userId),
+    where('status', '==', 'active')
+  )
+  
+  const activeSnap = await getDocs(userActiveAssignments)
+  
+  // Update user profile
+  const userRef = doc(db, 'companies', companyId, 'users', assignmentData.userId)
+  
+  if (!activeSnap.empty) {
+    // User has other active assignments, update to the most recent one
+    const latestAssignment = activeSnap.docs[0].data() as PositionAssignment
+    const position = await getPosition(companyId, latestAssignment.positionId)
+    let department: Department | null = null
+    
+    if (position?.departmentId) {
+      department = await getDepartment(companyId, position.departmentId)
+    }
+    
+    if (position) {
+      await updateDoc(userRef, {
+        position: position.title,
+        department: department?.name || position.departmentId,
+        updatedAt: new Date().toISOString(),
+      })
+    }
+  } else {
+    // No active assignments, clear position and department
+    await updateDoc(userRef, {
+      position: 'Unassigned',
+      department: 'Unassigned',
+      updatedAt: new Date().toISOString(),
+    })
+  }
 
   await createAuditLog({
     companyId: assignmentData.companyId,
@@ -509,6 +567,21 @@ export async function swapOccupants(
 
   await setDoc(swapRef, swap)
 
+  // Get position and department details for both positions
+  const positionA = await getPosition(companyId, positionAId)
+  const positionB = await getPosition(companyId, positionBId)
+  
+  let departmentA: Department | null = null
+  let departmentB: Department | null = null
+  
+  if (positionA?.departmentId) {
+    departmentA = await getDepartment(companyId, positionA.departmentId)
+  }
+  
+  if (positionB?.departmentId) {
+    departmentB = await getDepartment(companyId, positionB.departmentId)
+  }
+
   // Execute swap in transaction
   try {
     await runTransaction(db, async (transaction) => {
@@ -570,6 +643,25 @@ export async function swapOccupants(
 
       transaction.set(newAssignmentARef, newAssignmentA)
       transaction.set(newAssignmentBRef, newAssignmentB)
+      
+      // Update user profiles with new positions and departments
+      if (positionA) {
+        const userBRef = doc(db, 'companies', companyId, 'users', assignmentB.userId)
+        transaction.update(userBRef, {
+          position: positionA.title,
+          department: departmentA?.name || positionA.departmentId,
+          updatedAt: now,
+        })
+      }
+      
+      if (positionB) {
+        const userARef = doc(db, 'companies', companyId, 'users', assignmentA.userId)
+        transaction.update(userARef, {
+          position: positionB.title,
+          department: departmentB?.name || positionB.departmentId,
+          updatedAt: now,
+        })
+      }
     })
 
     // Reassign work items (async, target < 60s)
