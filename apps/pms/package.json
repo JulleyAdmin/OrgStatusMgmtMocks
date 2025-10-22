@@ -11,7 +11,8 @@
     "clean": "rm -rf .next",
     "seed": "tsx src/scripts/seed-pms.ts",
     "seed:pms": "tsx src/scripts/seed-pms.ts",
-    "seed:org": "tsx src/scripts/seed-org-structure.ts"
+    "seed:org": "tsx src/scripts/seed-org-structure.ts",
+    "seed:manufacturing": "tsx src/scripts/seed-manufacturing-org.ts"
   },
   "dependencies": {
     "@firebase/app": "^0.9.0",
