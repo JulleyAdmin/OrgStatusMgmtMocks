@@ -389,10 +389,22 @@ async function seedAssignments() {
   ]
 
   for (const assignment of assignments) {
+    const positionId = positionIds[assignment.position]
+    const userId = userIds[assignment.user]
+    
+    if (!positionId) {
+      console.warn(`  ⚠️  Position ${assignment.position} not found, skipping assignment`)
+      continue
+    }
+    if (!userId) {
+      console.warn(`  ⚠️  User ${assignment.user} not found, skipping assignment`)
+      continue
+    }
+    
     await assignUserToPosition(
       COMPANY_ID,
-      positionIds[assignment.position],
-      userIds[assignment.user],
+      positionId,
+      userId,
       {
         assignmentType: 'permanent',
         startAt: new Date().toISOString(),
