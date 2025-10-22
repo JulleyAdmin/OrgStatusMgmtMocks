@@ -81,30 +81,6 @@ async function cleanupOrgData() {
     const auditLogsCount = await deleteCollection('orgAuditLogs')
     console.log(`  ✓ Deleted ${auditLogsCount} org audit logs`)
 
-    // Also clean up users that were created by the seed script
-    console.log('\n🗑️  Deleting seeded users...')
-    const usersRef = collection(db, 'users')
-    const usersSnapshot = await getDocs(usersRef)
-    
-    let usersCount = 0
-    const userBatch = writeBatch(db)
-    
-    usersSnapshot.docs.forEach((userDoc) => {
-      const userData = userDoc.data()
-      // Only delete users that were created by seed script (those with companyId = COMPANY_ID)
-      if (userData.companyId === COMPANY_ID) {
-        userBatch.delete(userDoc.ref)
-        usersCount++
-      }
-    })
-
-    if (usersCount > 0) {
-      await userBatch.commit()
-      console.log(`  ✓ Deleted ${usersCount} users`)
-    } else {
-      console.log(`  No users to delete`)
-    }
-
     console.log('\n✅ Cleanup completed successfully!')
     console.log(`\n📊 Summary:`)
     console.log(`   - Position Assignments: ${assignmentsCount}`)
@@ -112,7 +88,7 @@ async function cleanupOrgData() {
     console.log(`   - Departments: ${departmentsCount}`)
     console.log(`   - Delegations: ${delegationsCount}`)
     console.log(`   - Audit Logs: ${auditLogsCount}`)
-    console.log(`   - Users: ${usersCount}`)
+    console.log(`   - Users: Preserved (not deleted)`)
     console.log(`\n🎯 Ready for fresh seeding!`)
     
   } catch (error) {
