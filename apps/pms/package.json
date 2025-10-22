@@ -9,11 +9,11 @@
     "start": "next start",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf .next",
-    "seed": "tsx src/scripts/seed-pms.ts",
-    "seed:pms": "tsx src/scripts/seed-pms.ts",
-    "seed:org": "tsx src/scripts/seed-org-structure.ts",
-    "seed:manufacturing": "tsx src/scripts/seed-manufacturing-org.ts",
-    "cleanup:org": "tsx src/scripts/cleanup-org-data.ts"
+    "xseed": "tsx src/scripts/seed-pms.ts",
+    "xseed:pms": "tsx src/scripts/seed-pms.ts",
+    "xseed:org": "tsx src/scripts/seed-org-structure.ts",
+    "xseed:manufacturing": "tsx src/scripts/seed-manufacturing-org.ts",
+    "xcleanup:org": "tsx src/scripts/cleanup-org-data.ts"
   },
   "dependencies": {
     "@firebase/app": "^0.9.0",

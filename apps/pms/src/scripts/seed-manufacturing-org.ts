@@ -186,7 +186,7 @@ async function seedDepartments() {
   ]
 
   for (const dept of departments) {
-    const parentId = dept.parent ? departmentIds[dept.parent] : null
+    const parentId = dept.parent ? (departmentIds[dept.parent] || null) : null
     const deptData = await createDepartment(
       COMPANY_ID,
       {
@@ -304,7 +304,7 @@ async function seedPositions() {
         requiredSkills: ['Leadership', 'Communication'],
         optionalSkills: ['Project Management'],
         certifications: [],
-        reportsToPositionId: pos.reportsTo ? positionIds[pos.reportsTo] : null,
+        reportsToPositionId: pos.reportsTo ? (positionIds[pos.reportsTo] || null) : null,
         employmentType: 'full_time',
         headcount: 1,
         approvalAuthority: {
