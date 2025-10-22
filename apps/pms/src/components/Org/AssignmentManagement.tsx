@@ -68,6 +68,7 @@ export function AssignmentManagement() {
       // Load positions
       const positionsData = await getPositions(companyId)
       setPositions(positionsData)
+      console.log('Loaded positions:', positionsData)
 
       // Load users
       const usersQuery = query(
@@ -76,6 +77,7 @@ export function AssignmentManagement() {
       )
       const usersSnap = await getDocs(usersQuery)
       const usersData = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as User))
+      console.log('Loaded users:', usersData)
       setUsers(usersData)
 
       // Load current assignments for each position

@@ -77,6 +77,8 @@ export function PositionManagement() {
         getPositions(companyId),
         getDepartments(companyId),
       ])
+      console.log('Loaded departments:', departmentsData)
+      console.log('Loaded positions:', positionsData)
       setPositions(positionsData)
       setDepartments(departmentsData)
     } catch (error) {
@@ -271,16 +273,27 @@ export function PositionManagement() {
                       required
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
+                        <SelectValue placeholder={departments.length === 0 ? "No departments - Create one first" : "Select department"} />
                       </SelectTrigger>
                       <SelectContent>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept.id} value={dept.id}>
-                            {dept.name} ({dept.code})
-                          </SelectItem>
-                        ))}
+                        {departments.length === 0 ? (
+                          <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+                            No departments found. Create departments in the Departments tab first.
+                          </div>
+                        ) : (
+                          departments.map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id}>
+                              {dept.name} ({dept.code})
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
+                    {departments.length === 0 && (
+                      <p className="text-xs text-amber-600">
+                        ⚠️ No departments available. Create departments first in the Departments tab.
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
