@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Briefcase, Edit2, Archive, Users } from 'lucide-react'
+import { Plus, Briefcase, Edit2, Archive, Users, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +23,7 @@ export function PositionManagement() {
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingPosition, setEditingPosition] = useState<Position | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   // Form state
   const [formData, setFormData] = useState<Partial<Position>>({
@@ -196,6 +197,17 @@ export function PositionManagement() {
       [field]: currentArray.filter((_, i) => i !== index),
     })
   }
+
+  // Filter positions based on search term
+  const filteredPositions = positions.filter(pos =>
+    pos.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    pos.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    pos.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getDepartmentName(pos.departmentId).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (pos.requiredSkills && pos.requiredSkills.some(skill => 
+      skill.toLowerCase().includes(searchTerm.toLowerCase())
+    ))
+  )
 
   return (
     <div className="space-y-6">
@@ -620,6 +632,20 @@ export function PositionManagement() {
         </Dialog>
       </div>
 
+      {/* Search Bar */}
+      {!loading && positions.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search positions by title, code, department, or skills..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      )}
+
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Loading positions...</p>
@@ -638,10 +664,28 @@ export function PositionManagement() {
             </Button>
           </CardContent>
         </Card>
+      ) : filteredPositions.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64">
+            <Search className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium mb-2">No positions found</p>
+            <p className="text-muted-foreground mb-4">
+              No positions match your search "{searchTerm}"
+            </p>
+            <Button onClick={() => setSearchTerm('')} variant="outline">
+              Clear Search
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>All Positions ({positions.length})</CardTitle>
+            <CardTitle>
+              {searchTerm 
+                ? `Positions (${filteredPositions.length} of ${positions.length})` 
+                : `All Positions (${positions.length})`
+              }
+            </CardTitle>
             <CardDescription>
               Manage positions, roles, and organizational hierarchy
             </CardDescription>
@@ -661,7 +705,7 @@ export function PositionManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {positions.map((position) => (
+                {filteredPositions.map((position) => (
                   <TableRow key={position.id}>
                     <TableCell className="font-medium">{position.title}</TableCell>
                     <TableCell>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Building2, Edit2, Trash2, Archive } from 'lucide-react'
+import { Plus, Building2, Edit2, Trash2, Archive, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +22,7 @@ export function DepartmentManagement() {
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   // Form state
   const [formData, setFormData] = useState({
@@ -132,6 +133,14 @@ export function DepartmentManagement() {
     const parent = departments.find(d => d.id === parentId)
     return parent?.name || 'Unknown'
   }
+
+  // Filter departments based on search term
+  const filteredDepartments = departments.filter(dept =>
+    dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    dept.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    dept.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (dept.location && dept.location.toLowerCase().includes(searchTerm.toLowerCase()))
+  )
 
   return (
     <div className="space-y-6">
@@ -285,6 +294,20 @@ export function DepartmentManagement() {
         </Dialog>
       </div>
 
+      {/* Search Bar */}
+      {!loading && departments.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search departments by name, code, description, or location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      )}
+
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Loading departments...</p>
@@ -303,10 +326,28 @@ export function DepartmentManagement() {
             </Button>
           </CardContent>
         </Card>
+      ) : filteredDepartments.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64">
+            <Search className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium mb-2">No departments found</p>
+            <p className="text-muted-foreground mb-4">
+              No departments match your search "{searchTerm}"
+            </p>
+            <Button onClick={() => setSearchTerm('')} variant="outline">
+              Clear Search
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>All Departments ({departments.length})</CardTitle>
+            <CardTitle>
+              {searchTerm 
+                ? `Departments (${filteredDepartments.length} of ${departments.length})` 
+                : `All Departments (${departments.length})`
+              }
+            </CardTitle>
             <CardDescription>
               Manage department hierarchy and organization structure
             </CardDescription>
@@ -326,7 +367,7 @@ export function DepartmentManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {departments.map((department) => (
+                {filteredDepartments.map((department) => (
                   <TableRow key={department.id}>
                     <TableCell className="font-medium">{department.name}</TableCell>
                     <TableCell>
