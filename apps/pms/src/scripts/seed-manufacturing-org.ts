@@ -381,6 +381,7 @@ async function seedAssignments() {
       {
         positionId: positionIds[assignment.position],
         userId: userIds[assignment.user],
+        assignmentType: 'permanent',
         startAt: new Date().toISOString(),
         endAt: null,
         isPrimary: true,
