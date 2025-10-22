@@ -123,8 +123,12 @@ export class UserService {
         avatar: userData.avatar,
         skills: userData.skills,
         contact: userData.contact,
-        createdAt: userDocData.createdAt.toDate().toISOString(),
-        updatedAt: userDocData.updatedAt.toDate().toISOString()
+        createdAt: typeof userDocData.createdAt === 'string' 
+          ? userDocData.createdAt 
+          : userDocData.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        updatedAt: typeof userDocData.updatedAt === 'string'
+          ? userDocData.updatedAt
+          : userDocData.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
       } as User
     } catch (error) {
       console.error('Error creating user:', error)

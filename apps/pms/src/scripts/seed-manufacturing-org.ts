@@ -118,7 +118,8 @@ async function seedUsers() {
   ]
 
   for (const user of users) {
-    const userRef = doc(db, 'users', user.id)
+    // Create user under companies/{companyId}/users/{uid}
+    const userRef = doc(db, 'companies', COMPANY_ID, 'users', user.id)
     await setDoc(userRef, {
       id: user.id,
       companyId: COMPANY_ID,

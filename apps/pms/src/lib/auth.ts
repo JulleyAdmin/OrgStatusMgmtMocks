@@ -23,11 +23,22 @@ export const authService = {
       for (const companyDoc of companiesSnapshot.docs) {
         const userDoc = await getDoc(doc(db, `companies/${companyDoc.id}/users`, user.uid))
         if (userDoc.exists()) {
+          const data = userDoc.data()
+          
+          // Handle both Timestamp and string formats for dates
+          const createdAt = typeof data.createdAt === 'string' 
+            ? data.createdAt 
+            : data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+          
+          const updatedAt = typeof data.updatedAt === 'string'
+            ? data.updatedAt
+            : data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+          
           userData = {
             id: user.uid,
-            ...userDoc.data(),
-            createdAt: userDoc.data().createdAt.toDate().toISOString(),
-            updatedAt: userDoc.data().updatedAt.toDate().toISOString()
+            ...data,
+            createdAt,
+            updatedAt
           } as User
           break
         }
@@ -88,11 +99,22 @@ export const authService = {
           for (const companyDoc of companiesSnapshot.docs) {
             const userDoc = await getDoc(doc(db, `companies/${companyDoc.id}/users`, firebaseUser.uid))
             if (userDoc.exists()) {
+              const data = userDoc.data()
+              
+              // Handle both Timestamp and string formats for dates
+              const createdAt = typeof data.createdAt === 'string' 
+                ? data.createdAt 
+                : data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+              
+              const updatedAt = typeof data.updatedAt === 'string'
+                ? data.updatedAt
+                : data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString()
+              
               userData = {
                 id: firebaseUser.uid,
-                ...userDoc.data(),
-                createdAt: userDoc.data().createdAt.toDate().toISOString(),
-                updatedAt: userDoc.data().updatedAt.toDate().toISOString()
+                ...data,
+                createdAt,
+                updatedAt
               } as User
               break
             }
