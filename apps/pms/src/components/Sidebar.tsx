@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { COMPANY_CONFIG } from '@/config/company'
 import {
-  LayoutDashboard,
+  Home,
   CheckSquare,
   Users,
   Settings,
@@ -21,7 +21,8 @@ import {
   Menu,
   X,
   LogOut,
-  Network
+  Network,
+  Inbox
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'next/navigation'
@@ -29,9 +30,14 @@ import toast from 'react-hot-toast'
 
 const navigation = [
   {
-    name: 'Dashboard',
-    href: '/dashboard',
-    icon: LayoutDashboard,
+    name: 'Home',
+    href: '/home',
+    icon: Home,
+  },
+  {
+    name: 'Inbox',
+    href: '/inbox',
+    icon: Inbox,
   },
   {
     name: 'Task Center',

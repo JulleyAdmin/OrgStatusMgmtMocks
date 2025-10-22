@@ -27,9 +27,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
       return
     }
 
-    // If user is authenticated and trying to access login page, redirect to dashboard
+    // If user is authenticated and trying to access login page, redirect to home
     if (user && pathname === '/login') {
-      router.push('/dashboard')
+      router.push('/home')
       return
     }
   }, [user, loading, pathname, isPublicRoute, router])

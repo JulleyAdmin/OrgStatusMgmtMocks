@@ -42,7 +42,10 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
   // Function to get page title based on route
   const getPageTitle = (path: string) => {
     const routeMap: Record<string, string> = {
+      '/home': 'Home',
       '/dashboard': 'Dashboard',
+      '/inbox': 'Inbox',
+      '/profile': 'My Profile',
       '/tasks': 'Task Center',
       '/projects': 'Projects',
       '/projects/create': 'Create Project',
@@ -59,7 +62,7 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
       return projectName || 'Project Details'
     }
     
-    return routeMap[path] || 'Dashboard'
+    return routeMap[path] || 'Home'
   }
 
   // Function to get breadcrumb path
@@ -68,7 +71,7 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
     const breadcrumb = []
     
     if (segments.length === 0) {
-      return [{ label: 'Dashboard', href: '/dashboard' }]
+      return [{ label: 'Home', href: '/home' }]
     }
     
     // Handle specific project routes
@@ -178,23 +181,54 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
               </div>
 
               {/* User Profile */}
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-white">
-                    {user?.name?.charAt(0) || 'S'}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-600">
-                  {user?.name || 'Admin User'}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={handleSignOut}
-                  className="flex items-center space-x-2 text-gray-600 border-gray-300 hover:bg-gray-50"
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span>Logout</span>
-                </Button>
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-white">
+                      {user?.name?.charAt(0) || 'S'}
+                    </span>
+                  </div>
+                  <span className="text-sm text-gray-600">
+                    {user?.name || 'Admin User'}
+                  </span>
+                </button>
+
+                {/* Profile Dropdown */}
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-[70]">
+                    <div className="p-2">
+                      <Link href="/profile">
+                        <button
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                        >
+                          <User className="w-4 h-4" />
+                          <span>My Profile</span>
+                        </button>
+                      </Link>
+                      <Link href="/settings">
+                        <button
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                        >
+                          <Settings className="w-4 h-4" />
+                          <span>Settings</span>
+                        </button>
+                      </Link>
+                      <div className="border-t border-gray-200 my-1"></div>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

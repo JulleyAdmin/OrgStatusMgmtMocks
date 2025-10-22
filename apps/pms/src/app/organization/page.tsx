@@ -171,7 +171,6 @@ export default function OrgStructurePage() {
         {/* Feature Highlights */}
         <Card>
           <CardHeader>
-            <CardTitle>EPIC A — Org & Identity Features</CardTitle>
             <CardDescription>
               Complete organization structure management with history and compliance
             </CardDescription>

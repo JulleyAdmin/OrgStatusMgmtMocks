@@ -11,6 +11,7 @@ import { ViewToggle, ViewType } from '@/components/ui/view-toggle'
 import { ActionMenu, createViewAction, createEditAction, createDeleteAction } from '@/components/ui/action-menu'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { AddUserDrawer } from '@/components/AddUserDrawer'
+import { EditUserDrawer } from '@/components/EditUserDrawer'
 import { Users, Plus, Mail, Phone, MessageSquare } from 'lucide-react'
 import { UserService } from '@/lib/user-services'
 import toast from 'react-hot-toast'
@@ -26,6 +27,10 @@ export default function UsersPage() {
     user: User | null
   }>({ open: false, user: null })
   const [addUserDrawerOpen, setAddUserDrawerOpen] = useState(false)
+  const [editUserDrawer, setEditUserDrawer] = useState<{
+    open: boolean
+    user: User | null
+  }>({ open: false, user: null })
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -85,12 +90,15 @@ export default function UsersPage() {
   }
 
   const handleEditUser = (user: User) => {
-    // TODO: Implement user edit form
-    toast.success(`Editing ${user.name}`)
+    setEditUserDrawer({ open: true, user })
   }
 
   const handleUserAdded = (newUser: User) => {
     setUsers(prev => [...prev, newUser])
+  }
+
+  const handleUserUpdated = (updatedUser: User) => {
+    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u))
   }
 
   if (loading || companyLoading) {
@@ -352,6 +360,14 @@ export default function UsersPage() {
         open={addUserDrawerOpen}
         onOpenChange={setAddUserDrawerOpen}
         onUserAdded={handleUserAdded}
+      />
+
+      {/* Edit User Drawer */}
+      <EditUserDrawer
+        open={editUserDrawer.open}
+        onOpenChange={(open) => setEditUserDrawer({ open, user: null })}
+        user={editUserDrawer.user}
+        onUserUpdated={handleUserUpdated}
       />
     </DashboardLayout>
   )
