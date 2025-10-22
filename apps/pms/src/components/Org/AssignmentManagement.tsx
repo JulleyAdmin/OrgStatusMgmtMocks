@@ -55,13 +55,18 @@ export function AssignmentManagement() {
 
   useEffect(() => {
     if (currentCompany) {
+      console.log('Current company changed:', currentCompany)
       loadData()
     }
   }, [currentCompany])
 
   async function loadData() {
-    if (!companyId) return
+    if (!companyId) {
+      console.warn('No company ID available')
+      return
+    }
 
+    console.log('Loading assignment data for company ID:', companyId)
     try {
       setLoading(true)
       
