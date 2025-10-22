@@ -484,7 +484,6 @@ export function ProjectCreationForm({
                       <SelectValue placeholder="Select primary position..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Select primary position...</SelectItem>
                       {positions.map(position => (
                         <SelectItem key={position.id} value={position.id}>
                           {position.title} - {position.department}
@@ -505,7 +504,7 @@ export function ProjectCreationForm({
                       <SelectValue placeholder="Auto-assign based on position" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Auto-assign based on position</SelectItem>
+                      <SelectItem value="auto">Auto-assign based on position</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -727,7 +726,6 @@ export function ProjectCreationForm({
                     <SelectValue placeholder="Select a workflow template..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Select a workflow template...</SelectItem>
                     {workflowTemplates.map(template => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name} - {template.category}
@@ -802,7 +800,7 @@ export function ProjectCreationForm({
                         <SelectValue placeholder="Select approval matrix..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Select approval matrix...</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

@@ -211,7 +211,7 @@ export function AuditReport() {
                   <SelectValue placeholder="Select position" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Positions</SelectItem>
+                  <SelectItem value="all">All Positions</SelectItem>
                   {positions.map((position) => (
                     <SelectItem key={position.id} value={position.id}>
                       {position.title} ({position.code})

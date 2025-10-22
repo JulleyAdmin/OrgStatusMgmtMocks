@@ -552,7 +552,6 @@ export function ProjectCreationWizard({
                     <SelectValue placeholder="Select primary position..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Select primary position...</SelectItem>
                     {positions.map(position => (
                       <SelectItem key={position.id} value={position.id}>
                         {position.title} - {position.department}
@@ -573,7 +572,7 @@ export function ProjectCreationWizard({
                     <SelectValue placeholder="Auto-assign based on position" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Auto-assign based on position</SelectItem>
+                    <SelectItem value="auto">Auto-assign based on position</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -814,7 +813,6 @@ export function ProjectCreationWizard({
                     <SelectValue placeholder="Select a workflow template..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Select a workflow template...</SelectItem>
                     {workflowTemplates.map(template => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name} - {template.category}
