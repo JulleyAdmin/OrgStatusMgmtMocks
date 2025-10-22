@@ -21,6 +21,7 @@ export function PositionManagement() {
   const [positions, setPositions] = useState<Position[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingPosition, setEditingPosition] = useState<Position | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -130,9 +131,10 @@ export function PositionManagement() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       const userId = 'current-user-id' // TODO: Get from auth context
 
       if (editingPosition) {
@@ -154,19 +156,24 @@ export function PositionManagement() {
       resetForm()
     } catch (error) {
       console.error('Error saving position:', error)
+    } finally {
+      setSubmitting(false)
     }
   }
 
   async function handleDelete(positionId: string) {
     if (!confirm('Are you sure you want to archive this position?')) return
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       const userId = 'current-user-id' // TODO: Get from auth context
       await deletePosition(companyId, positionId, userId)
       await loadData()
     } catch (error) {
       console.error('Error deleting position:', error)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -620,11 +627,18 @@ export function PositionManagement() {
               </div>
 
               <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={resetForm}>
+                <Button type="button" variant="outline" onClick={resetForm} disabled={submitting}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {editingPosition ? 'Update Position' : 'Create Position'}
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      {editingPosition ? 'Updating...' : 'Creating...'}
+                    </>
+                  ) : (
+                    editingPosition ? 'Update Position' : 'Create Position'
+                  )}
                 </Button>
               </div>
             </form>

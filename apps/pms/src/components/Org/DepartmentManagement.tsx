@@ -20,6 +20,7 @@ export function DepartmentManagement() {
   const companyId = currentCompany?.id
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -88,9 +89,10 @@ export function DepartmentManagement() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       const userId = 'current-user-id' // TODO: Get from auth context
 
       if (editingDepartment) {
@@ -112,19 +114,24 @@ export function DepartmentManagement() {
       resetForm()
     } catch (error) {
       console.error('Error saving department:', error)
+    } finally {
+      setSubmitting(false)
     }
   }
 
   async function handleDelete(departmentId: string) {
     if (!confirm('Are you sure you want to archive this department?')) return
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       const userId = 'current-user-id' // TODO: Get from auth context
       await deleteDepartment(companyId, departmentId, userId)
       await loadDepartments()
     } catch (error) {
       console.error('Error deleting department:', error)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -282,11 +289,18 @@ export function DepartmentManagement() {
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={resetForm}>
+                <Button type="button" variant="outline" onClick={resetForm} disabled={submitting}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {editingDepartment ? 'Update Department' : 'Create Department'}
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      {editingDepartment ? 'Updating...' : 'Creating...'}
+                    </>
+                  ) : (
+                    editingDepartment ? 'Update Department' : 'Create Department'
+                  )}
                 </Button>
               </div>
             </form>

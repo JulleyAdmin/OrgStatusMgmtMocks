@@ -30,6 +30,7 @@ export function OccupantSwap() {
     }>
   >([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [swapping, setSwapping] = useState(false)
   const [swapResult, setSwapResult] = useState<OccupantSwapRequest | null>(null)

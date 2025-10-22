@@ -37,6 +37,7 @@ export function AssignmentManagement() {
     }>
   >([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)
@@ -139,9 +140,10 @@ export function AssignmentManagement() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       const userId = 'current-user-id' // TODO: Get from auth context
 
       await assignUserToPosition(
@@ -163,20 +165,25 @@ export function AssignmentManagement() {
     } catch (error) {
       console.error('Error assigning user:', error)
       alert('Error assigning user to position. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   async function handleEndAssignment(assignmentId: string) {
     if (!confirm('Are you sure you want to end this assignment?')) return
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       const userId = 'current-user-id' // TODO: Get from auth context
       await endPositionAssignment(companyId, assignmentId, new Date().toISOString(), userId)
       await loadData()
     } catch (error) {
       console.error('Error ending assignment:', error)
       alert('Error ending assignment. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -311,10 +318,19 @@ export function AssignmentManagement() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={resetForm}>
+              <Button type="button" variant="outline" onClick={resetForm} disabled={submitting}>
                 Cancel
               </Button>
-              <Button type="submit">Assign User</Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Assigning...
+                  </>
+                ) : (
+                  'Assign User'
+                )}
+              </Button>
             </div>
           </form>
         </DialogContent>
@@ -402,7 +418,6 @@ export function AssignmentManagement() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Position Assignments ({assignments.length})</CardTitle>
             <CardDescription>
               Current assignments and vacant positions
             </CardDescription>
@@ -477,8 +492,9 @@ export function AssignmentManagement() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleEndAssignment(currentAssignment.id)}
+                            disabled={submitting}
                           >
-                            End
+                            {submitting ? 'Ending...' : 'End'}
                           </Button>
                         )}
                       </div>

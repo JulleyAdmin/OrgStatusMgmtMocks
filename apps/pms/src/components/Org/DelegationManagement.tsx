@@ -34,6 +34,7 @@ export function DelegationManagement() {
   const [positions, setPositions] = useState<Position[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'sent' | 'received'>('sent')
 
@@ -110,9 +111,10 @@ export function DelegationManagement() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       // Get current assignment for delegator
       const delegatorAssignment = await getCurrentAssignment(companyId, formData.delegatorPositionId)
       if (!delegatorAssignment) {
@@ -163,47 +165,58 @@ export function DelegationManagement() {
     } catch (error) {
       console.error('Error creating delegation:', error)
       alert('Error creating delegation. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   async function handleApprove(delegationId: string) {
     if (!confirm('Are you sure you want to approve this delegation?')) return
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       await approveDelegation(companyId, delegationId, currentUserId)
       await loadData()
     } catch (error) {
       console.error('Error approving delegation:', error)
       alert('Error approving delegation. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   async function handleReject(delegationId: string) {
     const reason = prompt('Please provide a reason for rejection:')
     if (!reason) return
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       await rejectDelegation(companyId, delegationId, currentUserId, reason)
       await loadData()
     } catch (error) {
       console.error('Error rejecting delegation:', error)
       alert('Error rejecting delegation. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   async function handleRevoke(delegationId: string) {
     const reason = prompt('Please provide a reason for revocation:')
     if (!reason) return
-    if (!companyId) return
+    if (!companyId || submitting) return
 
     try {
+      setSubmitting(true)
       await revokeDelegation(companyId, delegationId, currentUserId, reason)
       await loadData()
     } catch (error) {
       console.error('Error revoking delegation:', error)
       alert('Error revoking delegation. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -419,10 +432,19 @@ export function DelegationManagement() {
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={resetForm}>
+                <Button type="button" variant="outline" onClick={resetForm} disabled={submitting}>
                   Cancel
                 </Button>
-                <Button type="submit">Create Delegation</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Delegation'
+                  )}
+                </Button>
               </div>
             </form>
           </DialogContent>
@@ -573,17 +595,19 @@ export function DelegationManagement() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleApprove(delegation.id)}
+                              disabled={submitting}
                             >
                               <Check className="h-4 w-4 mr-1" />
-                              Approve
+                              {submitting ? 'Approving...' : 'Approve'}
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleReject(delegation.id)}
+                              disabled={submitting}
                             >
                               <X className="h-4 w-4 mr-1" />
-                              Reject
+                              {submitting ? 'Rejecting...' : 'Reject'}
                             </Button>
                           </>
                         )}
@@ -592,9 +616,10 @@ export function DelegationManagement() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRevoke(delegation.id)}
+                            disabled={submitting}
                           >
                             <Ban className="h-4 w-4 mr-1" />
-                            Revoke
+                            {submitting ? 'Revoking...' : 'Revoke'}
                           </Button>
                         )}
                       </div>
