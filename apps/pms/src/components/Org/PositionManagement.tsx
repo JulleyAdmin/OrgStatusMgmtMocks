@@ -64,26 +64,19 @@ export function PositionManagement() {
 
   useEffect(() => {
     if (currentCompany) {
-      console.log('Current company changed:', currentCompany)
       loadData()
     }
   }, [currentCompany])
 
   async function loadData() {
-    if (!companyId) {
-      console.warn('No company ID available')
-      return
-    }
+    if (!companyId) return
 
-    console.log('Loading data for company ID:', companyId)
     try {
       setLoading(true)
       const [positionsData, departmentsData] = await Promise.all([
         getPositions(companyId),
         getDepartments(companyId),
       ])
-      console.log('Loaded departments:', departmentsData)
-      console.log('Loaded positions:', positionsData)
       setPositions(positionsData)
       setDepartments(departmentsData)
     } catch (error) {

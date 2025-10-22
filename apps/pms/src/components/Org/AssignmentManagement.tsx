@@ -55,33 +55,24 @@ export function AssignmentManagement() {
 
   useEffect(() => {
     if (currentCompany) {
-      console.log('Current company changed:', currentCompany)
       loadData()
     }
   }, [currentCompany])
 
   async function loadData() {
-    if (!companyId) {
-      console.warn('No company ID available')
-      return
-    }
+    if (!companyId) return
 
-    console.log('Loading assignment data for company ID:', companyId)
     try {
       setLoading(true)
       
       // Load positions
       const positionsData = await getPositions(companyId)
       setPositions(positionsData)
-      console.log('Loaded positions:', positionsData)
 
       // Load users from companies/{companyId}/users
       const usersRef = collection(db, 'companies', companyId, 'users')
       const usersSnap = await getDocs(usersRef)
       const usersData = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as User))
-      console.log('Loaded users from companies/' + companyId + '/users:', usersData)
-      console.log('Number of users loaded:', usersData.length)
-      console.log('First user sample:', usersData[0])
       setUsers(usersData)
 
       // Load current assignments for each position
@@ -240,7 +231,7 @@ export function AssignmentManagement() {
                   ) : (
                     users.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
-                        {user.name || user.displayName || user.email} ({user.email})
+                        {user.name} ({user.email})
                       </SelectItem>
                     ))
                   )}
