@@ -378,13 +378,12 @@ async function seedAssignments() {
   for (const assignment of assignments) {
     await assignUserToPosition(
       COMPANY_ID,
+      positionIds[assignment.position],
+      userIds[assignment.user],
       {
-        positionId: positionIds[assignment.position],
-        userId: userIds[assignment.user],
         assignmentType: 'permanent',
         startAt: new Date().toISOString(),
         endAt: null,
-        isPrimary: true,
         reason: 'Initial organization setup',
         notes: 'Assigned during org structure seeding',
       },
