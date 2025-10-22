@@ -12,7 +12,8 @@
     "seed": "tsx src/scripts/seed-pms.ts",
     "seed:pms": "tsx src/scripts/seed-pms.ts",
     "seed:org": "tsx src/scripts/seed-org-structure.ts",
-    "seed:manufacturing": "tsx src/scripts/seed-manufacturing-org.ts"
+    "seed:manufacturing": "tsx src/scripts/seed-manufacturing-org.ts",
+    "cleanup:org": "tsx src/scripts/cleanup-org-data.ts"
   },
   "dependencies": {
     "@firebase/app": "^0.9.0",
