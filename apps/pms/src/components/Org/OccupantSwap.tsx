@@ -175,7 +175,7 @@ export function OccupantSwap() {
               Swap Occupants
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Swap Position Occupants</DialogTitle>
               <DialogDescription>
@@ -186,7 +186,8 @@ export function OccupantSwap() {
 
             {!swapResult ? (
               <form onSubmit={handleSwap} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+                {/* Position Selectors */}
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-6 items-start">
                   {/* Position A */}
                   <div className="space-y-4">
                     <div className="space-y-2">
@@ -201,7 +202,7 @@ export function OccupantSwap() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select position A" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-[10000]">
                           {assignedPositions.map(({ position, user }) => (
                             <SelectItem
                               key={position.id}
@@ -235,8 +236,8 @@ export function OccupantSwap() {
                     )}
                   </div>
 
-                  {/* Swap Icon */}
-                  <div className="flex items-center justify-center">
+                  {/* Swap Icon - Hidden on mobile, shown on larger screens */}
+                  <div className="hidden lg:flex items-center justify-center pt-8">
                     <ArrowLeftRight className="h-8 w-8 text-muted-foreground" />
                   </div>
 
@@ -254,7 +255,7 @@ export function OccupantSwap() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select position B" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-[10000]">
                           {assignedPositions.map(({ position, user }) => (
                             <SelectItem
                               key={position.id}
