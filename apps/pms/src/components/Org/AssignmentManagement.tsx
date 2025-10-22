@@ -224,16 +224,27 @@ export function AssignmentManagement() {
                 required
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a user" />
+                  <SelectValue placeholder={users.length === 0 ? "No users available - Create users first" : "Select a user"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      {user.name} ({user.email})
-                    </SelectItem>
-                  ))}
+                  {users.length === 0 ? (
+                    <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+                      No users found. Please create users first in the Users section.
+                    </div>
+                  ) : (
+                    users.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.name} ({user.email})
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
+              {users.length === 0 && (
+                <p className="text-xs text-amber-600">
+                  ⚠️ No users available. Create users in the Settings → Users section before assigning positions.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">

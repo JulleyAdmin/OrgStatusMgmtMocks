@@ -135,12 +135,14 @@ export async function getDepartment(companyId: string, departmentId: string): Pr
 export async function getDepartments(companyId: string): Promise<Department[]> {
   const q = query(
     collection(db, 'companies', companyId, 'departments'),
-    where('status', '==', 'active'),
-    orderBy('name')
+    where('status', '==', 'active')
   )
   
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(doc => doc.data() as Department)
+  const departments = snapshot.docs.map(doc => doc.data() as Department)
+  
+  // Sort on client side to avoid needing composite index
+  return departments.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 /**

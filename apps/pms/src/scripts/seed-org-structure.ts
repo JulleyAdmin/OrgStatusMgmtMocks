@@ -43,12 +43,79 @@ async function ensureCompanyExists() {
   console.log('✓ Company document ensured')
 }
 
+// Create sample users
+async function seedUsers() {
+  console.log('\n👥 Creating sample users...')
+  
+  const sampleUsers = [
+    {
+      id: 'user-john-smith',
+      name: 'John Smith',
+      email: 'john.smith@autocracy.com',
+      role: 'manager',
+      companyId: COMPANY_ID,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'user-sarah-johnson',
+      name: 'Sarah Johnson',
+      email: 'sarah.johnson@autocracy.com',
+      role: 'supervisor',
+      companyId: COMPANY_ID,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'user-michael-chen',
+      name: 'Michael Chen',
+      email: 'michael.chen@autocracy.com',
+      role: 'engineer',
+      companyId: COMPANY_ID,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'user-emily-davis',
+      name: 'Emily Davis',
+      email: 'emily.davis@autocracy.com',
+      role: 'qa-manager',
+      companyId: COMPANY_ID,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'user-robert-wilson',
+      name: 'Robert Wilson',
+      email: 'robert.wilson@autocracy.com',
+      role: 'operator',
+      companyId: COMPANY_ID,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ]
+
+  for (const user of sampleUsers) {
+    const userRef = doc(db, 'users', user.id)
+    await setDoc(userRef, user, { merge: true })
+    console.log(`✓ Created user ${user.name} (${user.id})`)
+  }
+}
+
 async function seedOrgStructure() {
   console.log('🌱 Seeding Org & Identity structure...')
 
   try {
     // Ensure company exists first
     await ensureCompanyExists()
+    
+    // Create sample users
+    await seedUsers()
     
     // Create Departments
     console.log('\n📁 Creating departments...')
@@ -316,17 +383,16 @@ async function seedOrgStructure() {
     )
     console.log(`✓ Created Senior Manufacturing Engineer position (${seniorEngineer.id})`)
 
-    // Note: Assignments would be created here if we had actual user IDs
-    // For now, we're just creating the structure
     console.log('\n✅ Org structure seeded successfully!')
     console.log('\nCreated:')
+    console.log(`  - 5 Sample Users`)
     console.log(`  - 4 Departments (3 top-level, 1 sub-department)`)
     console.log(`  - 4 Positions (VP, Supervisor, QA Manager, Engineer)`)
     console.log('\n📝 Next steps:')
-    console.log('  1. Create users in the system')
-    console.log('  2. Assign users to positions')
-    console.log('  3. Test delegation workflows')
-    console.log('  4. Test occupant swap functionality')
+    console.log('  1. Assign users to positions in the Organization → Assignments tab')
+    console.log('  2. Test delegation workflows')
+    console.log('  3. Test occupant swap functionality')
+    console.log('  4. Generate audit reports')
     
     return {
       departments: {
