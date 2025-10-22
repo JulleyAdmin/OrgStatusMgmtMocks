@@ -166,7 +166,7 @@ export function OccupantSwap() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Occupant Swap</h2>
+          <h2 className="text-xl font-semibold text-gray-700">Occupant Swap</h2>
           <p className="text-muted-foreground">
             Swap two position occupants and automatically reassign work items
           </p>

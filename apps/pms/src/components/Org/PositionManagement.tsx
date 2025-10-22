@@ -201,7 +201,7 @@ export function PositionManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Positions</h2>
+          <h2 className="text-xl font-semibold text-gray-700">Positions</h2>
           <p className="text-muted-foreground">
             Manage organizational positions, roles, and reporting structure
           </p>

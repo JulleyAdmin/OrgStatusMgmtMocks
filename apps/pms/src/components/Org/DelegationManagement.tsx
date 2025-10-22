@@ -232,7 +232,7 @@ export function DelegationManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Delegations</h2>
+          <h2 className="text-xl font-semibold text-gray-700">Delegations</h2>
           <p className="text-muted-foreground">
             Manage temporary delegations of authority and responsibilities
           </p>

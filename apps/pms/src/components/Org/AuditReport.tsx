@@ -172,7 +172,7 @@ export function AuditReport() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Audit & Compliance Reports</h2>
+          <h2 className="text-xl font-semibold text-gray-700">Audit & Compliance Reports</h2>
           <p className="text-muted-foreground">
             Generate reports for compliance and track organizational changes
           </p>

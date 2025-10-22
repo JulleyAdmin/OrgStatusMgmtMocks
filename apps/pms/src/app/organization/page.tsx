@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,9 +12,54 @@ import { OccupantSwap } from '@/components/Org/OccupantSwap'
 import { DelegationManagement } from '@/components/Org/DelegationManagement'
 import { AuditReport } from '@/components/Org/AuditReport'
 import { Building2, Briefcase, UserCheck, ArrowLeftRight, Shield, FileText } from 'lucide-react'
+import { useCompany } from '@/context/CompanyContext'
+import { getDepartments, getPositions } from '@/lib/org-services'
+import { db } from '@/lib/firebase'
+import { collection, query, where, getDocs } from 'firebase/firestore'
 
 export default function OrgStructurePage() {
   const [activeTab, setActiveTab] = useState('departments')
+  const { currentCompany } = useCompany()
+  const [stats, setStats] = useState({
+    departments: 0,
+    positions: 0,
+    activeAssignments: 0,
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadStats() {
+      if (!currentCompany?.id) return
+      
+      try {
+        setLoading(true)
+        const companyId = currentCompany.id
+
+        // Fetch departments count
+        const depts = await getDepartments(companyId)
+        
+        // Fetch positions count
+        const positions = await getPositions(companyId)
+        
+        // Fetch active assignments count
+        const assignmentsRef = collection(db, 'companies', companyId, 'positionAssignments')
+        const activeQuery = query(assignmentsRef, where('endAt', '==', null))
+        const assignmentsSnap = await getDocs(activeQuery)
+        
+        setStats({
+          departments: depts.length,
+          positions: positions.length,
+          activeAssignments: assignmentsSnap.size,
+        })
+      } catch (error) {
+        console.error('Error loading stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadStats()
+  }, [currentCompany?.id])
 
   return (
     <DashboardLayout>
@@ -37,7 +82,9 @@ export default function OrgStructurePage() {
               <Building2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">-</div>
+              <div className="text-2xl font-bold">
+                {loading ? '...' : stats.departments}
+              </div>
               <p className="text-xs text-muted-foreground">Organizational departments</p>
             </CardContent>
           </Card>
@@ -47,7 +94,9 @@ export default function OrgStructurePage() {
               <Briefcase className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">-</div>
+              <div className="text-2xl font-bold">
+                {loading ? '...' : stats.positions}
+              </div>
               <p className="text-xs text-muted-foreground">Defined positions & roles</p>
             </CardContent>
           </Card>
@@ -57,7 +106,9 @@ export default function OrgStructurePage() {
               <UserCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">-</div>
+              <div className="text-2xl font-bold">
+                {loading ? '...' : stats.activeAssignments}
+              </div>
               <p className="text-xs text-muted-foreground">Current position occupants</p>
             </CardContent>
           </Card>

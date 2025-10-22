@@ -196,7 +196,7 @@ export function AssignmentManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Position Assignments</h2>
+          <h2 className="text-xl font-semibold text-gray-700">Position Assignments</h2>
           <p className="text-muted-foreground">
             Assign people to positions and track assignment history
           </p>
