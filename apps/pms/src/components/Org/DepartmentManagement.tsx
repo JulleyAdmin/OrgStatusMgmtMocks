@@ -357,14 +357,11 @@ export function DepartmentManagement() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>
-              {searchTerm 
+            <CardDescription> 
+            {searchTerm 
                 ? `Departments (${filteredDepartments.length} of ${departments.length})` 
                 : `All Departments (${departments.length})`
               }
-            </CardTitle>
-            <CardDescription>
-              Manage department hierarchy and organization structure
             </CardDescription>
           </CardHeader>
           <CardContent>

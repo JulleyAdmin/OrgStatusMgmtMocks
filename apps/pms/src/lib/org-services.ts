@@ -460,7 +460,7 @@ export async function endPositionAssignment(
   // Update user profile
   const userRef = doc(db, 'companies', companyId, 'users', assignmentData.userId)
   
-  if (!activeSnap.empty) {
+  if (!activeSnap.empty && activeSnap.docs[0]) {
     // User has other active assignments, update to the most recent one
     const latestAssignment = activeSnap.docs[0].data() as PositionAssignment
     const position = await getPosition(companyId, latestAssignment.positionId)

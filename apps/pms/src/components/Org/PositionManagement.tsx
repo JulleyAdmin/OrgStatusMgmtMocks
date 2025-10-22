@@ -695,14 +695,11 @@ export function PositionManagement() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>
+            <CardDescription>
               {searchTerm 
                 ? `Positions (${filteredPositions.length} of ${positions.length})` 
                 : `All Positions (${positions.length})`
               }
-            </CardTitle>
-            <CardDescription>
-              Manage positions, roles, and organizational hierarchy
             </CardDescription>
           </CardHeader>
           <CardContent>
