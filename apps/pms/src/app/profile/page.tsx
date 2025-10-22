@@ -7,13 +7,19 @@ import { useAuthStore } from '@/store/authStore'
 import { UserService } from '@/lib/user-services'
 import { useCompany } from '@/contexts/CompanyContext'
 import { User } from '@/types'
+import { getUserAssignments, getPosition, getDepartment } from '@/lib/org-services'
+import { PositionAssignment, Position, Department } from '@/types/org-schema'
 import toast from 'react-hot-toast'
-import { User as UserIcon, Mail, Phone, MessageSquare, Save, Camera, Lock } from 'lucide-react'
+import { User as UserIcon, Mail, Phone, MessageSquare, Save, Camera, Lock, Building2, Briefcase, Calendar } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user: authUser } = useAuthStore()
   const { companyId } = useCompany()
   const [loading, setLoading] = useState(false)
+  const [orgLoading, setOrgLoading] = useState(true)
+  const [currentAssignment, setCurrentAssignment] = useState<PositionAssignment | null>(null)
+  const [currentPosition, setCurrentPosition] = useState<Position | null>(null)
+  const [currentDepartment, setCurrentDepartment] = useState<Department | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,6 +44,46 @@ export default function ProfilePage() {
       })
     }
   }, [authUser])
+
+  // Fetch org structure data
+  useEffect(() => {
+    const loadOrgData = async () => {
+      if (!authUser || !companyId) {
+        setOrgLoading(false)
+        return
+      }
+
+      try {
+        setOrgLoading(true)
+        
+        // Get user's position assignments
+        const assignments = await getUserAssignments(companyId, authUser.id)
+        
+        // Find the active assignment
+        const activeAssignment = assignments.find(a => a.status === 'active')
+        
+        if (activeAssignment) {
+          setCurrentAssignment(activeAssignment)
+          
+          // Get position details
+          const position = await getPosition(companyId, activeAssignment.positionId)
+          setCurrentPosition(position)
+          
+          // Get department details
+          if (position?.departmentId) {
+            const department = await getDepartment(companyId, position.departmentId)
+            setCurrentDepartment(department)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading org data:', error)
+      } finally {
+        setOrgLoading(false)
+      }
+    }
+
+    loadOrgData()
+  }, [authUser, companyId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -141,7 +187,11 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{authUser.name}</h2>
-                <p className="text-gray-600">{authUser.position}</p>
+                {currentPosition ? (
+                  <p className="text-gray-600">{currentPosition.title}</p>
+                ) : (
+                  <p className="text-gray-600">{authUser.position}</p>
+                )}
                 <div className="flex items-center mt-2 space-x-2">
                   <span className={`px-3 py-1 text-xs font-medium rounded-full ${
                     authUser.role === 'admin' 
@@ -152,11 +202,50 @@ export default function ProfilePage() {
                   }`}>
                     {authUser.role}
                   </span>
-                  <span className="text-sm text-gray-500">{authUser.department}</span>
+                  {currentDepartment && (
+                    <span className="text-sm text-gray-500">{currentDepartment.name}</span>
+                  )}
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Org Structure Information */}
+          {currentAssignment && currentPosition && (
+            <div className="px-6 py-4 bg-blue-50 border-t border-b border-blue-100">
+              <h3 className="text-sm font-semibold text-blue-900 mb-3">Current Position Assignment</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-start space-x-3">
+                  <Briefcase className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-blue-700 font-medium">Position</p>
+                    <p className="text-sm text-blue-900">{currentPosition.title}</p>
+                  </div>
+                </div>
+                {currentDepartment && (
+                  <div className="flex items-start space-x-3">
+                    <Building2 className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-blue-700 font-medium">Department</p>
+                      <p className="text-sm text-blue-900">{currentDepartment.name}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-start space-x-3">
+                  <Calendar className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-blue-700 font-medium">Since</p>
+                    <p className="text-sm text-blue-900">
+                      {new Date(currentAssignment.startAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      {currentAssignment.assignmentType}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Form Section */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">

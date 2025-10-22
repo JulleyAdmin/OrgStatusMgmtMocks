@@ -12,6 +12,7 @@ import { ActionMenu, createViewAction, createEditAction, createDeleteAction } fr
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { AddUserDrawer } from '@/components/AddUserDrawer'
 import { EditUserDrawer } from '@/components/EditUserDrawer'
+import { UserProfileView } from '@/components/UserProfileView'
 import { Users, Plus, Mail, Phone, MessageSquare } from 'lucide-react'
 import { UserService } from '@/lib/user-services'
 import toast from 'react-hot-toast'
@@ -28,6 +29,10 @@ export default function UsersPage() {
   }>({ open: false, user: null })
   const [addUserDrawerOpen, setAddUserDrawerOpen] = useState(false)
   const [editUserDrawer, setEditUserDrawer] = useState<{
+    open: boolean
+    user: User | null
+  }>({ open: false, user: null })
+  const [viewUserProfile, setViewUserProfile] = useState<{
     open: boolean
     user: User | null
   }>({ open: false, user: null })
@@ -85,8 +90,7 @@ export default function UsersPage() {
   }
 
   const handleViewUser = (user: User) => {
-    // TODO: Implement user detail view
-    toast.success(`Viewing ${user.name}`)
+    setViewUserProfile({ open: true, user })
   }
 
   const handleEditUser = (user: User) => {
@@ -368,6 +372,13 @@ export default function UsersPage() {
         onOpenChange={(open) => setEditUserDrawer({ open, user: null })}
         user={editUserDrawer.user}
         onUserUpdated={handleUserUpdated}
+      />
+
+      {/* View User Profile */}
+      <UserProfileView
+        open={viewUserProfile.open}
+        onOpenChange={(open) => setViewUserProfile({ open, user: null })}
+        user={viewUserProfile.user}
       />
     </DashboardLayout>
   )
