@@ -190,12 +190,15 @@ async function seedDepartments() {
     const deptData = await createDepartment(
       COMPANY_ID,
       {
+        companyId: COMPANY_ID,
         name: dept.name,
         code: dept.code,
         description: `${dept.name} department`,
         parentDepartmentId: parentId,
         status: 'active',
         location: 'Main Facility',
+        createdBy: ADMIN_USER_ID,
+        updatedBy: ADMIN_USER_ID,
       },
       ADMIN_USER_ID
     )
@@ -287,6 +290,7 @@ async function seedPositions() {
     const posData = await createPosition(
       COMPANY_ID,
       {
+        companyId: COMPANY_ID,
         departmentId: departmentIds[pos.dept],
         title: pos.title,
         code: pos.code,
@@ -314,6 +318,8 @@ async function seedPositions() {
           canApproveProjects: pos.level <= 4,
         },
         status: 'active',
+        createdBy: ADMIN_USER_ID,
+        updatedBy: ADMIN_USER_ID,
       },
       ADMIN_USER_ID
     )
