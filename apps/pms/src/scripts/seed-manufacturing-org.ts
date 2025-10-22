@@ -287,6 +287,10 @@ async function seedPositions() {
   ]
 
   for (const pos of positions) {
+    if (!departmentIds[pos.dept]) {
+      throw new Error(`Department ${pos.dept} not found for position ${pos.title}`)
+    }
+    
     const posData = await createPosition(
       COMPANY_ID,
       {
