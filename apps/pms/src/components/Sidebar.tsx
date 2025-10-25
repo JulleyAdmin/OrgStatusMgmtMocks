@@ -22,7 +22,10 @@ import {
   X,
   LogOut,
   Network,
-  Inbox
+  Inbox,
+  FileText,
+  UserCheck,
+  Library
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'next/navigation'
@@ -43,6 +46,21 @@ const navigation = [
     name: 'Task Center',
     href: '/tasks',
     icon: CheckSquare,
+  },
+  {
+    name: 'My Tasks',
+    href: '/my-tasks',
+    icon: UserCheck,
+  },
+  {
+    name: 'Task Library',
+    href: '/task-library',
+    icon: Library,
+  },
+  {
+    name: 'Task Templates',
+    href: '/task-templates',
+    icon: FileText,
   },
   {
     name: 'Projects',

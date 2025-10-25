@@ -299,5 +299,55 @@ service cloud.firestore {
       allow update: if false; // Audit logs are immutable
       allow delete: if isAdmin();
     }
+    
+    // Companies collection rules
+    match /companies/{companyId} {
+      allow read, write: if isAuthenticated();
+      
+      // Task Templates
+      match /taskTemplates/{templateId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Position Task Templates
+      match /positionTaskTemplates/{assignmentId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Generated Tasks
+      match /generatedTasks/{taskId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Task Instantiation Requests
+      match /taskInstantiationRequests/{requestId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Notifications
+      match /notifications/{notificationId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Notification Preferences
+      match /notificationPreferences/{preferenceId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Departments
+      match /departments/{departmentId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Positions
+      match /positions/{positionId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Position Assignments
+      match /positionAssignments/{assignmentId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
   }
 }
