@@ -30,6 +30,7 @@ import {
 import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { OrgChartDrawer } from '@/components/OrgChartDrawer'
 
 // Main navigation - available to all users
 const mainNavigation = [
@@ -92,11 +93,6 @@ const adminNavigation = [
     icon: Network,
   },
   {
-    name: 'Org Chart',
-    href: '/org-chart',
-    icon: BarChart3,
-  },
-  {
     name: 'Users',
     href: '/users',
     icon: Users,
@@ -114,6 +110,7 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [orgChartOpen, setOrgChartOpen] = useState(false)
   const pathname = usePathname()
   const { user, signOut } = useAuthStore()
   const router = useRouter()
@@ -277,6 +274,20 @@ export function Sidebar({ className }: SidebarProps) {
                 </div>
               </div>
             )}
+            
+            {/* Org Chart for All Users */}
+            <Button
+              variant="ghost"
+              onClick={() => setOrgChartOpen(true)}
+              className={cn(
+                "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+                !isCollapsed ? "text-sm" : "justify-center"
+              )}
+            >
+              <BarChart3 className={cn("w-4 h-4", !isCollapsed && "mr-2")} />
+              {!isCollapsed && "Org Chart"}
+            </Button>
+            
             <Button
               variant="ghost"
               onClick={handleSignOut}
@@ -290,6 +301,9 @@ export function Sidebar({ className }: SidebarProps) {
             </Button>
           </div>
         </div>
+
+        {/* Org Chart Drawer */}
+        <OrgChartDrawer open={orgChartOpen} onOpenChange={setOrgChartOpen} />
 
       </div>
     </TooltipProvider>

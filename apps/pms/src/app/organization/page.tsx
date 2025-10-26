@@ -11,7 +11,9 @@ import { AssignmentManagement } from '@/components/Org/AssignmentManagement'
 import { OccupantSwap } from '@/components/Org/OccupantSwap'
 import { DelegationManagement } from '@/components/Org/DelegationManagement'
 import { AuditReport } from '@/components/Org/AuditReport'
-import { Building2, Briefcase, UserCheck, ArrowLeftRight, Shield, FileText } from 'lucide-react'
+import { Building2, Briefcase, UserCheck, ArrowLeftRight, Shield, FileText, BarChart3 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { OrgChartDrawer } from '@/components/OrgChartDrawer'
 import { useCompany } from '@/contexts/CompanyContext'
 import { getDepartments, getPositions } from '@/lib/org-services'
 import { db } from '@/lib/firebase'
@@ -19,6 +21,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore'
 
 export default function OrgStructurePage() {
   const [activeTab, setActiveTab] = useState('departments')
+  const [orgChartOpen, setOrgChartOpen] = useState(false)
   const { currentCompany } = useCompany()
   const [stats, setStats] = useState({
     departments: 0,
@@ -68,10 +71,17 @@ export default function OrgStructurePage() {
         <Breadcrumb />
         
         {/* Header */}
-        <div>
-          <p className="text-muted-foreground">
-            Manage departments, positions, assignments, and delegations with full audit trail
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Organization Management</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage departments, positions, assignments, and delegations with full audit trail
+            </p>
+          </div>
+          <Button variant="outline" className="gap-2" onClick={() => setOrgChartOpen(true)}>
+            <BarChart3 className="h-4 w-4" />
+            View Org Chart
+          </Button>
         </div>
 
         {/* Overview Cards */}
@@ -235,6 +245,9 @@ export default function OrgStructurePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Org Chart Drawer */}
+      <OrgChartDrawer open={orgChartOpen} onOpenChange={setOrgChartOpen} />
     </DashboardLayout>
   )
 }
