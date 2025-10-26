@@ -312,8 +312,8 @@ export class TaskTemplateService {
     const dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + dueDateOffset)
     
-    const task: GeneratedTask = {
-      id: '',
+    // Create task data without the 'id' field (Firestore will auto-generate it)
+    const taskDataToSave = {
       templateId: template.id,
       positionId,
       assignedUserId: userId,
@@ -323,10 +323,10 @@ export class TaskTemplateService {
       priority: assignment.customPriority || template.priority,
       estimatedHours: template.estimatedHours,
       dueDate: dueDate.toISOString(),
-      assignmentType: 'template_generated',
+      assignmentType: 'template_generated' as const,
       assignmentReason: `Generated from template: ${template.name}`,
       assignedBy: 'system', // TODO: Get actual user ID
-      status: 'assigned',
+      status: 'assigned' as const,
       progress: 0,
       definitionOfDone: template.definitionOfDone.map(dod => ({
         doDItemId: dod.id,
@@ -339,8 +339,13 @@ export class TaskTemplateService {
       updatedAt: now,
     }
     
-    const docRef = await addDoc(taskRef, task)
-    task.id = docRef.id
+    const docRef = await addDoc(taskRef, taskDataToSave)
+    
+    // Return the task with the ID set
+    const task: GeneratedTask = {
+      id: docRef.id,
+      ...taskDataToSave,
+    }
     
     // Update template usage count
     await this.updateTaskTemplate(companyId, template.id, {
@@ -427,6 +432,10 @@ export class TaskTemplateService {
     status: GeneratedTask['status'],
     updates?: Partial<GeneratedTask>
   ): Promise<void> {
+    if (!taskId || !companyId) {
+      throw new Error('Cannot update task: missing task ID or company ID')
+    }
+    
     const taskRef = doc(db, 'companies', companyId, 'generatedTasks', taskId)
     const now = new Date().toISOString()
     
@@ -458,12 +467,61 @@ export class TaskTemplateService {
     progress: number,
     notes?: string
   ): Promise<void> {
+    if (!taskId || !companyId) {
+      throw new Error('Cannot update task progress: missing task ID or company ID')
+    }
+    
     const taskRef = doc(db, 'companies', companyId, 'generatedTasks', taskId)
     await updateDoc(taskRef, {
       progress,
       completionNotes: notes,
       updatedAt: new Date().toISOString(),
     })
+  }
+  
+  /**
+   * Create a manual task
+   */
+  static async createManualTask(
+    companyId: string,
+    userId: string,
+    taskData: {
+      title: string
+      description: string
+      category: GeneratedTask['category']
+      priority: GeneratedTask['priority']
+      estimatedHours: number
+      dueDate: string
+      assignedBy?: string
+      positionId?: string
+    }
+  ): Promise<string> {
+    const taskRef = collection(db, 'companies', companyId, 'generatedTasks')
+    const now = new Date().toISOString()
+    
+    // Create task data without the 'id' field (Firestore will auto-generate it)
+    const taskDataToSave = {
+      templateId: 'manual',
+      positionId: taskData.positionId || '',
+      assignedUserId: userId,
+      title: taskData.title,
+      description: taskData.description,
+      category: taskData.category,
+      priority: taskData.priority,
+      estimatedHours: taskData.estimatedHours,
+      dueDate: taskData.dueDate,
+      assignmentType: 'manual' as const,
+      assignmentReason: 'Manually created task',
+      assignedBy: taskData.assignedBy || userId,
+      status: 'assigned' as const,
+      progress: 0,
+      definitionOfDone: [],
+      createdAt: now,
+      updatedAt: now,
+    }
+    
+    const docRef = await addDoc(taskRef, taskDataToSave)
+    return docRef.id
   }
   
   // ============================================================================

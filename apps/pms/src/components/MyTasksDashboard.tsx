@@ -15,6 +15,28 @@ import { Separator } from '@/components/ui/separator'
 import { useCompany } from '@/hooks/useCompany'
 import { TaskTemplateService } from '@/lib/task-template-service'
 import { 
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
+  useSortable,
+} from '@dnd-kit/sortable'
+import {
+  useDroppable,
+} from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+import { 
   CheckCircle, 
   Clock, 
   AlertCircle, 
@@ -27,9 +49,86 @@ import {
   CheckSquare,
   XCircle,
   Edit,
-  Eye
+  Eye,
+  Plus
 } from 'lucide-react'
 import type { GeneratedTask } from '@/types/task-template-schema'
+
+// Sortable Kanban Task Item Component
+function KanbanTaskItem({ task }: { task: GeneratedTask }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id || '' })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  function formatDate(dateString: string) {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+
+  function getPriorityColor(priority: GeneratedTask['priority']) {
+    switch (priority) {
+      case 'urgent':
+        return 'bg-red-100 text-red-800 border-red-200'
+      case 'high':
+        return 'bg-orange-100 text-orange-800 border-orange-200'
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <Card className={`p-3 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${isDragging ? 'ring-2 ring-blue-500' : ''}`}>
+        <div className="space-y-2">
+          <h4 className="font-medium text-sm">{task.title}</h4>
+          <div className="flex items-center gap-2">
+            <Badge className={getPriorityColor(task.priority)}>
+              {task.priority}
+            </Badge>
+            <span className="text-xs text-gray-500">
+              Due: {formatDate(task.dueDate)}
+            </span>
+          </div>
+          {task.progress > 0 && (
+            <Progress value={task.progress} className="h-1" />
+          )}
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+// Droppable Column Component
+function DroppableColumn({ id, children }: { id: string; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id })
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      className={`min-h-[200px] transition-colors ${isOver ? 'bg-blue-50' : ''}`}
+    >
+      {children}
+    </div>
+  )
+}
 
 export function MyTasksDashboard() {
   const { currentCompany } = useCompany()
@@ -42,6 +141,30 @@ export function MyTasksDashboard() {
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false)
   const [progressUpdate, setProgressUpdate] = useState('')
   const [completionNotes, setCompletionNotes] = useState('')
+  
+  // Manual task creation state
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    category: 'custom' as const,
+    priority: 'medium' as const,
+    estimatedHours: 1,
+    dueDate: ''
+  })
+  
+  // Drag and drop state
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const statusOptions = [
     { value: 'all', label: 'All Tasks' },
@@ -81,8 +204,83 @@ export function MyTasksDashboard() {
     }
   }
 
+  async function handleCreateTask() {
+    if (!currentCompany?.id || !newTask.title || !newTask.dueDate) {
+      return
+    }
+
+    try {
+      const userId = 'current-user-id' // TODO: Get from auth context
+      await TaskTemplateService.createManualTask(currentCompany.id, userId, {
+        title: newTask.title,
+        description: newTask.description,
+        category: newTask.category,
+        priority: newTask.priority,
+        estimatedHours: newTask.estimatedHours,
+        dueDate: newTask.dueDate
+      })
+      
+      // Reset form
+      setNewTask({
+        title: '',
+        description: '',
+        category: 'custom',
+        priority: 'medium',
+        estimatedHours: 1,
+        dueDate: ''
+      })
+      setIsCreateDialogOpen(false)
+      await loadUserTasks()
+    } catch (error) {
+      console.error('Error creating task:', error)
+    }
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    setActiveId(null)
+    
+    if (!over) return
+    
+    const taskId = active.id as string
+    const newStatus = over.id as string
+    
+    // Find the task
+    const task = tasks.find(t => t.id === taskId)
+    if (!task || task.status === newStatus) return
+    
+    // Optimistically update the UI
+    setTasks(prevTasks => 
+      prevTasks.map(t => 
+        t.id === taskId ? { ...t, status: newStatus as GeneratedTask['status'] } : t
+      )
+    )
+    
+    // Update task status in the background
+    try {
+      await TaskTemplateService.updateTaskStatus(currentCompany?.id || '', taskId, newStatus as GeneratedTask['status'])
+      // Optionally reload to get fresh data
+      // await loadUserTasks()
+    } catch (error) {
+      console.error('Error updating task status:', error)
+      // Revert on error
+      await loadUserTasks()
+    }
+  }
+
+  function handleDragStart(event: any) {
+    setActiveId(event.active.id as string)
+  }
+
+  function handleDragCancel() {
+    setActiveId(null)
+  }
+
   async function updateTaskStatus(taskId: string, status: GeneratedTask['status']) {
-    if (!currentCompany?.id) return
+    if (!currentCompany?.id || !taskId) {
+      console.error('Cannot update task status: missing company or task ID')
+      return
+    }
 
     try {
       await TaskTemplateService.updateTaskStatus(currentCompany.id, taskId, status)
@@ -93,7 +291,10 @@ export function MyTasksDashboard() {
   }
 
   async function updateTaskProgress(taskId: string) {
-    if (!currentCompany?.id || !progressUpdate) return
+    if (!currentCompany?.id || !progressUpdate || !taskId) {
+      console.error('Cannot update task progress: missing company, progress, or task ID')
+      return
+    }
 
     try {
       const progress = parseInt(progressUpdate)
@@ -202,9 +403,18 @@ export function MyTasksDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <div className="flex items-center justify-between">
       <div>
         <h2 className="text-2xl font-bold text-gray-900">My Tasks</h2>
         <p className="text-gray-600">Manage your assigned tasks and track your progress</p>
+        </div>
+        <Button 
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Task
+        </Button>
       </div>
 
       {/* Task Statistics */}
@@ -393,10 +603,24 @@ export function MyTasksDashboard() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {task.status === 'assigned' && (
+                    <Select 
+                      value={task.status} 
+                      onValueChange={(value) => task.id && updateTaskStatus(task.id, value as GeneratedTask['status'])}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="assigned">Assigned</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {task.status === 'assigned' && task.id && (
                       <Button
                         size="sm"
-                        onClick={() => updateTaskStatus(task.id, 'in_progress')}
+                        onClick={() => updateTaskStatus(task.id!, 'in_progress')}
                       >
                         Start Task
                       </Button>
@@ -431,43 +655,52 @@ export function MyTasksDashboard() {
         </TabsContent>
 
         <TabsContent value="kanban" className="space-y-4">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            onDragStart={handleDragStart}
+            onDragCancel={handleDragCancel}
+          >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {['assigned', 'in_progress', 'completed', 'cancelled'].map(status => (
+              {['assigned', 'in_progress', 'completed', 'cancelled'].map(status => {
+                const statusTasks = filteredTasks.filter(task => task.status === status)
+                const taskIds = statusTasks.map(t => t.id || '').filter(Boolean)
+                
+                return (
               <Card key={status}>
                 <CardHeader>
                   <CardTitle className="text-sm font-medium text-gray-700 capitalize">
-                    {status.replace('_', ' ')} ({filteredTasks.filter(t => t.status === status).length})
+                        {status.replace('_', ' ')} ({statusTasks.length})
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-96">
-                    <div className="space-y-3">
-                      {filteredTasks
-                        .filter(task => task.status === status)
-                        .map((task, index) => (
-                          <Card key={task.id || `kanban-task-${status}-${index}`} className="p-3 hover:shadow-md transition-shadow">
-                            <div className="space-y-2">
-                              <h4 className="font-medium text-sm">{task.title}</h4>
-                              <div className="flex items-center gap-2">
-                                <Badge className={getPriorityColor(task.priority)}>
-                                  {task.priority}
-                                </Badge>
-                                <span className="text-xs text-gray-500">
-                                  Due: {formatDate(task.dueDate)}
-                                </span>
-                              </div>
-                              {task.progress > 0 && (
-                                <Progress value={task.progress} className="h-1" />
-                              )}
-                            </div>
-                          </Card>
+                      <DroppableColumn id={status}>
+                        <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
+                          <div className="space-y-3 h-96 overflow-y-auto">
+                            {statusTasks.map((task) => (
+                              <KanbanTaskItem key={task.id} task={task} />
                         ))}
                     </div>
-                  </ScrollArea>
+                        </SortableContext>
+                      </DroppableColumn>
                 </CardContent>
               </Card>
-            ))}
+                )
+              })}
+            </div>
+            <DragOverlay>
+              {activeId ? (
+                <Card className="p-3 opacity-90 bg-white shadow-lg">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">
+                      {filteredTasks.find(t => t.id === activeId)?.title}
+                    </h4>
           </div>
+                </Card>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         </TabsContent>
       </Tabs>
 
@@ -566,9 +799,12 @@ export function MyTasksDashboard() {
                     </Button>
                     <Button
                       onClick={() => {
+                        if (selectedTask.id) {
                         updateTaskProgress(selectedTask.id)
                         setIsTaskDialogOpen(false)
+                        }
                       }}
+                      disabled={!selectedTask.id}
                     >
                       Update Progress
                     </Button>
@@ -608,6 +844,139 @@ export function MyTasksDashboard() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Task Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Task</DialogTitle>
+            <DialogDescription>
+              Add a new task to your task list
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Task Title *
+              </label>
+              <Input
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                placeholder="Enter task title"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Description
+              </label>
+              <Textarea
+                value={newTask.description}
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                placeholder="Enter task description"
+                rows={4}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Category *
+                </label>
+                <Select
+                  value={newTask.category}
+                  onValueChange={(value) => setNewTask({ ...newTask, category: value as any })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="onboarding">Onboarding</SelectItem>
+                    <SelectItem value="compliance">Compliance</SelectItem>
+                    <SelectItem value="operational">Operational</SelectItem>
+                    <SelectItem value="project">Project</SelectItem>
+                    <SelectItem value="training">Training</SelectItem>
+                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                    <SelectItem value="custom">Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Priority *
+                </label>
+                <Select
+                  value={newTask.priority}
+                  onValueChange={(value) => setNewTask({ ...newTask, priority: value as any })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Estimated Hours *
+                </label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={newTask.estimatedHours}
+                  onChange={(e) => setNewTask({ ...newTask, estimatedHours: parseInt(e.target.value) || 1 })}
+                  placeholder="Estimated hours"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Due Date *
+                </label>
+                <Input
+                  type="date"
+                  value={newTask.dueDate}
+                  onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setNewTask({
+                    title: '',
+                    description: '',
+                    category: 'custom',
+                    priority: 'medium',
+                    estimatedHours: 1,
+                    dueDate: ''
+                  })
+                  setIsCreateDialogOpen(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateTask}
+                disabled={!newTask.title || !newTask.dueDate}
+              >
+                Create Task
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
