@@ -31,7 +31,8 @@ import { useAuthStore } from '@/store/authStore'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
-const navigation = [
+// Main navigation - available to all users
+const mainNavigation = [
   {
     name: 'Home',
     href: '/home',
@@ -43,14 +44,28 @@ const navigation = [
     icon: Inbox,
   },
   {
+    name: 'My Tasks',
+    href: '/my-tasks',
+    icon: UserCheck,
+  },
+  {
+    name: 'Notifications',
+    href: '/notifications',
+    icon: Bell,
+  },
+]
+
+// Task Management - available to all users
+const taskManagement = [
+  {
     name: 'Task Center',
     href: '/tasks',
     icon: CheckSquare,
   },
   {
-    name: 'My Tasks',
-    href: '/my-tasks',
-    icon: UserCheck,
+    name: 'Projects',
+    href: '/projects',
+    icon: Building2,
   },
   {
     name: 'Task Library',
@@ -62,11 +77,10 @@ const navigation = [
     href: '/task-templates',
     icon: FileText,
   },
-  {
-    name: 'Projects',
-    href: '/projects',
-    icon: Building2,
-  },
+]
+
+// Admin navigation - only for admin users
+const adminNavigation = [
   {
     name: 'Workflow Designer',
     href: '/workflow',
@@ -88,11 +102,6 @@ const navigation = [
     icon: Users,
   },
   {
-    name: 'Notifications',
-    href: '/notifications',
-    icon: Bell,
-  },
-  {
     name: 'Settings',
     href: '/settings',
     icon: Settings,
@@ -109,6 +118,8 @@ export function Sidebar({ className }: SidebarProps) {
   const { user, signOut } = useAuthStore()
   const router = useRouter()
 
+  const isAdmin = user?.role === 'admin'
+
   const handleSignOut = async () => {
     try {
       await signOut()
@@ -118,6 +129,56 @@ export function Sidebar({ className }: SidebarProps) {
       console.error('Sign out error:', error)
       toast.error('Failed to logout. Please try again.')
     }
+  }
+
+  const renderNavItem = (item: typeof mainNavigation[0]) => {
+    const isActive = pathname === item.href
+    const Icon = item.icon
+
+    if (isCollapsed) {
+      return (
+        <Tooltip key={item.name}>
+          <TooltipTrigger asChild>
+            <Link href={item.href}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "w-full justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 relative",
+                  isActive && "text-red-600 bg-red-50"
+                )}
+              >
+                <Icon className={cn(
+                  "w-5 h-5",
+                  isActive && "text-red-600"
+                )} />
+              </Button>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{item.name}</p>
+          </TooltipContent>
+        </Tooltip>
+      )
+    }
+
+    return (
+      <Link key={item.name} href={item.href}>
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 relative",
+            isActive && "text-red-600 bg-red-50 font-semibold"
+          )}
+        >
+          <Icon className={cn(
+            "mr-3 w-5 h-5",
+            isActive && "text-red-600"
+          )} />
+          {item.name}
+        </Button>
+      </Link>
+    )
   }
 
   return (
@@ -153,81 +214,79 @@ export function Sidebar({ className }: SidebarProps) {
 
         {/* Navigation */}
         <ScrollArea className="flex-1 px-3 py-4">
-          <nav className="space-y-1">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              const Icon = item.icon
+          <nav className="space-y-4">
+            {/* Main Navigation */}
+            <div className="space-y-1">
+              {!isCollapsed && (
+                <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  Main
+                </p>
+              )}
+              {mainNavigation.map(renderNavItem)}
+            </div>
 
-              if (isCollapsed) {
-                return (
-                  <Tooltip key={item.name}>
-                    <TooltipTrigger asChild>
-                      <Link href={item.href}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className={cn(
-                            "w-full justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 relative",
-                            isActive && "text-red-600 bg-red-50"
-                          )}
-                        >
-                          <Icon className={cn(
-                            "w-5 h-5",
-                            isActive && "text-red-600"
-                          )} />
-                        </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>{item.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )
-              }
+            {/* Task Management */}
+            <div className="space-y-1">
+              {!isCollapsed && (
+                <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  Tasks
+                </p>
+              )}
+              {taskManagement.map(renderNavItem)}
+            </div>
 
-              return (
-                <Link key={item.name} href={item.href}>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100 relative",
-                      isActive && "text-red-600 bg-red-50 font-semibold"
-                    )}
-                  >
-                    <Icon className={cn(
-                      "mr-3 w-5 h-5",
-                      isActive && "text-red-600"
-                    )} />
-                    {item.name}
-                  </Button>
-                </Link>
-              )
-            })}
+            {/* Admin Section */}
+            {isAdmin && (
+              <div className="space-y-1">
+                {!isCollapsed && (
+                  <div className="px-3">
+                    <Separator className="my-2" />
+                    <p className="px-0 text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center">
+                      <span className="mr-2 text-blue-600">Admin</span>
+                    </p>
+                  </div>
+                )}
+                {isCollapsed && <Separator className="my-2" />}
+                {adminNavigation.map(renderNavItem)}
+              </div>
+            )}
           </nav>
         </ScrollArea>
 
-        {/* Quick Actions */}
+        {/* User Profile Section */}
         <div className="px-3 py-4 border-t border-gray-200">
-          <div className="space-y-2">
+          <div className="space-y-1">
+            {!isCollapsed && user && (
+              <div className="px-2 mb-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                  Profile
+                </p>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {user.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 capitalize">
+                      {user.role}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
             <Button
               variant="ghost"
+              onClick={handleSignOut}
               className={cn(
-                "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100",
+                "w-full justify-start text-gray-600 hover:text-red-600 hover:bg-red-50",
                 !isCollapsed ? "text-sm" : "justify-center"
               )}
             >
-              <Users className={cn("w-4 h-4", !isCollapsed && "mr-2")} />
-              {!isCollapsed && "Add User"}
-            </Button>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100",
-                !isCollapsed ? "text-sm" : "justify-center"
-              )}
-            >
-              <BarChart3 className={cn("w-4 h-4", !isCollapsed && "mr-2")} />
-              {!isCollapsed && "View Reports"}
+              <LogOut className={cn("w-4 h-4", !isCollapsed && "mr-2")} />
+              {!isCollapsed && "Sign Out"}
             </Button>
           </div>
         </div>
