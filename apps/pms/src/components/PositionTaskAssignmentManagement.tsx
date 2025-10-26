@@ -146,18 +146,32 @@ export function PositionTaskAssignmentManagement() {
     if (!currentCompany?.id || !selectedPosition || !formData.templateId) return
 
     try {
+      const assignmentConfig: any = {
+        assignmentMode: formData.assignmentMode,
+        customPriority: formData.customPriority,
+        generateForCurrentUsers: formData.generateForCurrentUsers,
+      }
+
+      // Only include assignmentDate if it has a value
+      if (formData.assignmentDate) {
+        assignmentConfig.assignmentDate = formData.assignmentDate
+      }
+
+      // Only include customDueDateOffset if it has a value (including 0)
+      if (formData.customDueDateOffset !== '') {
+        assignmentConfig.customDueDateOffset = parseInt(formData.customDueDateOffset)
+      }
+
+      // Only include customInstructions if it has a value
+      if (formData.customInstructions) {
+        assignmentConfig.customInstructions = formData.customInstructions
+      }
+
       const { assignmentId, generatedTasks } = await PositionTaskAssignmentService.assignTemplateToPosition(
         currentCompany.id,
         selectedPosition.id,
         formData.templateId,
-        {
-          assignmentMode: formData.assignmentMode,
-          assignmentDate: formData.assignmentDate || undefined,
-          customDueDateOffset: formData.customDueDateOffset ? parseInt(formData.customDueDateOffset) : undefined,
-          customPriority: formData.customPriority,
-          customInstructions: formData.customInstructions,
-          generateForCurrentUsers: formData.generateForCurrentUsers,
-        }
+        assignmentConfig
       )
 
       console.log(`Assigned template to position. Generated ${generatedTasks.length} tasks.`)

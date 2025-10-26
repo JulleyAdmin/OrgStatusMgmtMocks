@@ -379,7 +379,44 @@ export async function assignUserToPosition(
   // Invalidate delegation cache for this position
   await invalidateDelegationCache(companyId, positionId)
 
+  // Generate tasks for the newly assigned user
+  try {
+    const { PositionTaskAssignmentService } = await import('./position-task-assignment-service')
+    await PositionTaskAssignmentService.generateTasksOnPositionAssignment(
+      companyId,
+      positionId,
+      userId,
+      data.assignmentType
+    )
+    console.log(`Generated tasks for user ${userId} assigned to position ${positionId}`)
+  } catch (error) {
+    console.error('Error generating tasks on position assignment:', error)
+    // Don't throw error - position assignment succeeded, task generation is secondary
+  }
+
   return assignment
+}
+
+/**
+ * Get current active assignment for a user
+ */
+export async function getCurrentAssignmentForUser(companyId: string, userId: string): Promise<PositionAssignment | null> {
+  const q = query(
+    collection(db, 'companies', companyId, 'positionAssignments'),
+    where('userId', '==', userId),
+    where('status', '==', 'active')
+  )
+  
+  const snapshot = await getDocs(q)
+  if (snapshot.empty) {
+    return null
+  }
+  
+  const doc = snapshot.docs[0]
+  if (!doc) {
+    return null
+  }
+  return { id: doc.id, ...doc.data() } as PositionAssignment
 }
 
 /**

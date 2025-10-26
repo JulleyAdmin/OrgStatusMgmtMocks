@@ -25,6 +25,7 @@ const adminUser: Omit<User, 'id' | 'createdAt' | 'updatedAt'> = {
   role: 'admin',
   department: 'Executive',
   position: 'System Administrator',
+  companyId: 'default-company-id',
   avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
   skills: ['System Administration', 'Project Management', 'Team Leadership', 'Technical Architecture'],
   contact: { 

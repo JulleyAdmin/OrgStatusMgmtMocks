@@ -5,46 +5,36 @@ import { useRouter } from 'next/navigation'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { useAuthStore } from '../../store/authStore'
 import { COMPANY_CONFIG } from '../../config/company'
+import { useFormValidation } from '../../hooks/useFormValidation'
+import { loginSchema } from '../../lib/validations'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [emailError, setEmailError] = useState('')
   const { user, signIn, loading: authLoading } = useAuthStore()
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setEmailError('')
-    
-    // Basic email validation
-    if (!email.includes('@')) {
-      setEmailError('Please enter a valid email address')
-      setLoading(false)
-      return
+  const {
+    values,
+    errors,
+    isValid,
+    isSubmitting,
+    setValue,
+    handleSubmit
+  } = useFormValidation({
+    schema: loginSchema,
+    initialValues: { email: '', password: '' },
+    onSubmit: async (data) => {
+      try {
+        await signIn(data.email, data.password)
+        toast.success('Login successful!')
+        // AuthGuard will handle the redirect to dashboard
+      } catch (error: any) {
+        console.error('Login error:', error)
+        toast.error(error.message || 'Login failed. Please check your credentials.')
+      }
     }
-
-    if (!password) {
-      toast.error('Please enter your password')
-      setLoading(false)
-      return
-    }
-
-    try {
-      await signIn(email, password)
-      toast.success('Login successful!')
-      // AuthGuard will handle the redirect to dashboard
-    } catch (error: any) {
-      console.error('Login error:', error)
-      toast.error(error.message || 'Login failed. Please check your credentials.')
-    } finally {
-      setLoading(false)
-    }
-  }
+  })
 
   // Show loading spinner while checking auth state
   if (authLoading) {
@@ -136,18 +126,15 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    if (emailError) setEmailError('')
-                  }}
+                  value={values.email || ''}
+                  onChange={(e) => setValue('email', e.target.value)}
                   className={`w-full px-3 py-2 border rounded-md shadow-sm bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    emailError ? 'border-red-500' : 'border-gray-300'
+                    errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="john.doe@company.com"
                 />
-                {emailError && (
-                  <p className="mt-1 text-sm text-red-500">{emailError}</p>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
                 )}
               </div>
 
@@ -160,9 +147,11 @@ export default function LoginPage() {
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={values.password || ''}
+                    onChange={(e) => setValue('password', e.target.value)}
+                    className={`w-full px-3 py-2 pr-10 border rounded-md shadow-sm bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.password ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     placeholder="Enter your password"
                   />
                   <button
@@ -177,6 +166,9 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                )}
               </div>
 
               {/* Remember Me & Forgot Password */}
@@ -199,10 +191,10 @@ export default function LoginPage() {
               {/* Sign In Button */}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isSubmitting || !isValid}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
+                {isSubmitting ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 ) : (
                   'Sign In'

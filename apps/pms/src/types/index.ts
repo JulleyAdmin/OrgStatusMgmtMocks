@@ -7,6 +7,7 @@ export interface User {
   role: 'admin' | 'manager' | 'employee'
   department: string
   position: string
+  companyId: string
   avatar?: string
   skills: string[]
   contact: {

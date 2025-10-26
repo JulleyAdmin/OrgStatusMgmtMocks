@@ -33,6 +33,7 @@ const demoUsers: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = [
     role: 'admin',
     department: 'Executive',
     position: 'CEO',
+    companyId: 'autocracy-manufacturing',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     skills: ['Leadership', 'Strategy', 'Manufacturing Operations'],
     contact: { phone: '111-222-3333', slack: '@john.admin' }
@@ -43,6 +44,7 @@ const demoUsers: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = [
     role: 'manager',
     department: 'Manufacturing',
     position: 'Manufacturing Manager',
+    companyId: 'autocracy-manufacturing',
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
     skills: ['Project Management', 'Team Leadership', 'Quality Control'],
     contact: { phone: '444-555-6666', slack: '@sarah.j' }
@@ -53,6 +55,7 @@ const demoUsers: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = [
     role: 'employee',
     department: 'Engineering',
     position: 'Senior Manufacturing Engineer',
+    companyId: 'autocracy-manufacturing',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     skills: ['CAD Design', 'Manufacturing Processes', 'Quality Assurance'],
     contact: { phone: '777-888-9999', slack: '@mike.c' }
@@ -63,6 +66,7 @@ const demoUsers: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = [
     role: 'employee',
     department: 'Design',
     position: 'Automation Design Engineer',
+    companyId: 'autocracy-manufacturing',
     avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face',
     skills: ['CAD Design', 'Automation Design', 'Prototyping'],
     contact: { phone: '123-456-7890', slack: '@lisa.r' }
@@ -73,6 +77,7 @@ const demoUsers: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = [
     role: 'manager',
     department: 'Quality Assurance',
     position: 'Quality Manager',
+    companyId: 'autocracy-manufacturing',
     avatar: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=150&h=150&fit=crop&crop=face',
     skills: ['Quality Control', 'ISO Standards', 'Compliance'],
     contact: { phone: '987-654-3210', slack: '@david.k' }

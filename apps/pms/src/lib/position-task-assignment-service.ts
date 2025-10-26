@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore'
 import { db } from './firebase'
 import { TaskTemplateService } from './task-template-service'
-import { getCurrentAssignment } from './org-services'
+import { getCurrentAssignment, getCurrentAssignmentForUser } from './org-services'
 import type { 
   PositionTaskTemplate, 
   GeneratedTask,
@@ -181,11 +181,12 @@ export class PositionTaskAssignmentService {
     
     try {
       // Create the position-template assignment
+      const { generateForCurrentUsers, ...templateAssignmentConfig } = assignmentConfig
       const assignmentId = await TaskTemplateService.assignTemplateToPosition(
         companyId,
         positionId,
         templateId,
-        assignmentConfig
+        templateAssignmentConfig
       )
       
       let generatedTasks: GeneratedTask[] = []

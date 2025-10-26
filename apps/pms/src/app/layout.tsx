@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '../components/AuthProvider'
 import { AuthGuard } from '../components/AuthGuard'
 import { CompanyProvider } from '../contexts/CompanyContext'
+import { ErrorBoundary } from '../components/ErrorBoundary'
 import { Toaster } from 'react-hot-toast'
 
 const poppins = Poppins({ 
@@ -33,23 +34,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <AuthProvider>
-          <AuthGuard>
-            <CompanyProvider>
-              {children}
-              <Toaster 
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: '#363636',
-                    color: '#fff',
-                  },
-                }}
-              />
-            </CompanyProvider>
-          </AuthGuard>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <AuthGuard>
+              <CompanyProvider>
+                {children}
+                <Toaster 
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#363636',
+                      color: '#fff',
+                    },
+                  }}
+                />
+              </CompanyProvider>
+            </AuthGuard>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

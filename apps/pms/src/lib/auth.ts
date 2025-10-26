@@ -116,6 +116,20 @@ export const authService = {
                 createdAt,
                 updatedAt
               } as User
+              
+              // Generate tasks for the user on login (for immediate assignment mode)
+              try {
+                const { PositionTaskAssignmentService } = await import('./position-task-assignment-service')
+                await PositionTaskAssignmentService.generateTasksOnUserLogin(
+                  userData.companyId,
+                  userData.id
+                )
+                console.log(`Generated tasks for user ${userData.id} on login`)
+              } catch (error) {
+                console.error('Error generating tasks on login:', error)
+                // Don't block login if task generation fails
+              }
+              
               break
             }
           }

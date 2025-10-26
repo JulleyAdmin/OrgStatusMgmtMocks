@@ -68,6 +68,7 @@ export function AddUserDrawer({ open, onOpenChange, onUserAdded }: AddUserDrawer
         role: formData.role as 'admin' | 'manager' | 'employee',
         department: formData.department,
         position: formData.position,
+        companyId: companyId,
         contact: {
           phone: formData.phone,
           slack: formData.slack

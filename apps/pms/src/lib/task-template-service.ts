@@ -163,20 +163,36 @@ export class TaskTemplateService {
     const assignmentRef = collection(db, 'companies', companyId, 'positionTaskTemplates')
     const now = new Date().toISOString()
     
-    const assignmentDataToSave = {
+    const assignmentDataToSave: any = {
       companyId,
       positionId,
       templateId,
       assignmentMode: assignmentConfig.assignmentMode,
-      assignmentDate: assignmentConfig.assignmentDate,
-      assignmentConditions: assignmentConfig.assignmentConditions,
-      customDueDateOffset: assignmentConfig.customDueDateOffset,
       customPriority: assignmentConfig.customPriority,
-      customInstructions: assignmentConfig.customInstructions,
       isActive: true,
       assignmentCount: 0,
       createdAt: now,
       updatedAt: now,
+    }
+
+    // Only include customInstructions if it's provided
+    if (assignmentConfig.customInstructions) {
+      assignmentDataToSave.customInstructions = assignmentConfig.customInstructions
+    }
+
+    // Only include assignmentDate if it's provided
+    if (assignmentConfig.assignmentDate) {
+      assignmentDataToSave.assignmentDate = assignmentConfig.assignmentDate
+    }
+
+    // Only include customDueDateOffset if it's provided
+    if (assignmentConfig.customDueDateOffset !== undefined) {
+      assignmentDataToSave.customDueDateOffset = assignmentConfig.customDueDateOffset
+    }
+
+    // Only include assignmentConditions if they're provided
+    if (assignmentConfig.assignmentConditions) {
+      assignmentDataToSave.assignmentConditions = assignmentConfig.assignmentConditions
     }
     
     const docRef = await addDoc(assignmentRef, assignmentDataToSave)

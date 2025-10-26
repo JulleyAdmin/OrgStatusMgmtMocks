@@ -12,6 +12,7 @@ import { ProjectService } from '@/lib/project-services'
 import { useCompany } from '@/contexts/CompanyContext'
 import { ViewToggle, ViewType } from '@/components/ui/view-toggle'
 import { ProjectTable } from '@/components/ProjectTable'
+import { VirtualizedProjectTable } from '@/components/VirtualizedProjectTable'
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { ActionMenu, createViewAction, createEditAction, createDeleteAction } from '@/components/ui/action-menu'
 import { Building2, Plus, Users, Calendar, DollarSign, TrendingUp, Clock, AlertCircle } from 'lucide-react'
@@ -193,11 +194,13 @@ export default function ProjectsPage() {
               </div>
               <div className="p-4">
                 {viewType === 'table' ? (
-                  <ProjectTable 
+                  <VirtualizedProjectTable 
                     projects={projects}
                     onEdit={handleEditProject}
                     onDelete={(project) => setDeleteDialog({ open: true, project })}
                     onView={handleViewProject}
+                    height={600}
+                    loading={loading}
                   />
                 ) : (
                   <div className="space-y-3">
