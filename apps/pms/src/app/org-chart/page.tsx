@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button'
 import { OrgChartVisualization } from '@/components/Org/OrgChartVisualization'
 import { useCompany } from '@/contexts/CompanyContext'
 import { getPositions, getDepartments, getCurrentAssignment } from '@/lib/org-services'
+import { UserService } from '@/lib/user-services'
 import { Position, Department, PositionAssignment } from '@/types/org-schema'
+import { User } from '@/types'
 import { Loader2, FileDown, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Breadcrumb } from '@/components/Breadcrumb'
@@ -17,6 +19,7 @@ export default function OrgChartPage() {
   const [positions, setPositions] = useState<Position[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [assignments, setAssignments] = useState<Map<string, PositionAssignment | null>>(new Map())
+  const [users, setUsers] = useState<Map<string, User>>(new Map())
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -31,14 +34,22 @@ export default function OrgChartPage() {
     try {
       setLoading(true)
 
-      // Load positions and departments
-      const [positionsData, departmentsData] = await Promise.all([
+      // Load positions, departments, and users
+      const [positionsData, departmentsData, usersData] = await Promise.all([
         getPositions(companyId),
-        getDepartments(companyId)
+        getDepartments(companyId),
+        UserService.getUsers(companyId)
       ])
 
       setPositions(positionsData)
       setDepartments(departmentsData)
+
+      // Create users map for quick lookup
+      const usersMap = new Map<string, User>()
+      usersData.forEach(user => {
+        usersMap.set(user.id, user)
+      })
+      setUsers(usersMap)
 
       // Load current assignments for each position
       const assignmentsMap = new Map<string, PositionAssignment | null>()
@@ -107,12 +118,13 @@ export default function OrgChartPage() {
 
         {/* Org Chart Visualization */}
         {positions.length > 0 ? (
-          <OrgChartVisualization
-            positions={positions}
-            departments={departments}
-            assignments={assignments}
-            onNodeClick={handleNodeClick}
-          />
+        <OrgChartVisualization
+          positions={positions}
+          departments={departments}
+          assignments={assignments}
+          users={users}
+          onNodeClick={handleNodeClick}
+        />
         ) : (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <p className="text-gray-500">No organizational structure found. Please create departments and positions first.</p>

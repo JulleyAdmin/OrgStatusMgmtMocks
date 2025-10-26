@@ -14,11 +14,12 @@ import {
   Filter,
   ChevronDown,
   ChevronUp,
-  User,
+  User as UserIcon,
   Users,
   Building2
 } from 'lucide-react'
 import { Position, Department, PositionAssignment } from '@/types/org-schema'
+import { User } from '@/types/index'
 import { cn } from '@/lib/utils'
 
 interface OrgNode {
@@ -33,6 +34,7 @@ interface OrgChartVisualizationProps {
   positions: Position[]
   departments: Department[]
   assignments: Map<string, PositionAssignment | null>
+  users: Map<string, User>
   onNodeClick?: (position: Position) => void
 }
 
@@ -40,6 +42,7 @@ export function OrgChartVisualization({
   positions,
   departments,
   assignments,
+  users,
   onNodeClick
 }: OrgChartVisualizationProps) {
   const [rootNodes, setRootNodes] = useState<OrgNode[]>([])
@@ -93,7 +96,7 @@ export function OrgChartVisualization({
     roots.forEach(sortChildren)
 
     setRootNodes(roots)
-  }, [positions, departments, assignments, expandAll])
+  }, [positions, departments, assignments, users, expandAll])
 
   // Filter nodes based on search and level
   const filterNode = (node: OrgNode): boolean => {
@@ -107,7 +110,12 @@ export function OrgChartVisualization({
     const matchesPosition = node.position.title.toLowerCase().includes(searchLower) ||
                            node.position.code.toLowerCase().includes(searchLower)
     const matchesDept = node.department?.name.toLowerCase().includes(searchLower) || false
-    const matchesUser = node.assignment?.userId?.toLowerCase().includes(searchLower) || false
+    
+    // Check if assignment has user and if user name matches
+    const assignedUser = node.assignment ? users.get(node.assignment.userId) : null
+    const matchesUser = assignedUser ? 
+      assignedUser.name.toLowerCase().includes(searchLower) ||
+      assignedUser.email.toLowerCase().includes(searchLower) : false
 
     return matchesPosition || matchesDept || matchesUser
   }
@@ -176,28 +184,85 @@ export function OrgChartVisualization({
             </div>
           )}
 
-          {/* Position Title */}
-          <h3 className="font-semibold text-sm mb-1 text-gray-900">
-            {node.position.title}
-          </h3>
+          {/* User Assignment */}
+          {(() => {
+            if (!node.assignment) {
+              return (
+                <div className="text-center space-y-2">
+                  <div className="flex items-center justify-center gap-2">
+                    <UserIcon className="w-4 h-4 text-gray-400" />
+                    <p className="text-xs text-gray-500">Vacant Position</p>
+                  </div>
+                  {/* Position Title Highlighted */}
+                  <p className="text-xs font-semibold text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                    {node.position.title}
+                  </p>
+                </div>
+              )
+            }
 
-          {/* Position Code */}
-          <p className="text-xs text-gray-500 mb-2">{node.position.code}</p>
+            const assignedUser = users.get(node.assignment.userId)
+            
+            if (!assignedUser) {
+              return (
+                <div className="text-center space-y-2">
+                  <div className="flex items-center justify-center gap-2">
+                    <UserIcon className="w-4 h-4 text-orange-500" />
+                    <p className="text-xs text-orange-600 font-medium">User Not Found</p>
+                  </div>
+                  {/* Position Title Highlighted */}
+                  <p className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded">
+                    {node.position.title}
+                  </p>
+                </div>
+              )
+            }
 
-          {/* Assignment Status */}
-          <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
-            {node.assignment ? (
-              <>
-                <User className="w-4 h-4 text-green-600" />
-                <span className="text-xs text-green-700 font-medium">Assigned</span>
-              </>
-            ) : (
-              <>
-                <User className="w-4 h-4 text-gray-400" />
-                <span className="text-xs text-gray-500">Vacant</span>
-              </>
-            )}
-          </div>
+            return (
+              <div className="space-y-2">
+                {/* User Name at Top */}
+                <div className="flex items-center gap-2">
+                  {/* User Avatar */}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
+                    {assignedUser.avatar ? (
+                      <img 
+                        src={assignedUser.avatar} 
+                        alt={assignedUser.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      assignedUser.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  
+                  {/* User Name */}
+                  <h3 className="font-semibold text-sm text-gray-900 truncate">
+                    {assignedUser.name}
+                  </h3>
+                </div>
+                
+                {/* Position Title Below - Highlighted */}
+                <p className="text-xs font-semibold text-blue-700 truncate text-center bg-blue-50 px-2 py-1 rounded">
+                  {node.position.title}
+                </p>
+
+                {/* Assignment Type Badge */}
+                <div className="flex justify-center pt-1">
+                  <Badge 
+                    variant="outline" 
+                    className={cn(
+                      'text-xs',
+                      node.assignment.assignmentType === 'permanent' ? 'bg-green-50 text-green-700 border-green-200' :
+                      node.assignment.assignmentType === 'temporary' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                      'bg-blue-50 text-blue-700 border-blue-200'
+                    )}
+                  >
+                    {node.assignment.assignmentType}
+                  </Badge>
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Expand/Collapse Button */}
           {hasChildren && (
@@ -339,13 +404,13 @@ export function OrgChartVisualization({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-green-600" />
+            <UserIcon className="w-4 h-4 text-green-600" />
             <span className="text-sm text-gray-600">
               <strong>{Array.from(assignments.values()).filter(a => a !== null).length}</strong> Assigned
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-gray-400" />
+            <UserIcon className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-600">
               <strong>{positions.length - Array.from(assignments.values()).filter(a => a !== null).length}</strong> Vacant
             </span>
