@@ -1,3 +1,3 @@
-// Re-export org services for backward compatibility
-export * from '@/lib/org-services'
+// Export org services from local file
+export * from './org-services'
 

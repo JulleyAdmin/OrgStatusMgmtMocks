@@ -14,7 +14,7 @@ const DefaultLoading = () => (
 
 // Pre-configured dynamic components for common use cases
 export const DynamicProjectTable = dynamic(
-  () => import('@/components/ProjectTable').then(mod => ({ default: mod.ProjectTable })),
+  () => import('@/components/features/projects').then(mod => ({ default: mod.ProjectTable })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -22,7 +22,7 @@ export const DynamicProjectTable = dynamic(
 )
 
 export const DynamicVirtualizedProjectTable = dynamic(
-  () => import('@/components/VirtualizedProjectTable').then(mod => ({ default: mod.VirtualizedProjectTable })),
+  () => import('@/components/features/projects').then(mod => ({ default: mod.VirtualizedProjectTable })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -30,7 +30,7 @@ export const DynamicVirtualizedProjectTable = dynamic(
 )
 
 export const DynamicProjectCreationWizard = dynamic(
-  () => import('@/components/ProjectCreationWizard').then(mod => ({ default: mod.ProjectCreationWizard })),
+  () => import('@/components/features/projects').then(mod => ({ default: mod.ProjectCreationWizard })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -38,7 +38,7 @@ export const DynamicProjectCreationWizard = dynamic(
 )
 
 export const DynamicProjectCreationForm = dynamic(
-  () => import('@/components/ProjectCreationForm').then(mod => ({ default: mod.ProjectCreationForm })),
+  () => import('@/components/features/projects').then(mod => ({ default: mod.ProjectCreationForm })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -79,7 +79,7 @@ export const DynamicMyTasksDashboard = dynamic(
 )
 
 export const DynamicDepartmentManagement = dynamic(
-  () => import('@/components/Org/DepartmentManagement').then(mod => ({ default: mod.DepartmentManagement })),
+  () => import('@/components/features/org').then(mod => ({ default: mod.DepartmentManagement })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -87,7 +87,7 @@ export const DynamicDepartmentManagement = dynamic(
 )
 
 export const DynamicPositionManagement = dynamic(
-  () => import('@/components/Org/PositionManagement').then(mod => ({ default: mod.PositionManagement })),
+  () => import('@/components/features/org').then(mod => ({ default: mod.PositionManagement })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -95,7 +95,7 @@ export const DynamicPositionManagement = dynamic(
 )
 
 export const DynamicAssignmentManagement = dynamic(
-  () => import('@/components/Org/AssignmentManagement').then(mod => ({ default: mod.AssignmentManagement })),
+  () => import('@/components/features/org').then(mod => ({ default: mod.AssignmentManagement })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -103,7 +103,7 @@ export const DynamicAssignmentManagement = dynamic(
 )
 
 export const DynamicDelegationManagement = dynamic(
-  () => import('@/components/Org/DelegationManagement').then(mod => ({ default: mod.DelegationManagement })),
+  () => import('@/components/features/org').then(mod => ({ default: mod.DelegationManagement })),
   { 
     loading: DefaultLoading,
     ssr: false 
@@ -111,7 +111,7 @@ export const DynamicDelegationManagement = dynamic(
 )
 
 export const DynamicAuditReport = dynamic(
-  () => import('@/components/Org/AuditReport').then(mod => ({ default: mod.AuditReport })),
+  () => import('@/components/features/org').then(mod => ({ default: mod.AuditReport })),
   { 
     loading: DefaultLoading,
     ssr: false 

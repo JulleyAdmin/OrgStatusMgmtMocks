@@ -14,7 +14,7 @@
     "xseed:pms": "tsx src/scripts/seed-pms.ts",
     "xseed:org": "tsx src/scripts/seed-org-structure.ts",
     "xseed:manufacturing": "tsx src/scripts/seed-manufacturing-org.ts",
-    "seed:spocs": "tsx src/scripts/seed-spoc-users.ts",
+    "xseed:spocs": "tsx src/scripts/seed-spoc-users.ts",
     "xcleanup:org": "tsx src/scripts/cleanup-org-data.ts"
   },
   "dependencies": {
