@@ -1,4 +1,7 @@
-// Task Service - Re-export from lib for backward compatibility
-// This can be refactored later to split into smaller service files
-export { TaskTemplateService } from '@/lib/task-template-service'
+// Export all task-related services from local files
+export { TaskTemplateService } from './task-template-service'
+export * from './task-assignment-service'
+export * from './task-notification-service'
+export * from './task-instantiation-workflow-service'
+export * from './position-task-assignment-service'
 

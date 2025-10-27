@@ -119,7 +119,7 @@ export const authService = {
               
               // Generate tasks for the user on login (for immediate assignment mode)
               try {
-                const { PositionTaskAssignmentService } = await import('./position-task-assignment-service')
+                const { PositionTaskAssignmentService } = await import('./services/tasks/position-task-assignment-service')
                 await PositionTaskAssignmentService.generateTasksOnUserLogin(
                   userData.companyId,
                   userData.id

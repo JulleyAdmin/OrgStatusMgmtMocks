@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useCompany } from '@/hooks/useCompany'
-import { TaskTemplateService } from '@/lib/task-template-service'
+import { TaskTemplateService } from '@/lib/services'
 import { getPositions, getDepartments } from '@/lib/services/org'
 import { Plus, Search, Filter, Edit, Trash2, Copy, Eye, Settings } from 'lucide-react'
 import type { TaskTemplate, TaskDoDItem, TaskAssignmentCondition, TaskEscalationRule } from '@/types/task-template-schema'

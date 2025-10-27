@@ -1,7 +1,7 @@
 // Delegation Resolution Service
 // Resolves effective assignments considering delegations within 60s SLA
 
-import { resolveEffectiveAssignment } from './org-services'
+import { resolveEffectiveAssignment } from './services/org/org-services'
 import type { WorkItemAssignmentContext } from '@/types/org-schema'
 
 /**

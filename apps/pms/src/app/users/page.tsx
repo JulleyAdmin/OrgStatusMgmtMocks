@@ -13,7 +13,7 @@ import { ActionMenu, createViewAction, createEditAction, createDeleteAction } fr
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog'
 import { AddUserDrawer, EditUserDrawer, UserProfileView } from '@/components/features/users'
 import { Users, Plus, Mail, Phone, MessageSquare, Search, X } from 'lucide-react'
-import { UserService } from '@/lib/user-services'
+import { UserService } from '@/lib/services'
 import toast from 'react-hot-toast'
 
 export default function UsersPage() {

@@ -31,7 +31,7 @@ import {
   ComplianceRequirement
 } from '@/types/prd-aligned-schema'
 import { EnhancedProject } from '@/types/project-schema'
-import { ProjectService } from '@/lib/project-services'
+import { ProjectService } from '@/lib/services'
 import { useCompany } from '@/contexts/CompanyContext'
 import toast from 'react-hot-toast'
 

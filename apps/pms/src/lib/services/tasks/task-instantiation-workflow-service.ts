@@ -12,10 +12,10 @@ import {
   runTransaction,
   getDoc
 } from 'firebase/firestore'
-import { db } from './firebase'
+import { db } from '../../firebase'
 import { TaskTemplateService } from './task-template-service'
 import { PositionTaskAssignmentService } from './position-task-assignment-service'
-import { getCurrentAssignment } from './org-services'
+import { getCurrentAssignment } from '../org/org-services'
 import type { 
   TaskTemplate, 
   GeneratedTask,

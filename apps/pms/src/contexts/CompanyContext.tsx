@@ -4,7 +4,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Company, CompanyUser } from '@/types/company-schema'
-import { CompanyService, CompanyUserService } from '@/lib/company-services'
+import { CompanyService, CompanyUserService } from '@/lib/services'
 
 interface CompanyContextType {
   // Current Company

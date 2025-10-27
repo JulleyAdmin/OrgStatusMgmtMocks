@@ -381,7 +381,7 @@ export async function assignUserToPosition(
 
   // Generate tasks for the newly assigned user
   try {
-    const { PositionTaskAssignmentService } = await import('@/lib/position-task-assignment-service')
+    const { PositionTaskAssignmentService } = await import('../tasks/position-task-assignment-service')
     await PositionTaskAssignmentService.generateTasksOnPositionAssignment(
       companyId,
       positionId,

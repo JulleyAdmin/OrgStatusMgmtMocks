@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useCompany } from '@/contexts/CompanyContext'
-import { ProjectService } from '@/lib/project-services'
+import { ProjectService } from '@/lib/services'
 import { EnhancedProject } from '@/types/project-schema'
 import { Save, Calendar, DollarSign, Users, AlertCircle, CheckCircle, Clock, Target } from 'lucide-react'
 import toast from 'react-hot-toast'

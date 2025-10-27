@@ -2,8 +2,8 @@
 // Integrates with org structure and respects delegations
 
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from './firebase'
-import { resolveWorkItemAssignment, batchResolveWorkItems } from './delegation-resolver'
+import { db } from '../../firebase'
+import { resolveWorkItemAssignment, batchResolveWorkItems } from '@/lib/delegation-resolver'
 import type { Task } from '@/types'
 import type { WorkItemAssignmentContext } from '@/types/org-schema'
 

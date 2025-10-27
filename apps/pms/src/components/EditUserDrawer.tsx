@@ -17,7 +17,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { User } from '@/types'
-import { UserService } from '@/lib/user-services'
+import { UserService } from '@/lib/services'
 import { useCompany } from '@/contexts/CompanyContext'
 import toast from 'react-hot-toast'
 

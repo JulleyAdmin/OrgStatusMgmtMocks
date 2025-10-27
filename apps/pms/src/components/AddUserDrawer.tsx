@@ -8,7 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Drawer, DrawerContent, DrawerFooter } from '@/components/ui/drawer'
 import { useCompany } from '@/contexts/CompanyContext'
-import { UserService } from '@/lib/user-services'
+import { UserService } from '@/lib/services'
 import { User } from '@/types'
 import toast from 'react-hot-toast'
 

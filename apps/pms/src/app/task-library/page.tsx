@@ -22,8 +22,8 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useCompany } from '@/hooks/useCompany'
-import { TaskTemplateService } from '@/lib/task-template-service'
-import { PositionTaskAssignmentService } from '@/lib/position-task-assignment-service'
+import { TaskTemplateService } from '@/lib/services'
+import { PositionTaskAssignmentService } from '@/lib/services'
 
 export default function TaskLibraryPage() {
   const { currentCompany } = useCompany()

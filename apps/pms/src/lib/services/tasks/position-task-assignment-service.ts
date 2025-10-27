@@ -12,9 +12,9 @@ import {
   addDoc,
   updateDoc
 } from 'firebase/firestore'
-import { db } from './firebase'
+import { db } from '../../firebase'
 import { TaskTemplateService } from './task-template-service'
-import { getCurrentAssignment, getCurrentAssignmentForUser } from './org-services'
+import { getCurrentAssignment, getCurrentAssignmentForUser } from '../org/org-services'
 import type { 
   PositionTaskTemplate, 
   GeneratedTask,

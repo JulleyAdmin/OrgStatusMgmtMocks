@@ -14,7 +14,7 @@ import {
   limit,
   getDoc
 } from 'firebase/firestore'
-import { db } from './firebase'
+import { db } from '../../firebase'
 import { TaskTemplateService } from './task-template-service'
 import { PositionTaskAssignmentService } from './position-task-assignment-service'
 import type { GeneratedTask } from '@/types/task-template-schema'
