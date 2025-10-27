@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { User } from '@/types'
-import { getUserAssignments, getPosition, getDepartment } from '@/lib/org-services'
+import { getUserAssignments, getPosition, getDepartment } from '@/lib/services/org'
 import { PositionAssignment, Position, Department } from '@/types/org-schema'
 import { useCompany } from '@/contexts/CompanyContext'
 import {

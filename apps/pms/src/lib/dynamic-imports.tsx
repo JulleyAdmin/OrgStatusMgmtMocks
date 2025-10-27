@@ -46,7 +46,7 @@ export const DynamicProjectCreationForm = dynamic(
 )
 
 export const DynamicOrgChartVisualization = dynamic(
-  () => import('@/components/Org/OrgChartVisualization').then(mod => ({ default: mod.OrgChartVisualization })),
+  () => import('@/components/features/org').then(mod => ({ default: mod.OrgChartVisualization })),
   { 
     loading: DefaultLoading,
     ssr: false 

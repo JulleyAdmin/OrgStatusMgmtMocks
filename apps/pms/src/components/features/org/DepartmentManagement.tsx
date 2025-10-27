@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Department } from '@/types/org-schema'
-import { createDepartment, updateDepartment, getDepartments, deleteDepartment } from '@/lib/org-services'
+import { createDepartment, updateDepartment, getDepartments, deleteDepartment } from '@/lib/services/org'
 import { useCompany } from '@/contexts/CompanyContext'
 
 export function DepartmentManagement() {
@@ -153,7 +153,6 @@ export function DepartmentManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-700">Departments</h2>
           <p className="text-muted-foreground">
             Manage organizational departments and their hierarchy
           </p>

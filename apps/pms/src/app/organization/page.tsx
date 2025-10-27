@@ -5,17 +5,19 @@ import { DashboardLayout } from '@/components/DashboardLayout'
 import { Breadcrumb } from '@/components/Breadcrumb'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { DepartmentManagement } from '@/components/Org/DepartmentManagement'
-import { PositionManagement } from '@/components/Org/PositionManagement'
-import { AssignmentManagement } from '@/components/Org/AssignmentManagement'
-import { OccupantSwap } from '@/components/Org/OccupantSwap'
-import { DelegationManagement } from '@/components/Org/DelegationManagement'
-import { AuditReport } from '@/components/Org/AuditReport'
+import { 
+  DepartmentManagement, 
+  PositionManagement, 
+  AssignmentManagement,
+  OccupantSwap,
+  DelegationManagement,
+  AuditReport 
+} from '@/components/features/org'
 import { Building2, Briefcase, UserCheck, ArrowLeftRight, Shield, FileText, BarChart3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { OrgChartDrawer } from '@/components/OrgChartDrawer'
 import { useCompany } from '@/contexts/CompanyContext'
-import { getDepartments, getPositions } from '@/lib/org-services'
+import { getDepartments, getPositions } from '@/lib/services/org'
 import { db } from '@/lib/firebase'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 

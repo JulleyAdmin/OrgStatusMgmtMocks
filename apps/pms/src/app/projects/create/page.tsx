@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/DashboardLayout'
-import { ProjectCreationWizard } from '@/components/ProjectCreationWizard'
+import { ProjectCreationWizard } from '@/components/features/projects'
 import { 
   Position, 
   WorkflowTemplate, 

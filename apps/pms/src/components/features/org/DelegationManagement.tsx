@@ -22,7 +22,7 @@ import {
   getReceivedDelegations,
   getPositions,
   getCurrentAssignment,
-} from '@/lib/org-services'
+} from '@/lib/services/org'
 import { useCompany } from '@/contexts/CompanyContext'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -245,7 +245,6 @@ export function DelegationManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-700">Delegations</h2>
           <p className="text-muted-foreground">
             Manage temporary delegations of authority and responsibilities
           </p>

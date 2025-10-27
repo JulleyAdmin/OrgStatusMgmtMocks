@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { Breadcrumb } from '@/components/Breadcrumb'
-import { MyTasksDashboard } from '@/components/MyTasksDashboard'
+import { TaskDashboard } from '@/components/features/tasks'
 
 export default function MyTasksPage() {
   const breadcrumbItems = [
@@ -14,7 +14,7 @@ export default function MyTasksPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <Breadcrumb items={breadcrumbItems} />
-        <MyTasksDashboard />
+        <TaskDashboard />
       </div>
     </DashboardLayout>
   )

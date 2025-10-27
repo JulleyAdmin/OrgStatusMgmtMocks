@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Position, Department } from '@/types/org-schema'
-import { createPosition, updatePosition, getPositions, deletePosition, getDepartments } from '@/lib/org-services'
+import { createPosition, updatePosition, getPositions, deletePosition, getDepartments } from '@/lib/services/org'
 import { useCompany } from '@/contexts/CompanyContext'
 
 export function PositionManagement() {
@@ -220,7 +220,6 @@ export function PositionManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-700">Positions</h2>
           <p className="text-muted-foreground">
             Manage organizational positions, roles, and reporting structure
           </p>

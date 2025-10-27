@@ -15,7 +15,7 @@ import {
   getPositionHistory,
   getCompanyAuditLogs,
   getEntityAuditLogs,
-} from '@/lib/org-services'
+} from '@/lib/services/org'
 import { useCompany } from '@/contexts/CompanyContext'
 
 export function AuditReport() {
@@ -172,7 +172,6 @@ export function AuditReport() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-700">Audit & Compliance Reports</h2>
           <p className="text-muted-foreground">
             Generate reports for compliance and track organizational changes
           </p>
