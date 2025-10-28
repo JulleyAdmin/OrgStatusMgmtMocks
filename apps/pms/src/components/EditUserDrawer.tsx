@@ -119,7 +119,7 @@ export function EditUserDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-lg flex flex-col">
         <SheetHeader>
           <SheetTitle>Edit User</SheetTitle>
           <SheetDescription>
@@ -127,7 +127,8 @@ export function EditUserDrawer({
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-8 mt-8">
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
           <div className="space-y-4 pb-6 border-b border-gray-200">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Basic Information</h3>
@@ -306,6 +307,7 @@ export function EditUserDrawer({
             </Button>
           </div>
         </form>
+        </div>
       </SheetContent>
     </Sheet>
   )

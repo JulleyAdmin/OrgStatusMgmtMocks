@@ -98,12 +98,8 @@ export function OrgChartVisualization({
     setRootNodes(roots)
   }, [positions, departments, assignments, users, expandAll])
 
-  // Filter nodes based on search and level
-  const filterNode = (node: OrgNode): boolean => {
-    if (filterByLevel !== null && node.position.level !== filterByLevel) {
-      return false
-    }
-
+  // Check if node matches search criteria
+  const nodeMatchesSearch = (node: OrgNode): boolean => {
     if (!searchTerm) return true
 
     const searchLower = searchTerm.toLowerCase()
@@ -118,6 +114,33 @@ export function OrgChartVisualization({
       assignedUser.email.toLowerCase().includes(searchLower) : false
 
     return matchesPosition || matchesDept || matchesUser
+  }
+
+  // Check if any descendant (including self) matches search
+  const nodeOrDescendantMatchesSearch = (node: OrgNode): boolean => {
+    return nodeMatchesSearch(node) || node.children.some(child => nodeOrDescendantMatchesSearch(child))
+  }
+
+  // Check if node has descendants at the filtered level
+  const hasDescendantAtLevel = (node: OrgNode, targetLevel: number): boolean => {
+    if (node.position.level === targetLevel) return true
+    return node.children.some(child => hasDescendantAtLevel(child, targetLevel))
+  }
+
+  // Check if node should be shown
+  const shouldShowNode = (node: OrgNode): boolean => {
+    // Level filter: show if this node is at the level OR has descendants at that level
+    if (filterByLevel !== null) {
+      return hasDescendantAtLevel(node, filterByLevel)
+    }
+
+    // Search: show if this node matches OR if it's an ancestor of a matching node
+    if (searchTerm) {
+      return nodeOrDescendantMatchesSearch(node)
+    }
+
+    // No filter: show all
+    return true
   }
 
   const toggleNode = (node: OrgNode) => {
@@ -153,10 +176,15 @@ export function OrgChartVisualization({
   }
 
   const OrgNodeCard = ({ node, depth = 0 }: { node: OrgNode; depth?: number }) => {
-    if (!filterNode(node)) return null
+    if (!shouldShowNode(node)) return null
 
     const hasChildren = node.children.length > 0
-    const visibleChildren = node.children.filter(filterNode)
+    const visibleChildren = node.children.filter(shouldShowNode)
+    
+    // Auto-expand when searching to show matching nodes
+    if (searchTerm && hasChildren && nodeOrDescendantMatchesSearch(node) && !nodeMatchesSearch(node)) {
+      node.isExpanded = true
+    }
 
     return (
       <div className="flex flex-col items-center">
@@ -428,13 +456,13 @@ export function OrgChartVisualization({
           }}
         >
           <div className="flex gap-12 justify-center">
-            {rootNodes.filter(filterNode).map(node => (
+            {rootNodes.filter(shouldShowNode).map(node => (
               <OrgNodeCard key={node.position.id} node={node} />
             ))}
           </div>
         </div>
 
-        {rootNodes.filter(filterNode).length === 0 && (
+        {rootNodes.filter(shouldShowNode).length === 0 && (
           <div className="text-center py-12 text-gray-500">
             <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
             <p>No positions found matching your criteria</p>

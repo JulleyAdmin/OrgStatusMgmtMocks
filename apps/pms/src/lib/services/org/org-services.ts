@@ -435,6 +435,19 @@ export async function getCurrentAssignment(companyId: string, positionId: string
 }
 
 /**
+ * Get all active assignments for a company (optimized batch query)
+ */
+export async function getAllActiveAssignments(companyId: string): Promise<PositionAssignment[]> {
+  const q = query(
+    collection(db, 'companies', companyId, 'positionAssignments'),
+    where('status', '==', 'active')
+  )
+  
+  const snapshot = await getDocs(q)
+  return snapshot.docs.map(doc => doc.data() as PositionAssignment)
+}
+
+/**
  * Get assignment history for a position
  */
 export async function getPositionAssignmentHistory(

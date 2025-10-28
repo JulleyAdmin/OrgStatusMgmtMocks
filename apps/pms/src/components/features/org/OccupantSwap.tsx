@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { Position, PositionAssignment, OccupantSwapRequest } from '@/types/org-schema'
 import type { User } from '@/types'
-import { swapOccupants, getCurrentAssignment, getPositions } from '@/lib/services/org'
+import { swapOccupants, getCurrentAssignment, getPositions, getAllActiveAssignments } from '@/lib/services/org'
 import { useCompany } from '@/contexts/CompanyContext'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -56,30 +56,35 @@ export function OccupantSwap() {
     try {
       setLoading(true)
 
-      // Load positions
-      const positionsData = await getPositions(companyId)
-      setPositions(positionsData)
+      // Load positions, users, and active assignments in parallel
+      const [positionsData, usersSnap, assignmentsData] = await Promise.all([
+        getPositions(companyId),
+        getDocs(collection(db, 'companies', companyId, 'users')),
+        getAllActiveAssignments(companyId)
+      ])
 
-      // Load users from companies/{companyId}/users
-      const usersQuery = collection(db, 'companies', companyId, 'users')
-      const usersSnap = await getDocs(usersQuery)
       const usersData = usersSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as User))
+      
+      setPositions(positionsData)
       setUsers(usersData)
 
-      // Load positions with active assignments
+      // Create a map for fast lookups
+      const usersMap = new Map(usersData.map(u => [u.id, u]))
+      const positionsMap = new Map(positionsData.map(p => [p.id, p]))
+
+      // Build assigned positions by matching assignments with positions and users
       const assigned: Array<{
         position: Position
         assignment: PositionAssignment
         user: User
       }> = []
 
-      for (const position of positionsData) {
-        const assignment = await getCurrentAssignment(companyId, position.id)
-        if (assignment) {
-          const user = usersData.find((u) => u.id === assignment.userId)
-          if (user) {
-            assigned.push({ position, assignment, user })
-          }
+      for (const assignment of assignmentsData) {
+        const position = positionsMap.get(assignment.positionId)
+        const user = usersMap.get(assignment.userId)
+        
+        if (position && user) {
+          assigned.push({ position, assignment, user })
         }
       }
 
