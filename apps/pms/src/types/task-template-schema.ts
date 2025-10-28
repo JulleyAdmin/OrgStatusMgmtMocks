@@ -119,6 +119,7 @@ export interface GeneratedTask {
   assignmentType: 'template_generated' | 'manual' | 'escalated'
   assignmentReason: string
   assignedBy: string // User ID
+  reporter?: string // User ID who created/reported the task
   
   // Status tracking
   status: 'assigned' | 'in_progress' | 'completed' | 'cancelled' | 'escalated'

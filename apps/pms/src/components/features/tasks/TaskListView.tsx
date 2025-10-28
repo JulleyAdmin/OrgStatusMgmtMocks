@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Clock, Calendar, CheckSquare, Eye, Play } from 'lucide-react'
+import { Clock, Calendar, CheckSquare, Eye, Play, Edit } from 'lucide-react'
 import type { GeneratedTask } from '@/types/task-template-schema'
 import { formatDate, getPriorityColor, getStatusColor, isOverdue, getStatusIcon } from './utils'
 
@@ -15,6 +15,7 @@ interface TaskListViewProps {
   onStartTask: (taskId: string) => void
   onUpdateProgress: (task: GeneratedTask) => void
   onViewTask: (task: GeneratedTask) => void
+  onEditTask: (task: GeneratedTask) => void
 }
 
 export function TaskListView({
@@ -22,7 +23,8 @@ export function TaskListView({
   onStatusChange,
   onStartTask,
   onUpdateProgress,
-  onViewTask
+  onViewTask,
+  onEditTask
 }: TaskListViewProps) {
   return (
     <div className="space-y-4">
@@ -139,6 +141,13 @@ export function TaskListView({
                   onClick={() => onViewTask(task)}
                 >
                   <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onEditTask(task)}
+                >
+                  <Edit className="h-4 w-4" />
                 </Button>
               </div>
             </div>

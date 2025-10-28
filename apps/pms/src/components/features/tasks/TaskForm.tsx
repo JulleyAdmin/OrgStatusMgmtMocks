@@ -107,14 +107,19 @@ export function TaskForm({
         priority: task.priority,
         estimatedHours: task.estimatedHours,
         dueDate: new Date(task.dueDate).toISOString().split('T')[0] || '',
-        assignee: '', // TODO: Get from task data if available
-        reporter: currentUser?.id || '',
+        assignee: task.assignedUserId || '',
+        reporter: task.reporter || currentUser?.id || '',
       })
     }
   }, [task, mode, currentUser])
 
   const handleSubmit = () => {
-    onSubmit(formData)
+    // Ensure reporter is always current user
+    const formDataWithReporter = {
+      ...formData,
+      reporter: currentUser?.id || ''
+    }
+    onSubmit(formDataWithReporter)
     // Reset form for create mode
     if (mode === 'create') {
       setFormData({
@@ -341,27 +346,13 @@ export function TaskForm({
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Reporter
+                Reporter (You)
               </label>
-              <Select
-                value={formData.reporter}
-                onValueChange={(value) => setFormData({ ...formData, reporter: value })}
-                disabled={loadingUsers}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select reporter" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        <span>{user.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                <User className="w-4 h-4 text-gray-500" />
+                <span className="text-sm text-gray-700">{currentUser?.name || 'Current User'}</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Reporter cannot be changed</p>
             </div>
           </div>
 

@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useCompany } from '@/hooks/useCompany'
+import { useAuthStore } from '@/store/authStore'
 import { TaskTemplateService } from '@/lib/services'
 import { CheckCircle, Clock, AlertCircle, Play, CheckSquare, Plus, FileText } from 'lucide-react'
 import { DragEndEvent } from '@dnd-kit/core'
@@ -18,6 +19,7 @@ import { isOverdue } from './utils'
 
 export function TaskDashboard() {
   const { currentCompany } = useCompany()
+  const { user: currentUser } = useAuthStore()
   const [tasks, setTasks] = useState<GeneratedTask[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -48,19 +50,29 @@ export function TaskDashboard() {
   ]
 
   useEffect(() => {
-    if (currentCompany?.id) {
+    if (currentCompany?.id && currentUser?.id) {
       loadUserTasks()
     }
-  }, [currentCompany])
+  }, [currentCompany, currentUser])
 
   async function loadUserTasks() {
-    if (!currentCompany?.id) return
+    if (!currentCompany?.id || !currentUser?.id) return
 
     try {
       setLoading(true)
-      const userId = 'current-user-id'
+      const userId = currentUser.id
       const tasksData = await TaskTemplateService.getUserTasks(currentCompany.id, userId)
-      setTasks(tasksData)
+      
+      // Filter tasks to show only those assigned to or reported by current user
+      const myTasks = tasksData.filter(task => {
+        // Check if task is assigned to current user
+        const isAssignedToMe = task.assignedUserId === userId
+        // Check if task was created/reported by current user
+        const isReportedByMe = task.reporter === userId
+        return isAssignedToMe || isReportedByMe
+      })
+      
+      setTasks(myTasks)
     } catch (error) {
       console.error('Error loading user tasks:', error)
     } finally {
@@ -69,21 +81,22 @@ export function TaskDashboard() {
   }
 
   async function handleTaskFormSubmit(data: any) {
-    if (!currentCompany?.id || !data.title || !data.dueDate) {
+    if (!currentCompany?.id || !currentUser?.id || !data.title || !data.dueDate) {
       return
     }
 
     try {
-      const userId = 'current-user-id'
+      const userId = currentUser.id
       
       if (taskFormMode === 'create') {
-        await TaskTemplateService.createManualTask(currentCompany.id, userId, {
+        await TaskTemplateService.createManualTask(currentCompany.id, data.assignee || userId, {
           title: data.title,
           description: data.description,
           category: data.category,
           priority: data.priority,
           estimatedHours: data.estimatedHours,
-          dueDate: data.dueDate
+          dueDate: data.dueDate,
+          reporter: data.reporter || userId, // Current user as reporter
         })
       } else if (taskFormMode === 'edit' && selectedTask?.id) {
         await TaskTemplateService.updateTaskStatus(currentCompany.id, selectedTask.id, selectedTask.status, {
@@ -92,7 +105,9 @@ export function TaskDashboard() {
           category: data.category,
           priority: data.priority,
           estimatedHours: data.estimatedHours,
-          dueDate: data.dueDate
+          dueDate: data.dueDate,
+          assignedUserId: data.assignee || selectedTask.assignedUserId,
+          reporter: data.reporter || selectedTask.reporter,
         })
       }
       
@@ -360,6 +375,10 @@ export function TaskDashboard() {
             onViewTask={(task) => {
               setSelectedTask(task)
               setTaskFormMode('view')
+            }}
+            onEditTask={(task) => {
+              setSelectedTask(task)
+              setTaskFormMode('edit')
             }}
           />
         </TabsContent>
