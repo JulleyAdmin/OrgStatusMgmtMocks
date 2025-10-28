@@ -113,7 +113,7 @@ export default function UsersPage() {
     user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.contact?.phone && user.contact.phone.includes(searchTerm)) ||
-    (user.skills && user.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())))
+    (Array.isArray(user.skills) && user.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase())))
   )
 
   if (loading || companyLoading) {

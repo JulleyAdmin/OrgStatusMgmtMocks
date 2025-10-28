@@ -245,7 +245,7 @@ export function UserProfileView({
           </div>
 
           {/* User Skills */}
-          {user.skills && user.skills.length > 0 && (
+          {Array.isArray(user.skills) && user.skills.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-3">Skills & Expertise</h3>
               <div className="flex flex-wrap gap-2">
