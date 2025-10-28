@@ -9,9 +9,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { CheckSquare } from 'lucide-react'
+import { CheckSquare, User } from 'lucide-react'
 import type { GeneratedTask } from '@/types/task-template-schema'
 import { formatDate, getPriorityColor } from './utils'
+import { useCompany } from '@/contexts/CompanyContext'
+import { useAuthStore } from '@/store/authStore'
+import { UserService } from '@/lib/services'
+import type { User } from '@/types'
 
 interface TaskFormProps {
   isOpen: boolean
@@ -33,6 +37,8 @@ export interface TaskFormData {
   priority: 'low' | 'medium' | 'high' | 'urgent'
   estimatedHours: number
   dueDate: string
+  assignee?: string
+  reporter?: string
   progress?: string
   notes?: string
 }
@@ -49,6 +55,11 @@ export function TaskForm({
   completionNotes = '',
   onNotesChange
 }: TaskFormProps) {
+  const { companyId } = useCompany()
+  const { user: currentUser } = useAuthStore()
+  const [users, setUsers] = useState<User[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(false)
+  
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
@@ -56,9 +67,35 @@ export function TaskForm({
     priority: 'medium',
     estimatedHours: 1,
     dueDate: '',
+    assignee: '',
+    reporter: currentUser?.id || '',
     progress: '',
     notes: ''
   })
+  
+  // Load users when dialog opens
+  useEffect(() => {
+    if (isOpen && companyId) {
+      loadUsers()
+      // Set default reporter to current user
+      if (currentUser && mode === 'create') {
+        setFormData(prev => ({ ...prev, reporter: currentUser.id }))
+      }
+    }
+  }, [isOpen, companyId, currentUser, mode])
+  
+  async function loadUsers() {
+    if (!companyId) return
+    try {
+      setLoadingUsers(true)
+      const usersData = await UserService.getUsers(companyId)
+      setUsers(usersData)
+    } catch (error) {
+      console.error('Error loading users:', error)
+    } finally {
+      setLoadingUsers(false)
+    }
+  }
 
   // Load task data when editing
   useEffect(() => {
@@ -70,9 +107,11 @@ export function TaskForm({
         priority: task.priority,
         estimatedHours: task.estimatedHours,
         dueDate: new Date(task.dueDate).toISOString().split('T')[0] || '',
+        assignee: '', // TODO: Get from task data if available
+        reporter: currentUser?.id || '',
       })
     }
-  }, [task, mode])
+  }, [task, mode, currentUser])
 
   const handleSubmit = () => {
     onSubmit(formData)
@@ -85,6 +124,8 @@ export function TaskForm({
         priority: 'medium',
         estimatedHours: 1,
         dueDate: '',
+        assignee: '',
+        reporter: currentUser?.id || '',
       })
     }
   }
@@ -97,6 +138,8 @@ export function TaskForm({
       priority: 'medium',
       estimatedHours: 1,
       dueDate: '',
+      assignee: '',
+      reporter: currentUser?.id || '',
     })
     onClose()
   }
@@ -268,6 +311,58 @@ export function TaskForm({
               placeholder="Enter task description"
               rows={4}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Assignee
+              </label>
+              <Select
+                value={formData.assignee}
+                onValueChange={(value) => setFormData({ ...formData, assignee: value })}
+                disabled={loadingUsers}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select assignee (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span>{user.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Reporter
+              </label>
+              <Select
+                value={formData.reporter}
+                onValueChange={(value) => setFormData({ ...formData, reporter: value })}
+                disabled={loadingUsers}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reporter" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span>{user.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
