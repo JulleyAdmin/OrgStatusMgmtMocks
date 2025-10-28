@@ -46,7 +46,6 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
       '/dashboard': 'Dashboard',
       '/inbox': 'Inbox',
       '/profile': 'My Profile',
-      '/tasks': 'Task Center',
       '/my-tasks': 'My Tasks',
       '/task-library': 'Task Library',
       '/task-templates': 'Task Templates',
@@ -56,7 +55,7 @@ export function DashboardLayout({ children, projectName }: DashboardLayoutProps)
       '/workflow': 'Workflow Designer',
       '/organization': 'Organization',
       '/org-chart': 'Organization Chart',
-      '/users': 'Users',
+      '/people': 'People',
       '/notifications': 'Notifications',
       '/settings': 'Settings'
     }

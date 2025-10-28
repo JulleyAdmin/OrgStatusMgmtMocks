@@ -11,7 +11,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { COMPANY_CONFIG } from '@/config/company'
 import {
   Home,
-  CheckSquare,
   Users,
   Settings,
   Bell,
@@ -59,24 +58,9 @@ const mainNavigation = [
 // Task Management - available to all users
 const taskManagement = [
   {
-    name: 'Task Center',
-    href: '/tasks',
-    icon: CheckSquare,
-  },
-  {
     name: 'Projects',
     href: '/projects',
     icon: Building2,
-  },
-  {
-    name: 'Task Library',
-    href: '/task-library',
-    icon: Library,
-  },
-  {
-    name: 'Task Templates',
-    href: '/task-templates',
-    icon: FileText,
   },
 ]
 
@@ -93,8 +77,18 @@ const adminNavigation = [
     icon: Network,
   },
   {
-    name: 'Users',
-    href: '/users',
+    name: 'Task Library',
+    href: '/task-library',
+    icon: Library,
+  },
+  {
+    name: 'Task Templates',
+    href: '/task-templates',
+    icon: FileText,
+  },
+  {
+    name: 'People',
+    href: '/people',
     icon: Users,
   },
   {
@@ -222,11 +216,11 @@ export function Sidebar({ className }: SidebarProps) {
               {mainNavigation.map(renderNavItem)}
             </div>
 
-            {/* Task Management */}
+            {/* Projects */}
             <div className="space-y-1">
               {!isCollapsed && (
                 <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Tasks
+                  Projects
                 </p>
               )}
               {taskManagement.map(renderNavItem)}

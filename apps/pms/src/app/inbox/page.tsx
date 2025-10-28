@@ -247,7 +247,7 @@ export default function InboxPage() {
               </div>
             ) : (
               filteredTasks.map((task) => (
-                <Link key={task.id} href={`/tasks/${task.id}`}>
+                <Link key={task.id} href={`/my-tasks`}>
                   <div className="p-6 hover:bg-gray-50 transition-colors cursor-pointer">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4 flex-1">

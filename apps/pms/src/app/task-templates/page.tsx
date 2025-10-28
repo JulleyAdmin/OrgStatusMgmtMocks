@@ -7,7 +7,6 @@ import { TaskTemplateManagement } from '@/components/TaskTemplateManagement'
 export default function TaskTemplatesPage() {
   const breadcrumbItems = [
     { label: 'Dashboard', href: '/' },
-    { label: 'Task Management', href: '/tasks' },
     { label: 'Task Templates', href: '/task-templates' },
   ]
 

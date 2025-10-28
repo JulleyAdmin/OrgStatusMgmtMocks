@@ -16,7 +16,7 @@ import { Users, Plus, Mail, Phone, MessageSquare, Search, X } from 'lucide-react
 import { UserService } from '@/lib/services'
 import toast from 'react-hot-toast'
 
-export default function UsersPage() {
+export default function PeoplePage() {
   const { companyId, isLoading: companyLoading } = useCompany()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)

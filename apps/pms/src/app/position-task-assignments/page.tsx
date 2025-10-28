@@ -7,7 +7,6 @@ import { PositionTaskAssignmentManagement } from '@/components/PositionTaskAssig
 export default function PositionTaskAssignmentsPage() {
   const breadcrumbItems = [
     { label: 'Dashboard', href: '/' },
-    { label: 'Task Management', href: '/tasks' },
     { label: 'Position Assignments', href: '/position-task-assignments' },
   ]
 
